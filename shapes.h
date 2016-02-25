@@ -3,6 +3,7 @@
 
 #include <tgmath.h>
 #include "vecmatops.h"
+#include <stdio.h>
 
 typedef struct
 {
@@ -58,21 +59,31 @@ intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
         sphere->radius * sphere->radius;
 
     vfloat_t p = b*b - 4*a*c;
-    if (p < 0)
+    if (p < 0) {
+        printf("total miss\n");
         return miss;
+    }
 
     p = sqrt(p);
-    vfloat_t q = -b + p;
-    vfloat_t r = -b - p;
+    vfloat_t q = (-b + p)/2;
+    vfloat_t r = (-b - p)/2;
 
-    if (q <= 0 && r <= 0)
+    if (q <= 0 && r <= 0) {
+        printf("back miss\n");
         return miss;
-    else if (q <= 0)
+    }
+    else if (q <= 0) {
+        printf("1 hit\n");
         return (intersectResult_t) { r, color };
-    else if (r <= 0)
+    }
+    else if (r <= 0) {
+        printf("1 hit\n");
         return (intersectResult_t) { q, color };
-    else
+    }
+    else {
+        printf("2 hits\n");
         return (intersectResult_t) { q < r ? q : r, color };
+    }
 }
 
 Shape_t *sphere_transform(Shape_t *shape, struct mat4 transMat)
