@@ -53,12 +53,11 @@ intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
     color_t color = sphere->base.color;
     intersectResult_t miss = (intersectResult_t) { 0, color };
     struct vec3 displacedPos = v3_sub(sphere->position, ray.position);
-    vfloat_t a = v3_dot(ray.direction, ray.direction);
     vfloat_t b = 2 * v3_dot(displacedPos, ray.direction);
     vfloat_t c = v3_dot(displacedPos, displacedPos) -
         sphere->radius * sphere->radius;
 
-    vfloat_t p = b*b - 4*a*c;
+    vfloat_t p = b*b - 4*c;
     if (p < 0) {
         printf("total miss\n");
         return miss;
