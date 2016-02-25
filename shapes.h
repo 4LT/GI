@@ -62,8 +62,8 @@ intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
         return miss;
 
     p = sqrt(p);
-    vfloat_t q = (-b + p) / (2*a);
-    vfloat_t r = (-b - p) / (2*a);
+    vfloat_t q = -b + p;
+    vfloat_t r = -b - p;
 
     if (q <= 0 && r <= 0)
         return miss;
