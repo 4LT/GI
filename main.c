@@ -14,7 +14,7 @@ static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK };
 /*
  * Model[] -> Scene
  * Scene -> Pixels
-*/
+ */
 int main(int argc, char *argv[])
 {
     unsigned int w = 640;

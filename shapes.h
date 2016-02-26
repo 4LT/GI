@@ -56,19 +56,37 @@ intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
     vfloat_t b = 2 * v3_dot(displacedPos, ray.direction);
     vfloat_t c = v3_dot(displacedPos, displacedPos) -
         sphere->radius * sphere->radius;
+#if 0
+    printf("sphere: %f %f %f radius: %f\n", sphere->position.v[0],
+            sphere->position.v[1],
+            sphere->position.v[2],
+            sphere->radius);
 
+    printf("ray: %f %f %f\n", ray.position.v[0],
+            ray.position.v[1],
+            ray.position.v[2]);
+#endif
+#if 0
+    printf("ray direction: %f %f %f\n", ray.direction.v[0],
+            ray.direction.v[1],
+            ray.direction.v[2]);
+#endif
+#if 0
+    printf("displaced: %f %f %f\n", displacedPos.v[0],
+            displacedPos.v[1],
+            displacedPos.v[2]);
+#endif
     vfloat_t p = b*b - 4*c;
     if (p < 0) {
-        printf("total miss\n");
+   //     printf("total miss: p: %f\n", p);
         return miss;
     }
-
     p = sqrt(p);
     vfloat_t q = (-b + p)/2;
     vfloat_t r = (-b - p)/2;
 
     if (q <= 0 && r <= 0) {
-        printf("back miss\n");
+        printf("back miss: q: %f r: %f\n", q, r);
         return miss;
     }
     else if (q <= 0) {
@@ -80,7 +98,9 @@ intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
         return (intersectResult_t) { q, color };
     }
     else {
+#if 0
         printf("2 hits\n");
+#endif
         return (intersectResult_t) { q < r ? q : r, color };
     }
 }

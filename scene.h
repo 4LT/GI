@@ -21,7 +21,7 @@ typedef struct
     llist_t *shapes;
 } scene_t;
 
-const vfloat_t PLANE_WIDTH = 2.0;
+const vfloat_t PLANE_WIDTH = 1.2;
 const vfloat_t PLANE_DIST = 1.0;
 
 scene_t scene_emptyScene(color_t background, camera_t camera)
@@ -57,6 +57,7 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
         intersectResult_t r = intersect(shape, ray);
         if (r.distance > 0 && r.distance < cur_dist) {
             cur_clr = r.color;
+            cur_dist = r.distance;
         }
     }
     return color2pixel(cur_clr);
@@ -73,14 +74,14 @@ void scene_render(scene_t scene, unsigned int w, unsigned int h,
     plane_up = v3_normalize(plane_up);
     lookVec = v3_normalize(lookVec);
 
-    vfloat_t plane_height = PLANE_WIDTH * ((vfloat_t)h/w);
-    vfloat_t dx = (vfloat_t)PLANE_WIDTH/w;
-    vfloat_t dy = (vfloat_t)plane_height/h;
+    vfloat_t plane_height = PLANE_WIDTH * (vfloat_t)h / w;
+    vfloat_t dx = PLANE_WIDTH / w;
+    vfloat_t dy = plane_height / h;
 
     for (int r = 0; r < h; r++) {
-        vfloat_t plane_x = (r - w/2) * dx - dx/2;
+        vfloat_t plane_y = ((signed)h/2 - r) * dy - dy/2;
         for (int c = 0; c < w; c++) {
-            vfloat_t plane_y = (h/2 - c) * dy - dy/2;
+            vfloat_t plane_x = (c - (signed)w/2) * dx - dx/2;
             struct vec3 plane_world = v3_add(
                     v3_add(
                         v3_scale(plane_right, plane_x),
@@ -88,9 +89,17 @@ void scene_render(scene_t scene, unsigned int w, unsigned int h,
                     v3_scale(lookVec, PLANE_DIST));
             ray_t ray;
             ray.position = cam.pos;
-            ray.direction = v3_normalize(v3_sub(plane_world, cam.pos));
+            ray.direction = v3_normalize(plane_world);
 
+            //TODO: Stopgap fix, need to identify the source
+            ray.direction = v3_scale(ray.direction, -1);
             pixmap[r*w + c] = pixel_at(scene, ray);
+#if 0
+            color_t cl = (color_t){ (ray.direction.v[0]+1)/2,
+                    (ray.direction.v[1]+1)/2,
+                    (ray.direction.v[2]+1)/2 };
+            pixmap[r*w +c] = color2pixel(cl);
+#endif
         }
     }
 }

@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "renderer.h"
 
@@ -22,7 +23,7 @@ int draw(unsigned int width, unsigned int height, pixel_t *pixmap)
     const uint32_t B_MASK = 0xFF00;
     const uint32_t A_MASK = 0xFF;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         return sdlErr();
 
     win = SDL_CreateWindow("Ray Tracer", SDL_WINDOWPOS_UNDEFINED,
@@ -43,10 +44,21 @@ int draw(unsigned int width, unsigned int height, pixel_t *pixmap)
     if (SDL_BlitSurface(inputSurf, NULL, winSurf, NULL) < 0)
         return sdlErr();
 
-    if (SDL_UpdateWindowSurface(win) < 0)
-        return sdlErr();
 
-    SDL_Delay(1000);
+    SDL_Event event;
+    bool done = false;
+
+    while (!done) {
+        if (SDL_UpdateWindowSurface(win) < 0)
+            return sdlErr();
+        SDL_Delay(20);
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_WINDOWEVENT)
+            if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+                done = true;
+            }
+        }
+    }
     SDL_Quit();
 
     return EXIT_SUCCESS;
