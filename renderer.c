@@ -28,22 +28,26 @@ int draw(unsigned int width, unsigned int height, pixel_t *pixmap)
 
     win = SDL_CreateWindow("Ray Tracer", SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED, width, height, 0);
-
     if (win == NULL)
         return sdlErr();
 
     winSurf = SDL_GetWindowSurface(win);
+    if (winSurf == NULL)
+        return sdlErr();
     
     inputSurf = SDL_CreateRGBSurfaceFrom((void*)pixmap, width, height,
             8 * sizeof *pixmap,
             width * sizeof *pixmap,
             R_MASK, G_MASK, B_MASK, A_MASK);
+    if (inputSurf == NULL)
+        return sdlErr();
     
     inputSurf = SDL_ConvertSurface(inputSurf, winSurf->format, 0);
+    if (inputSurf == NULL)
+        return sdlErr();
 
     if (SDL_BlitSurface(inputSurf, NULL, winSurf, NULL) < 0)
         return sdlErr();
-
 
     SDL_Event event;
     bool done = false;
