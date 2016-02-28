@@ -1,3 +1,8 @@
+#define DEBUG_ 1
+#if DEBUG_
+#include <stdio.h>
+#endif
+
 #include <stdlib.h>
 #include "renderer.h"
 #include "vecmatops.h"
@@ -30,6 +35,14 @@ int main(int argc, char *argv[])
 
     pixel_t img[w * h];
     scene_render(scene, w, h, img);
+#if DEBUG_
+    for (int i = 0; i < w*h; i++)
+    {
+        printf("PIXEL: %x\n", img[i]);
+    }
+#endif
 
     return draw(w, h, img);
 }
+
+#undef DEBUG_
