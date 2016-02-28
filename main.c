@@ -31,5 +31,6 @@ int main(int argc, char *argv[])
     pixel_t img[w * h];
     scene_render(scene, w, h, img);
 
-    return draw(w, h, img);
+    int exit_status = draw(w, h, img);
+    return exit_status;
 }
