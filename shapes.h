@@ -34,8 +34,10 @@ typedef struct
 typedef struct
 {
     Shape_t base;
-    struct vec3 vertices[3];
+    struct vec3 verts[3];
 } Triangle_t;
+    
+#define MISS ((intersectResult_t) { 0, (color_t) {0, 0, 0} })
 
 intersectResult_t intersect(Shape_t *shape, ray_t ray)
 {
@@ -50,81 +52,68 @@ Shape_t *transform(Shape_t *shape, struct mat4 transMat)
 intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
 {
     Sphere_t *sphere = (Sphere_t *)shape;
-    color_t color = sphere->base.color;
-    intersectResult_t miss = (intersectResult_t) { 0, color };
+    color_t color = shape->color;
     struct vec3 displacedPos = v3_sub(sphere->position, ray.position);
     vfloat_t b = 2 * v3_dot(displacedPos, ray.direction);
     vfloat_t c = v3_dot(displacedPos, displacedPos) -
         sphere->radius * sphere->radius;
-#if 0
-    printf("sphere: %f %f %f radius: %f\n", sphere->position.v[0],
-            sphere->position.v[1],
-            sphere->position.v[2],
-            sphere->radius);
-
-    printf("ray: %f %f %f\n", ray.position.v[0],
-            ray.position.v[1],
-            ray.position.v[2]);
-#endif
-#if 0
-    printf("ray direction: %f %f %f\n", ray.direction.v[0],
-            ray.direction.v[1],
-            ray.direction.v[2]);
-#endif
-#if 0
-    printf("displaced: %f %f %f\n", displacedPos.v[0],
-            displacedPos.v[1],
-            displacedPos.v[2]);
-#endif
     vfloat_t p = b*b - 4*c;
     if (p < 0) {
-   //     printf("total miss: p: %f\n", p);
-        return miss;
+        return MISS;
     }
     p = sqrt(p);
+#if 0
     vfloat_t q = (-b + p)/2;
     vfloat_t r = (-b - p)/2;
-
-    if (q <= 0 && r <= 0) {
-        printf("back miss: q: %f r: %f\n", q, r);
-        return miss;
-    }
-    else if (q <= 0) {
-        printf("1 hit\n");
-        return (intersectResult_t) { r, color };
-    }
-    else if (r <= 0) {
-        printf("1 hit\n");
-        return (intersectResult_t) { q, color };
-    }
-    else {
-#if 0
-        printf("2 hits\n");
 #endif
+    /*TODO stop-gap fix (why is this backwards?) */
+    vfloat_t q = (b - p)/2;
+    vfloat_t r = (b + p)/2;
+
+    if (q <= 0 && r <= 0)
+        return MISS;
+    else if (q <= 0)
+        return (intersectResult_t) { r, color };
+    else if (r <= 0)
+        return (intersectResult_t) { q, color };
+    else
         return (intersectResult_t) { q < r ? q : r, color };
-    }
 }
 
-Shape_t *sphere_transform(Shape_t *shape, struct mat4 transMat)
+Shape_t *sphere_transform(Shape_t *shape, struct mat4 trans_mat)
 {
     Sphere_t *sphere = (Sphere_t *)shape;
-    sphere->position = m4v3_transform(transMat, sphere->position);
+    sphere->position = m4v3_transform(trans_mat, sphere->position);
     return (Shape_t *)sphere;
 }
 
-/*intersectResult_t triangle_intersect(Triangle_t *triangles, ray_t ray)
+intersectResult_t triangle_intersect(Shape_t *shape, ray_t ray)
 {
-    vfloat_v origin = triangles->vertices[0];
-    struct vec3 u = v3_sub(triangles->vertices[1], origin);
-    struct vec3 v = v3_sub(triangles->vertices[2], origin);
-    vfloat_t uMag = v3_magnitude(u);
-    vfloat_t vMag = v3_magnitude(v);
-    u = v3_div(u, uMag);
-    v = v3_div(v, vMag);
-    struct vec3 normal = v3_cross(u, v);
+    Triangle_t *tri = (Triangle_t *)shape;
+    struct vec3 e1 = v3_sub(tri->verts[1], tri->verts[0]);
+    struct vec3 e2 = v3_sub(tri->verts[2], tri->verts[0]);
+    struct vec3 T = v3_sub(ray.position, tri->verts[0]);
+    struct vec3 P = v3_cross(ray.direction, e2);
+    struct vec3 Q = v3_cross(T, e1);
+    struct vec3 barycoords = v3_divide((struct vec3) {{
+            v3_dot(Q, e2), v3_dot(P, T), v3_dot(Q, ray.direction) }},
+            v3_dot(P, e1));
 
-    vfloat_t k = v3_dot(triangles->vertices[0], normal);
-}*/
+    vfloat_t u = barycoords.v[1], v = barycoords.v[2];
+    if (u < 0 || v < 0 || u+v > 1)
+        return MISS;
+    else
+        return (intersectResult_t) { barycoords.v[0], shape->color };
+}
+
+Shape_t *triangle_transform(Shape_t *shape, struct mat4 trans_mat)
+{
+    Triangle_t *triangle = (Triangle_t *)shape;
+    for (int i = 0; i < 3; i++) {
+        triangle->verts[i] = m4v3_transform(trans_mat, triangle->verts[i]);
+    }
+    return (Shape_t *)triangle;
+}
 
 Sphere_t *sphere_new(color_t color, unsigned int radius, struct vec3 position)
 {
@@ -133,6 +122,17 @@ Sphere_t *sphere_new(color_t color, unsigned int radius, struct vec3 position)
     sphere->radius = radius;
     sphere->position = position;
     return sphere;
+}
+
+Triangle_t *triangle_new(color_t color, struct vec3 vert0, struct vec3 vert1,
+        struct vec3 vert2)
+{
+    Triangle_t *tri = malloc(sizeof(Triangle_t));
+    tri->base = (Shape_t) { triangle_intersect, triangle_transform, color };
+    tri->verts[0] = vert0;
+    tri->verts[1] = vert1;
+    tri->verts[2] = vert2;
+    return tri;
 }
 
 #endif

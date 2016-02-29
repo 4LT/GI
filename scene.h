@@ -1,10 +1,5 @@
 #ifndef SCENE_H_
 #define SCENE_H_
-#define DEBUG 0
-
-#if DEBUG
-#include <stdio.h>
-#endif
 
 #include <stdbool.h>
 #include "vecmatops.h"
@@ -96,13 +91,8 @@ void scene_render(scene_t scene, unsigned int w, unsigned int h,
             ray.position = cam.pos;
             ray.direction = v3_normalize(plane_world);
 
-            //TODO: Stopgap fix, need to identify the source
-            ray.direction = v3_scale(ray.direction, -1);
             pixel_t pix = pixel_at(scene, ray);
             pixmap[r*w + c] = pix;
-#if DEBUG
-            printf("PIXEL WRITE: %x\n", pix);
-#endif
 #if 0
             color_t cl = (color_t){ (ray.direction.v[0]+1)/2,
                     (ray.direction.v[1]+1)/2,
@@ -112,5 +102,4 @@ void scene_render(scene_t scene, unsigned int w, unsigned int h,
         }
     }
 }
-#undef DEBUG
 #endif

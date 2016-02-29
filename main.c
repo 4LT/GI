@@ -1,8 +1,3 @@
-#define DEBUG_ 1
-#if DEBUG_
-#include <stdio.h>
-#endif
-
 #include <stdlib.h>
 #include "renderer.h"
 #include "vecmatops.h"
@@ -32,18 +27,20 @@ int main(int argc, char *argv[])
     scene_addShape(scene,
             (Shape_t *) sphere_new((color_t){ 0, 0.7, 0 }, 18,
             (struct vec3){{ 20, 30, 22 }}));
+    scene_addShape(scene,
+            (Shape_t *)triangle_new((color_t){ .7, .3, 0 },
+                (struct vec3){{ -100, -220, 0 }},
+                (struct vec3){{  100, -220, 0 }},
+                (struct vec3){{ -100,  220, 0 }} ));
+    scene_addShape(scene,
+            (Shape_t *)triangle_new((color_t){ .7, .3, 0 },
+                (struct vec3){{  100, -220, 0 }},
+                (struct vec3){{  100,  220, 0 }},
+                (struct vec3){{ -100,  220, 0 }} ));
 
     pixel_t img[w * h];
     scene_render(scene, w, h, img);
-#if DEBUG_
-    for (int i = 0; i < w*h; i++)
-    {
-        printf("PIXEL: %x\n", img[i]);
-    }
-#endif
 
     int exit_status = draw(w, h, img);
     return exit_status;
 }
-
-#undef DEBUG_
