@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "renderer.h"
+#include "canvas.h"
 #include "vecmatops.h"
 #include "scene.h"
 
