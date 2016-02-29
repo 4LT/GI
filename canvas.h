@@ -1,5 +1,5 @@
-#ifndef RENDERER_H_
-#define RENDERER_H_
+#ifndef CANVAS_H_
+#define CANVAS_H_
 
 #include "types.h"
 

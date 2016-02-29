@@ -6,6 +6,7 @@
 #include "shapes.h"
 #include "util/linkedlist.h"
 #include "types.h"
+#include "pointlight.h"
 
 typedef struct
 {
@@ -19,6 +20,7 @@ typedef struct
     color_t bg_color;
     camera_t camera;
     llist_t *shapes;
+    llist_t *lights;
 } scene_t;
 
 const vfloat_t PLANE_WIDTH = 1.2;
@@ -36,7 +38,8 @@ void scene_addShape(scene_t scene, Shape_t *shape)
 
 void scene_teardown(scene_t scene)
 {
-    llist_free(scene.shapes);
+    /* TODO: apply free function */
+    llist_free_list(scene.shapes);
 }
 
 pixel_t color2pixel(color_t color)
