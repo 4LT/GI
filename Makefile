@@ -1,6 +1,6 @@
 CC=cc
 CFLAGS=-std=c99 -Wall -pedantic -ggdb
-LDFLAGS=-lSDL2 -lm
+LDFLAGS= -framework SDL2
 
 all: raytrace Makefile
 
