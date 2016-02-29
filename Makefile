@@ -1,6 +1,10 @@
 CC=cc
 CFLAGS=-std=c99 -Wall -pedantic -ggdb
-LDFLAGS= -framework SDL2
+ifeq ($(shell uname), Darwin)
+	LDFLAGS= -framework SDL2
+else
+	LDFLAGS= -lSDL2 -lm
+endif
 
 all: raytrace Makefile
 
