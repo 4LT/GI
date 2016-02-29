@@ -1,10 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
-#include "renderer.h"
-
-#include <assert.h>
+#include "canvas.h"
 
 static int sdlErr()
 {
