@@ -5,8 +5,8 @@
 #include "vecmatops.h"
 #include "shapes.h"
 #include "util/linkedlist.h"
-#include "types.h"
-#include "pointlight.h"
+#include "material.h"
+#include "materials.h"
 
 typedef struct
 {
@@ -17,7 +17,7 @@ typedef struct
 
 typedef struct
 {
-    color_t bg_color;
+    Material_t _sky;
     camera_t camera;
     llist_t *shapes;
     llist_t *lights;
@@ -25,10 +25,23 @@ typedef struct
 
 const vfloat_t PLANE_WIDTH = 1.2;
 const vfloat_t PLANE_DIST = 1.0;
+const vfloat_t FAR_PLANE = 5000;
 
-scene_t scene_emptyScene(color_t background, camera_t camera)
+color_t default_shader(Material_t *mtrl, intersect_result_t res)
 {
-    return (scene_t){ background, camera, llist_new() };
+    return mtrl->diffuse_color;
+}
+
+scene_t scene_emptyScene(color_t sky_color, camera_t camera)
+{
+    Material_t sky_mtrl = (Material_t) {
+        .shade = flat_shade,
+        .diffuse_color = sky_color,
+        .specular_color = (color_t) { 0, 0, 0 },
+        .specular_exp = 1
+    };
+
+    return (scene_t){ sky_mtrl, camera, llist_new(), llist_new() };
 }
 
 void scene_addShape(scene_t scene, Shape_t *shape)
@@ -40,6 +53,7 @@ void scene_teardown(scene_t scene)
 {
     /* TODO: apply free function */
     llist_free_list(scene.shapes);
+    llist_free_list(scene.lights);
 }
 
 pixel_t color2pixel(color_t color)
@@ -51,19 +65,22 @@ pixel_t color2pixel(color_t color)
 
 pixel_t pixel_at(scene_t scene, ray_t ray)
 {
-    vfloat_t cur_dist = 5000;
-    color_t cur_clr = scene.bg_color;
+    vfloat_t cur_dist = FAR_PLANE;
+    intersect_result_t cur_result;
+    cur_result.material = &scene._sky;
+
     for (llist_node_t *node = scene.shapes->first; node != NULL;
             node = node->next)
     {
         Shape_t *shape = (Shape_t *)(node->datum);
-        intersectResult_t r = intersect(shape, ray);
+        intersect_result_t r = intersect(shape, ray);
+        
         if (r.distance > 0 && r.distance < cur_dist) {
-            cur_clr = r.color;
+            cur_result = r;
             cur_dist = r.distance;
         }
     }
-    return color2pixel(cur_clr);
+    return color2pixel(shade(cur_result));
 }
 
 void scene_render(scene_t scene, unsigned int w, unsigned int h,

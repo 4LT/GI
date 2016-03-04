@@ -1,19 +1,14 @@
 #ifndef SHAPES_H_
 #define SHAPES_H_
 
+#include <stdio.h>
 #include <tgmath.h>
 #include "vecmatops.h"
-#include <stdio.h>
-
-typedef struct
-{
-    vfloat_t distance;
-    color_t color;
-} intersectResult_t;
+#include "material.h"
 
 struct shape;
 
-typedef intersectResult_t (*intersect_fp)(struct shape *, ray_t);
+typedef intersect_result_t (*intersect_fp)(struct shape *, ray_t);
 
 typedef struct shape * (*transform_fp)(struct shape *, struct mat4);
 
@@ -21,7 +16,7 @@ typedef struct shape
 {
     intersect_fp intersect;
     transform_fp transform;
-    color_t color;
+    Material_t *material;
 } Shape_t;
 
 typedef struct
@@ -37,9 +32,10 @@ typedef struct
     struct vec3 verts[3];
 } Triangle_t;
     
-#define MISS ((intersectResult_t) { 0, (color_t) {0, 0, 0} })
+#define MISS ((intersect_result_t)\
+        { {{0, 0, 0}}, {{0, 0, 0}}, 0, NULL })
 
-intersectResult_t intersect(Shape_t *shape, ray_t ray)
+intersect_result_t intersect(Shape_t *shape, ray_t ray)
 {
     return shape->intersect(shape, ray);
 }
@@ -49,10 +45,16 @@ Shape_t *transform(Shape_t *shape, struct mat4 transMat)
     return shape->transform(shape, transMat);
 }
 
-intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
+color_t shade(intersect_result_t intrs_result)
+{
+    Material_t *mtrl = intrs_result.material;
+    return mtrl->shade(intrs_result);
+}
+
+intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
 {
     Sphere_t *sphere = (Sphere_t *)shape;
-    color_t color = shape->color;
+    Material_t *mtrl = shape->material;
     struct vec3 displacedPos = v3_sub(sphere->position, ray.position);
     vfloat_t b = 2 * v3_dot(displacedPos, ray.direction);
     vfloat_t c = v3_dot(displacedPos, displacedPos) -
@@ -70,14 +72,20 @@ intersectResult_t sphere_intersect(Shape_t *shape, ray_t ray)
     vfloat_t q = (b - p)/2;
     vfloat_t r = (b + p)/2;
 
+    vfloat_t dist;
     if (q <= 0 && r <= 0)
         return MISS;
     else if (q <= 0)
-        return (intersectResult_t) { r, color };
+        dist = r;
     else if (r <= 0)
-        return (intersectResult_t) { q, color };
+        dist = q;
     else
-        return (intersectResult_t) { q < r ? q : r, color };
+        dist = q < r ? q : r;
+
+    struct vec3 intersect_point = v3_scale(ray.direction, dist);
+    struct vec3 normal = v3_normalize(
+            v3_sub(intersect_point, sphere->position));
+    return (intersect_result_t) { intersect_point, normal, dist, mtrl };
 }
 
 Shape_t *sphere_transform(Shape_t *shape, struct mat4 trans_mat)
@@ -87,7 +95,7 @@ Shape_t *sphere_transform(Shape_t *shape, struct mat4 trans_mat)
     return (Shape_t *)sphere;
 }
 
-intersectResult_t triangle_intersect(Shape_t *shape, ray_t ray)
+intersect_result_t triangle_intersect(Shape_t *shape, ray_t ray)
 {
     Triangle_t *tri = (Triangle_t *)shape;
     struct vec3 e1 = v3_sub(tri->verts[1], tri->verts[0]);
@@ -100,10 +108,17 @@ intersectResult_t triangle_intersect(Shape_t *shape, ray_t ray)
             v3_dot(P, e1));
 
     vfloat_t u = barycoords.v[1], v = barycoords.v[2];
-    if (u < 0 || v < 0 || u+v > 1)
+    if (u < 0 || v < 0 || u+v > 1) {
         return MISS;
-    else
-        return (intersectResult_t) { barycoords.v[0], shape->color };
+    }
+    else {
+        struct vec3 intersect = v3_add(
+            v3_add(v3_scale(e1, u), tri->verts[0]),
+            v3_add(v3_scale(e2, v), tri->verts[0]));
+        struct vec3 normal = v3_normalize(v3_cross(e1, e2));
+        return (intersect_result_t)
+            { intersect, normal, barycoords.v[0], shape->material };
+    }
 }
 
 Shape_t *triangle_transform(Shape_t *shape, struct mat4 trans_mat)
@@ -115,20 +130,20 @@ Shape_t *triangle_transform(Shape_t *shape, struct mat4 trans_mat)
     return (Shape_t *)triangle;
 }
 
-Sphere_t *sphere_new(color_t color, unsigned int radius, struct vec3 position)
+Sphere_t *sphere_new(Material_t *mtrl, unsigned int radius, struct vec3 position)
 {
     Sphere_t *sphere = malloc(sizeof(Sphere_t));
-    sphere->base = (Shape_t) { sphere_intersect, sphere_transform, color };
+    sphere->base = (Shape_t) { sphere_intersect, sphere_transform, mtrl };
     sphere->radius = radius;
     sphere->position = position;
     return sphere;
 }
 
-Triangle_t *triangle_new(color_t color, struct vec3 vert0, struct vec3 vert1,
+Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
         struct vec3 vert2)
 {
     Triangle_t *tri = malloc(sizeof(Triangle_t));
-    tri->base = (Shape_t) { triangle_intersect, triangle_transform, color };
+    tri->base = (Shape_t) { triangle_intersect, triangle_transform, mtrl };
     tri->verts[0] = vert0;
     tri->verts[1] = vert1;
     tri->verts[2] = vert2;

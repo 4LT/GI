@@ -4,13 +4,13 @@ LDFLAGS=-lSDL2 -lm
 
 all: raytrace Makefile
 
-main.o: main.c types.h scene.h shapes.h
+main.o: main.c types.h scene.h shapes.h material.h
 	$(CC) $(CFLAGS) -c main.c
 
 canvas.o: canvas.c canvas.h
 	$(CC) $(CFLAGS) -c canvas.c
 
-vecmatops.o: vecmatops.c vecmatops.h types.h
+vecmatops.o: vecmatops.c vecmatops.htypes.h
 	$(CC) $(CFLAGS) -c vecmatops.c
 
 util/linkedlist.o: util/linkedlist.c util/linkedlist.h
