@@ -8,7 +8,7 @@ endif
 
 all: raytrace Makefile
 
-main.o: main.c types.h scene.h shapes.h material.h
+main.o: main.c types.h scene.h shapes.h material.h material.h materials.h
 	$(CC) $(CFLAGS) -c main.c
 
 canvas.o: canvas.c canvas.h
