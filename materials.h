@@ -20,7 +20,9 @@ color_t phong_shade(intersect_result_t res, llist_t *lights)
     {
         light_t *light = (light_t *)(node->datum);
         struct vec3 surf2light = v3_sub(light->position, res.position);
-        vfloat_t q = 1 + v3_magnitude(surf2light) / light->radius;
+        vfloat_t q = 1 +
+                (v3_magnitude(surf2light) - light->radius) /
+                light->radius;
         vfloat_t attenuation = 1 / q / q;
         
         struct vec3 incoming = v3_normalize(surf2light);
