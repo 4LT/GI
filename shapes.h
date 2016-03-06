@@ -45,10 +45,10 @@ Shape_t *transform(Shape_t *shape, struct mat4 transMat)
     return shape->transform(shape, transMat);
 }
 
-color_t shade(intersect_result_t intrs_result)
+color_t shade(intersect_result_t intrs_result, llist_t *lights)
 {
     Material_t *mtrl = intrs_result.material;
-    return mtrl->shade(intrs_result);
+    return mtrl->shade(intrs_result, lights);
 }
 
 intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
@@ -79,12 +79,15 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
         dist = r;
     else if (r <= 0)
         dist = q;
-    else
+    else {
         dist = q < r ? q : r;
+    }
 
-    struct vec3 intersect_point = v3_scale(ray.direction, dist);
+    struct vec3 intersect_point = v3_add(
+            v3_scale(ray.direction, dist), ray.position);
     struct vec3 normal = v3_normalize(
             v3_sub(intersect_point, sphere->position));
+    
     return (intersect_result_t) { intersect_point, normal, dist, mtrl };
 }
 

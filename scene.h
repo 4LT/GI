@@ -7,6 +7,7 @@
 #include "util/linkedlist.h"
 #include "material.h"
 #include "materials.h"
+#include "light.h"
 
 typedef struct
 {
@@ -25,12 +26,7 @@ typedef struct
 
 const vfloat_t PLANE_WIDTH = 1.2;
 const vfloat_t PLANE_DIST = 1.0;
-const vfloat_t FAR_PLANE = 5000;
-
-color_t default_shader(Material_t *mtrl, intersect_result_t res)
-{
-    return mtrl->diffuse_color;
-}
+const vfloat_t MAX_DIST = 5000;
 
 scene_t scene_emptyScene(color_t sky_color, camera_t camera)
 {
@@ -49,6 +45,11 @@ void scene_addShape(scene_t scene, Shape_t *shape)
     llist_append(scene.shapes, (void *)shape);
 }
 
+void scene_add_light(scene_t scene, light_t *light)
+{
+    llist_append(scene.lights, (void *)light);
+}
+
 void scene_teardown(scene_t scene)
 {
     /* TODO: apply free function */
@@ -58,6 +59,9 @@ void scene_teardown(scene_t scene)
 
 pixel_t color2pixel(color_t color)
 {
+    color.red = color.red > 1 ? 1 : color.red;
+    color.green = color.green > 1 ? 1 : color.green;
+    color.blue = color.blue > 1 ? 1 : color.blue;
     return (int)(255 * color.red) << 24 |
            (int)(255 * color.green) << 16 |
            (int)(255 * color.blue) << 8;
@@ -65,7 +69,7 @@ pixel_t color2pixel(color_t color)
 
 pixel_t pixel_at(scene_t scene, ray_t ray)
 {
-    vfloat_t cur_dist = FAR_PLANE;
+    vfloat_t cur_dist = MAX_DIST;
     intersect_result_t cur_result;
     cur_result.material = &scene._sky;
 
@@ -80,7 +84,7 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
             cur_dist = r.distance;
         }
     }
-    return color2pixel(shade(cur_result));
+    return color2pixel(shade(cur_result, scene.lights));
 }
 
 void scene_render(scene_t scene, unsigned int w, unsigned int h,

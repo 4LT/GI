@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 typedef double vfloat_t;
+typedef float clrfloat_t;
 typedef int32_t pixel_t;
 
 struct vec3
@@ -17,9 +18,9 @@ struct mat4
 
 typedef struct
 {
-    float red;
-    float green;
-    float blue;
+    clrfloat_t red;
+    clrfloat_t green;
+    clrfloat_t blue;
 } color_t;
 
 typedef struct

@@ -2,6 +2,7 @@
 #define MATERIAL_H_
 
 #include "types.h"
+#include "util/linkedlist.h"
 
 struct material;
 
@@ -13,7 +14,7 @@ typedef struct
     struct material *material;
 } intersect_result_t;
 
-typedef color_t (*shader_fp)(intersect_result_t);
+typedef color_t (*shader_fp)(intersect_result_t, llist_t *);
 
 typedef struct material
 {
