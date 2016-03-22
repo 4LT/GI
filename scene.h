@@ -11,6 +11,10 @@
 #include "types.h"
 #include "color.h"
 
+static const vfloat_t PLANE_WIDTH = 1.2;
+static const vfloat_t PLANE_DIST = 1.0;
+static const vfloat_t MAX_DIST = 5000;
+
 typedef struct
 {
     struct vec3 pos;
@@ -20,21 +24,17 @@ typedef struct
 
 typedef struct
 {
-    Material_t _sky;
+    Material_t *_sky;
     camera_t camera;
     llist_t *shapes;
     llist_t *lights;
 } scene_t;
 
-static const vfloat_t PLANE_WIDTH = 1.2;
-static const vfloat_t PLANE_DIST = 1.0;
-static const vfloat_t MAX_DIST = 5000;
-
 scene_t scene_empty_scene(color_t sky_color, camera_t camera);
 
 void scene_add_shape(scene_t scene, Shape_t *shape);
 
-void scene_add_light(scene_t scene, light_t *light);
+void scene_add_light(scene_t scene, Light_t *light);
 
 void scene_teardown(scene_t scene);
 

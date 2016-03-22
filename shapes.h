@@ -34,8 +34,7 @@ intersect_result_t intersect_shape(Shape_t *shape, ray_t ray);
 
 Shape_t *transform(Shape_t *shape, struct mat4 transMat);
 
-color_t shade(intersect_result_t intrs_result,
-        llist_t *lights, llist_t *shapes);
+color_t shade(intersect_result_t intrs_result, Light_t *light);
 
 Sphere_t *sphere_new(Material_t *mtrl,
         unsigned int radius, struct vec3 position);

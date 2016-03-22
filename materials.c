@@ -6,33 +6,9 @@ struct vec3 fudge(intersect_result_t res)
     return v3_add(res.position, v3_scale(res.normal, 0.001));
 }
 
-color_t flat_shade(intersect_result_t res, llist_t *shapes, llist_t *lights)
+color_t flat_shade(intersect_result_t res)
 {
-    float scaleb = 1;
-    for (llist_node_t *node = lights->first; node != NULL;
-            node = node->next)
-    {
-        light_t *light = (light_t *)(node->datum);
-        struct vec3 surf2light = v3_sub(light->position, res.position);
-        ray_t lray = (ray_t){ fudge(res), v3_normalize(surf2light) };
-
-        int boolbreak = 0;
-        for (llist_node_t *node = shapes->first; node != NULL; node = node->next)
-        {
-            Shape_t *shape = (Shape_t *)(node->datum);
-            intersect_result_t r = intersect_shape(shape, lray);
-            if (r.distance > 0) {
-                boolbreak = 1;
-                break;
-            }
-        }
-
-        if (boolbreak) 
-        {
-            scaleb*= .7;
-        }
-    }
-    return clr_scale(res.material->diffuse_color, scaleb);
+    return res.material->diffuse_color;
 }
 
 color_t diffuse_light(struct vec3 normal, struct vec3 incident,
@@ -66,7 +42,7 @@ color_t lambert_shade(intersect_result_t res, llist_t *shapes, llist_t *lights)
         vfloat_t a = 1 +
                 (lmag - light->radius) /
                 light->radius;
-        vfloat_t attenuation = 1 / a / a;
+        vfloat_t attenuation = 1 / (a*a);
 
         out_color = clr_add(out_color,
                 diffuse_light(res.normal, incident, res.material, light->color,

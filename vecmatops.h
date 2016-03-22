@@ -25,6 +25,8 @@ vfloat_t v3_magnitude(struct vec3 in);
 
 struct vec3 v3_normalize(struct vec3 in);
 
+vfloat_t v3_distance(struct vec3 vecA, struct vec3 vecB);
+
 struct vec3 m4v3_transform(struct mat4 xformMat, struct vec3 in);
 
 struct mat4 m4v3_buildMatrix(

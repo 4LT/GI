@@ -8,11 +8,11 @@
 #include <tgmath.h>
 #include <stdlib.h>
 
-color_t flat_shade(intersect_result_t res, llist_t *shapes, llist_t *lights);
+color_t flat_shade(intersect_result_t res, Light_t *light);
 
-color_t lambert_shade(intersect_result_t res, llist_t *shapes, llist_t *lights);
+color_t lambert_shade(intersect_result_t res, Light_t *light);
 
-color_t phong_shade(intersect_result_t res, llist_t *shapes, llist_t *lights);
+color_t phong_shade(intersect_result_t res, Light_t *light);
 
 Material_t *phong_new(color_t color, color_t spec_color, float spec_exp);
 

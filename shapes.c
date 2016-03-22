@@ -4,8 +4,11 @@
 #include "shapes.h"
 
 #define MISS ((intersect_result_t) {\
-        (ray_t) { {{0, 0, 0}}, {{0, 0, 0}} },\
-        {{0, 0, 0}}, {{0, 0, 0}}, 0, NULL })
+        .position = {{ 0, 0, 0 }},\
+        .normal = {{ 0, 0, 0, }},\
+        .incoming = {{ 0, 0, 0 }}, \
+        .distance = 0,\
+        .material = NULL })
 
 intersect_result_t intersect_shape(Shape_t *shape, ray_t ray)
 {
@@ -49,7 +52,8 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
     struct vec3 normal = v3_normalize(
             v3_sub(intersect_point, sphere->position));
     
-    return (intersect_result_t) { ray, intersect_point, normal, dist, mtrl };
+    return (intersect_result_t) { intersect_point, normal, ray.direction,
+            dist, mtrl };
 }
 
 Shape_t *sphere_transform(Shape_t *shape, struct mat4 trans_mat)
@@ -80,8 +84,8 @@ intersect_result_t triangle_intersect(Shape_t *shape, ray_t ray)
             v3_add(v3_scale(e1, u), tri->verts[0]),
             v3_add(v3_scale(e2, v), tri->verts[0]));
         struct vec3 normal = v3_normalize(v3_cross(e1, e2));
-        return (intersect_result_t)
-            { ray, intersect, normal, barycoords.v[0], shape->material };
+        return (intersect_result_t) { intersect, normal, ray.direction,
+                barycoords.v[0], shape->material };
     }
 }
 

@@ -2,23 +2,14 @@
 #define MATERIAL_H_
 
 #include "types.h"
-#include "color.h"
+#include "light.h"
 #include "util/linkedlist.h"
 
-struct material;
+typedef struct intersect_result intersect_result_t;
+
+typedef color_t (*shader_fp) (struct intersect_result, Light_t *);
 
 typedef struct
-{
-    ray_t ray;
-    struct vec3 position;
-    struct vec3 normal;
-    vfloat_t distance;
-    struct material *material;
-} intersect_result_t;
-
-typedef color_t (*shader_fp)(intersect_result_t, llist_t *, llist_t *);
-
-typedef struct material
 {
     shader_fp shade;
     color_t diffuse_color;
@@ -26,6 +17,15 @@ typedef struct material
     float specular_exp;
 } Material_t;
 
-color_t shade(intersect_result_t res, llist_t *shapes, llist_t *lights);
+struct intersect_result
+{
+    struct vec3 position;
+    struct vec3 normal;
+    struct vec3 incoming;
+    vfloat_t distance;
+    Material_t *material;
+};
+
+color_t shade(intersect_result_t res, Light_t *light);
 
 #endif

@@ -2,10 +2,11 @@
 
 scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
-    Material_t sky_mtrl = (Material_t) {
+    Material_t *sky_mtrl = malloc(sizeof(Material_t));
+    *sky_mtrl = (Material_t) {
         .shade = flat_shade,
         .diffuse_color = sky_color,
-        .specular_color = (color_t) {{ 0, 0, 0 }},
+        .specular_color = CLR_BLACK,
         .specular_exp = 1
     };
 
@@ -17,7 +18,7 @@ void scene_add_shape(scene_t scene, Shape_t *shape)
     llist_append(scene.shapes, (void *)shape);
 }
 
-void scene_add_light(scene_t scene, light_t *light)
+void scene_add_light(scene_t scene, Light_t *light)
 {
     llist_append(scene.lights, (void *)light);
 }
@@ -27,6 +28,7 @@ void scene_teardown(scene_t scene)
     /* TODO: apply free function */
     llist_free_list(scene.shapes);
     llist_free_list(scene.lights);
+    free(scene._sky);
 }
 
 intersect_result_t intersect(Shape_t *shape, ray_t ray)
@@ -49,24 +51,58 @@ pixel_t color2pixel(color_t color)
            (int)(255 * color.c[2]) << 8  | 0xFF;
 }
 
-pixel_t pixel_at(scene_t scene, ray_t ray)
+intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
+        vfloat_t max_dist, Material_t *def_material)
 {
-    vfloat_t cur_dist = MAX_DIST;
-    intersect_result_t cur_result;
-    cur_result.material = &scene._sky;
+    vfloat_t cur_dist = max_dist;
+    intersect_result_t nearest;
+    nearest.material = def_material;
 
-    for (llist_node_t *node = scene.shapes->first; node != NULL;
+    for (llist_node_t *node = shapes->first; node != NULL;
             node = node->next)
     {
         Shape_t *shape = (Shape_t *)(node->datum);
         intersect_result_t r = intersect(shape, ray);
         
         if (r.distance > 0 && r.distance < cur_dist) {
-            cur_result = r;
+            nearest = r;
             cur_dist = r.distance;
         }
     }
-    return color2pixel(shade(cur_result, scene.shapes, scene.lights));
+
+    return nearest;
+}
+
+pixel_t pixel_at(scene_t scene, ray_t ray)
+{
+    color_t out_color = CLR_BLACK;
+    vfloat_t max_dist = MAX_DIST;
+
+    /* find nearest intersection */
+    intersect_result_t res = scene_intersect(scene.shapes, ray, max_dist,
+            scene._sky);
+
+    /* for each light, illum */
+    if (res.distance < MAX_DIST)
+    {
+        for (llist_node_t *node = scene.lights->first; node != NULL;
+                node = node->next)
+        {
+            Light_t *light = (Light_t *)(node->datum);
+            struct vec3 light_vec = v3_sub(res.position, light->position);
+            vfloat_t light_dist = v3_magnitude(light_vec);
+            ray_t light_ray = (ray_t){ light->position,
+                    v3_divide(light_vec, light_dist) };
+
+            intersect_result_t shadow_res = scene_intersect(scene.shapes,
+                    light_ray, max_dist, NULL);
+
+            if (shadow_res.material != NULL)
+                out_color = clr_add(out_color, shade(res, light));
+        }
+    }
+
+    return color2pixel(out_color);
 }
 
 void scene_render(scene_t scene, unsigned int w, unsigned int h,
