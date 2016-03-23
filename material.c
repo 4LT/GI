@@ -1,6 +1,6 @@
 #include "material.h"
 
-color_t shade(intersect_result_t res, llist_t *shapes, llist_t *lights)
+color_t shade(intersect_result_t res, Light_t *light)
 {
-    return res.material->shade(res, shapes, lights);
+    return res.material->shade(res, light);
 }

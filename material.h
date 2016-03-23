@@ -14,7 +14,7 @@ typedef struct
     shader_fp shade;
     color_t diffuse_color;
     color_t specular_color;
-    float specular_exp;
+    vfloat_t specular_exp;
 } Material_t;
 
 struct intersect_result

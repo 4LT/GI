@@ -4,7 +4,7 @@ scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
     Material_t *sky_mtrl = malloc(sizeof(Material_t));
     *sky_mtrl = (Material_t) {
-        .shade = flat_shade,
+        .shade = fullbright_shade,
         .diffuse_color = sky_color,
         .specular_color = CLR_BLACK,
         .specular_exp = 1
@@ -56,6 +56,7 @@ intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
 {
     vfloat_t cur_dist = max_dist;
     intersect_result_t nearest;
+    nearest.distance = max_dist;
     nearest.material = def_material;
 
     for (llist_node_t *node = shapes->first; node != NULL;
@@ -100,6 +101,9 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
             if (shadow_res.material != NULL)
                 out_color = clr_add(out_color, shade(res, light));
         }
+    }
+    else {
+        out_color = scene._sky->diffuse_color;
     }
 
     return color2pixel(out_color);

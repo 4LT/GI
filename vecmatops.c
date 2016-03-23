@@ -65,7 +65,7 @@ struct vec3 v3_normalize(struct vec3 in)
 
 vfloat_t v3_distance(struct vec3 ptA, struct vec3 ptB)
 {
-    v3_magnitude(v3_sub(ptB, ptA));
+    return v3_magnitude(v3_sub(ptB, ptA));
 }
 
 struct vec3 m4v3_column(struct mat4 mat, unsigned int index)
