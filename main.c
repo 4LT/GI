@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     color_t grey = (color_t) {{ .0007, .0007, .0007 }};
     Material_t *phong_green = phong_new((color_t) {{ 0, 0.7, 0 }}, grey, 64);
     Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 1 }}, grey, 16);
-    Material_t *flat_brown = fullbright_new((color_t) {{ .7, .3, 0 }});
+    Material_t *flat_brown = lambert_new((color_t) {{ .7, .3, 0 }});
     Light_t light1 = (Light_t) { (struct vec3) {{ 65, -80, 128 }},
             (color_t) {{ 1400, 1400, 1400 }}, 2 };
 

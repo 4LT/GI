@@ -1,5 +1,7 @@
 #include "scene.h"
 
+const vfloat_t FUDGE_SCALE = .001;
+
 scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
     Material_t *sky_mtrl = malloc(sizeof(Material_t));
@@ -74,6 +76,11 @@ intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
     return nearest;
 }
 
+struct vec3 fudge(struct vec3 v, vfloat_t offset)
+{
+    return v3_add(v, (struct vec3){{ offset, offset, offset }});
+}
+
 pixel_t pixel_at(scene_t scene, ray_t ray)
 {
     color_t out_color = CLR_BLACK;
@@ -83,9 +90,9 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
     intersect_result_t res = scene_intersect(scene.shapes, ray, max_dist,
             scene._sky);
 
-    /* for each light, illum */
     if (res.distance < MAX_DIST)
     {
+        /* for each light, illum */
         for (llist_node_t *node = scene.lights->first; node != NULL;
                 node = node->next)
         {
@@ -98,8 +105,10 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
             intersect_result_t shadow_res = scene_intersect(scene.shapes,
                     light_ray, max_dist, NULL);
 
-            if (shadow_res.material != NULL)
+            if (shadow_res.distance + FUDGE_SCALE >= light_dist)
+            {
                 out_color = clr_add(out_color, shade(res, light));
+            }
         }
     }
     else {
