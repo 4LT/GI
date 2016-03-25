@@ -15,6 +15,9 @@ struct vec3 v3_cross(struct vec3 vecA, struct vec3 vecB);
 
 struct vec3 v3_scale(struct vec3 in, vfloat_t scale);
 
+/* Project vecA onto vecB */
+struct vec3 v3_project(struct vec3 vecA, struct vec3 vecB);
+
 struct vec3 v3_divide(struct vec3 in, vfloat_t divisor);
 
 struct vec3 v3_add(struct vec3 vecA, struct vec3 vecB);

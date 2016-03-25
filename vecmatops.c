@@ -23,6 +23,11 @@ struct vec3 v3_scale(struct vec3 in, vfloat_t scale)
     return out;
 }
 
+struct vec3 v3_project(struct vec3 vecA, struct vec3 vecB)
+{
+    return v3_scale(vecB, v3_dot(vecA, vecB) / v3_dot(vecB, vecB));
+}
+
 struct vec3 v3_divide(struct vec3 in, vfloat_t divisor)
 {
     return v3_scale(in, 1.0f / divisor);
