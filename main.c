@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
     scene_t scene = scene_empty_scene(BG_COLOR, CAM);
 
     color_t spec1 = (color_t) {{ .002, .002, .002 }};
-    color_t spec2 = (color_t) {{ .0025, .0025, .0025 }};
+    color_t spec2 = (color_t) {{ .002, .002, .002 }};
     Material_t *phong_green = phong_new((color_t) {{ 0, 0.7, 0 }}, spec1, 64);
-    Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 0.7 }}, spec2, 10);
+    Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 0.5 }}, spec2, 8);
 #if 0
     Material_t *tiled = lambert_new((color_t) {{ .7, .3, 0 }});
 #else
