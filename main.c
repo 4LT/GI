@@ -21,18 +21,18 @@ int main(int argc, char *argv[])
 {
     scene_t scene = scene_empty_scene(BG_COLOR, CAM);
 
-    color_t spec1 = (color_t) {{ .7, .7, .7 }};
-    color_t spec2 = (color_t) {{ .5, .5, .5 }};
+    color_t spec1 = (color_t) {{ .002, .002, .002 }};
+    color_t spec2 = (color_t) {{ .0025, .0025, .0025 }};
     Material_t *phong_green = phong_new((color_t) {{ 0, 0.7, 0 }}, spec1, 64);
-    Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 0.85 }}, spec2, 16);
+    Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 0.7 }}, spec2, 10);
 #if 0
     Material_t *tiled = lambert_new((color_t) {{ .7, .3, 0 }});
 #else
     Material_t *tiled = tile_new();
 #endif
-    light_t light1 = (light_t) { ORTHO, (struct vec3) {{ 65, -80, 128 }},
-            v3_normalize((struct vec3) {{ -0.2, 1, -1.2 }} ),
-            (color_t) {{ 0.5, 0.5, 0.5 }}, 2 };
+    light_t light1 = (light_t) { SPHERE, (struct vec3) {{ 65, -80, 128 }},
+            v3_normalize((struct vec3) {{ 0, 0, -1 }} ),
+            (color_t) {{ 200, 200, 200 }}, 6 };
 
     scene_add_light(scene, &light1);
 
