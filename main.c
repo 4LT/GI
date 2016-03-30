@@ -7,9 +7,6 @@ static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
 static const int SCREEN_W = 640;
 static const int SCREEN_H = 480;
 
-static const int SCREEN_W = 1680;
-static const int SCREEN_H = 1050;
-
 #define CAM_POS {{ 55, -180, 40 }}
 #define CAM_UP {{ 0, 0, 1 }}
 #define CAM_LOOK {{ 63, 100, 30 }}
