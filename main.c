@@ -5,6 +5,9 @@
 
 static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
 
+static const int SCREEN_W = 1680;
+static const int SCREEN_H = 1050;
+
 #define CAM_POS {{ 55, -180, 40 }}
 #define CAM_UP {{ 0, 0, 1 }}
 #define CAM_LOOK {{ 63, 100, 30 }}
@@ -17,9 +20,6 @@ static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK };
  */
 int main(int argc, char *argv[])
 {
-    unsigned int w = 640;
-    unsigned int h = 480;
-
     scene_t scene = scene_empty_scene(BG_COLOR, CAM);
 
     color_t grey = (color_t) {{ .0007, .0007, .0007 }};
@@ -48,10 +48,10 @@ int main(int argc, char *argv[])
                 (struct vec3){{  100,  220, 0 }},
                 (struct vec3){{ -100,  220, 0 }} ));
 
-    pixel_t *img = malloc(w * h * sizeof(pixel_t));
-    scene_render(scene, w, h, img);
+    pixel_t *img = malloc(SCREEN_W * SCREEN_H * sizeof(pixel_t));
+    scene_render(scene, SCREEN_W, SCREEN_H, img);
 
-    int exit_status = draw(w, h, img);
+    int exit_status = draw(SCREEN_W, SCREEN_H, img);
     free(img);
     return exit_status;
 }
