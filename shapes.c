@@ -80,9 +80,11 @@ intersect_result_t triangle_intersect(Shape_t *shape, ray_t ray)
         return MISS;
     }
     else {
-        struct vec3 intersect = v3_add(
+/*        struct vec3 intersect = v3_add(
             v3_add(v3_scale(e1, u), tri->verts[0]),
-            v3_add(v3_scale(e2, v), tri->verts[0]));
+            v3_add(v3_scale(e2, v), tri->verts[0])); */
+        struct vec3 intersect = v3_add(v3_scale(tri->verts[0], 1-u-v),
+                v3_add(v3_scale(tri->verts[1], u), v3_scale(tri->verts[2], v)));
         struct vec3 normal = v3_normalize(v3_cross(e1, e2));
         return (intersect_result_t) { intersect, normal, ray.direction,
                 barycoords.v[0], shape->material };

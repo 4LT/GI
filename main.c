@@ -4,6 +4,8 @@
 #include "scene.h"
 
 static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
+static const int SCREEN_W = 640;
+static const int SCREEN_H = 480;
 
 static const int SCREEN_W = 1680;
 static const int SCREEN_H = 1050;
@@ -22,12 +24,18 @@ int main(int argc, char *argv[])
 {
     scene_t scene = scene_empty_scene(BG_COLOR, CAM);
 
-    color_t grey = (color_t) {{ .0007, .0007, .0007 }};
-    Material_t *phong_green = phong_new((color_t) {{ 0, 0.7, 0 }}, grey, 64);
-    Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 1 }}, grey, 16);
-    Material_t *flat_brown = lambert_new((color_t) {{ .7, .3, 0 }});
-    Light_t light1 = (Light_t) { (struct vec3) {{ 65, -80, 128 }},
-            (color_t) {{ 1400, 1400, 1400 }}, 2 };
+    color_t spec1 = (color_t) {{ .002, .002, .002 }};
+    color_t spec2 = (color_t) {{ .0025, .0025, .0025 }};
+    Material_t *phong_green = phong_new((color_t) {{ 0, 0.7, 0 }}, spec1, 64);
+    Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 0.7 }}, spec2, 10);
+#if 0
+    Material_t *tiled = lambert_new((color_t) {{ .7, .3, 0 }});
+#else
+    Material_t *tiled = tile_new();
+#endif
+    light_t light1 = (light_t) { SPHERE, (struct vec3) {{ 65, -80, 128 }},
+            v3_normalize((struct vec3) {{ 0, 0, -1 }} ),
+            (color_t) {{ 200, 200, 200 }}, 6 };
 
     scene_add_light(scene, &light1);
 
@@ -38,12 +46,12 @@ int main(int argc, char *argv[])
             (Shape_t *) sphere_new(phong_green, 18,
             (struct vec3){{ 20, 30, 22 }}));
     scene_add_shape(scene,
-            (Shape_t *)triangle_new(flat_brown,
+            (Shape_t *)triangle_new(tiled,
                 (struct vec3){{ -100, -220, 0 }},
                 (struct vec3){{  100, -220, 0 }},
                 (struct vec3){{ -100,  220, 0 }} ));
     scene_add_shape(scene,
-            (Shape_t *)triangle_new(flat_brown,
+            (Shape_t *)triangle_new(tiled,
                 (struct vec3){{  100, -220, 0 }},
                 (struct vec3){{  100,  220, 0 }},
                 (struct vec3){{ -100,  220, 0 }} ));

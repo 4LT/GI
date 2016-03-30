@@ -34,7 +34,7 @@ scene_t scene_empty_scene(color_t sky_color, camera_t camera);
 
 void scene_add_shape(scene_t scene, Shape_t *shape);
 
-void scene_add_light(scene_t scene, Light_t *light);
+void scene_add_light(scene_t scene, light_t *light);
 
 void scene_teardown(scene_t scene);
 

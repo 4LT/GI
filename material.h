@@ -6,16 +6,19 @@
 #include "util/linkedlist.h"
 
 typedef struct intersect_result intersect_result_t;
+typedef struct material Material_t;
 
-typedef color_t (*shader_fp) (struct intersect_result, Light_t *);
+typedef color_t (*shader_fp) (intersect_result_t, light_t *);
+typedef color_t (*sample_fp) (Material_t *, vfloat_t, vfloat_t);
 
-typedef struct
+struct material
 {
     shader_fp shade;
+    sample_fp diffuse_sample;
     color_t diffuse_color;
     color_t specular_color;
     vfloat_t specular_exp;
-} Material_t;
+};
 
 struct intersect_result
 {
@@ -26,6 +29,6 @@ struct intersect_result
     Material_t *material;
 };
 
-color_t shade(intersect_result_t res, Light_t *light);
+color_t shade(intersect_result_t res, light_t *light);
 
 #endif

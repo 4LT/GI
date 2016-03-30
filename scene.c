@@ -1,6 +1,7 @@
 #include "scene.h"
 
-const vfloat_t FUDGE_SCALE = .001;
+const vfloat_t FUDGE_SCALE = 0.001;
+const vfloat_t AMBIENT_SCALE = 0.4;
 
 scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
@@ -20,7 +21,7 @@ void scene_add_shape(scene_t scene, Shape_t *shape)
     llist_append(scene.shapes, (void *)shape);
 }
 
-void scene_add_light(scene_t scene, Light_t *light)
+void scene_add_light(scene_t scene, light_t *light)
 {
     llist_append(scene.lights, (void *)light);
 }
@@ -76,15 +77,11 @@ intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
     return nearest;
 }
 
-struct vec3 fudge(struct vec3 v, vfloat_t offset)
-{
-    return v3_add(v, (struct vec3){{ offset, offset, offset }});
-}
-
 pixel_t pixel_at(scene_t scene, ray_t ray)
 {
     color_t out_color = CLR_BLACK;
     vfloat_t max_dist = MAX_DIST;
+    color_t sky_color = scene._sky->diffuse_color;
 
     /* find nearest intersection */
     intersect_result_t res = scene_intersect(scene.shapes, ray, max_dist,
@@ -96,7 +93,7 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
         for (llist_node_t *node = scene.lights->first; node != NULL;
                 node = node->next)
         {
-            Light_t *light = (Light_t *)(node->datum);
+            light_t *light = (light_t *)(node->datum);
             struct vec3 light_vec = v3_sub(res.position, light->position);
             vfloat_t light_dist = v3_magnitude(light_vec);
             ray_t light_ray = (ray_t){ light->position,
@@ -110,9 +107,15 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
                 out_color = clr_add(out_color, shade(res, light));
             }
         }
+#if 1
+        color_t diffuse = res.material->diffuse_sample(
+                res.material, res.position.v[0], res.position.v[1]);
+        color_t ambient_color = clr_scale(sky_color, AMBIENT_SCALE);
+        out_color = clr_add(out_color, clr_mul(diffuse, ambient_color));
+#endif
     }
     else {
-        out_color = scene._sky->diffuse_color;
+        out_color = sky_color;
     }
 
     return color2pixel(out_color);

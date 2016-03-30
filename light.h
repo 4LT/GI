@@ -5,9 +5,16 @@
 
 typedef struct
 {
+    enum
+    {
+        SPHERE,
+        ORTHO,
+        AMBIENT
+    } type;
     struct vec3 position;
+    struct vec3 direction;
     color_t color;
     vfloat_t radius;
-} Light_t;
+} light_t;
 
 #endif
