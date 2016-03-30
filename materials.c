@@ -67,9 +67,7 @@ color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 {
     int tx = (int)floor(x / TILE_SIZE);
     int ty = (int)floor(y / TILE_SIZE);
-    /* without changing the seed, there's a sequence of 3 similarly colored
-     * tiles */
-    srand(tx + 12);
+    srand(tx);
     srand(ty + rand());
 
     /* generate a random, fully-saturated color */
