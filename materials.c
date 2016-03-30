@@ -67,8 +67,10 @@ color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 {
     int tx = (int)floor(x / TILE_SIZE);
     int ty = (int)floor(y / TILE_SIZE);
+    srand(tx);
     /* fix for srand(0) and srand(1) having same effect in glibc */
-    srand(tx < 1 ? tx-1 : tx);
+    if (tx == 0)
+        srand(rand());
     srand(ty + rand());
 
     /* generate a random, fully-saturated color */
