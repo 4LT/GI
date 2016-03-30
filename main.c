@@ -23,11 +23,16 @@ int main(int argc, char *argv[])
 
     color_t spec1 = (color_t) {{ .002, .002, .002 }};
     color_t spec2 = (color_t) {{ .002, .002, .002 }};
+
     Material_t *shiny = shiny_new(&scene, (color_t) {{ 0.2, 0.2, 0.2 }},
             spec1, 64, 1);
     Material_t *phong_blue = phong_new(&scene, (color_t) {{ 0, 0, 0.5 }},
             spec2, 8);
+#if 1
+    Material_t *tiled = noisy_tile_new(&scene);
+#else
     Material_t *tiled = tile_new(&scene);
+#endif
 
     light_t light1 = (light_t) {
         .type = SPHERE,

@@ -63,6 +63,29 @@ color_t tile_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
     return ((x - floor(x) < 0.5) ^ (y - floor(y) < 0.5)) ? RED : YELLOW;
 }
 
+color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
+{
+    int tx = (int)floor(x / TILE_SIZE);
+    int ty = (int)floor(y / TILE_SIZE);
+    /* without changing the seed, there's a sequence of 3 similarly colored
+     * tiles */
+    srand(tx + 12);
+    srand(ty + rand());
+
+    /* generate a random, fully-saturated color */
+    color_t out_color;
+    int low_i = rand() % 3;
+    int high_i = (rand() % 2 + 1 + low_i) % 3;
+    int mid_i = 2 * (low_i + high_i) % 3;
+    out_color.c[low_i] = 0;
+    out_color.c[high_i] = 1;
+    out_color.c[mid_i] = rand() / (clrfloat_t)RAND_MAX;
+#if 1
+    return out_color;
+#else
+#endif
+}
+
 color_t solid_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 {
     return mtrl->diffuse_color;
@@ -210,5 +233,13 @@ Material_t *shiny_new(struct scene *scene, color_t color, color_t spec_color,
     Material_t *mtrl = phong_new(scene, color, spec_color, spec_exp);
     mtrl->reflect_scale = reflect_scale;
     mtrl->shade = shiny_shade;
+    return mtrl;
+}
+
+Material_t *noisy_tile_new(struct scene *scene)
+{
+    Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
+    *mtrl = (Material_t) { tile_shade, noisy_sample,
+            CLR_WHITE, CLR_BLACK, 1 };
     return mtrl;
 }
