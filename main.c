@@ -28,10 +28,13 @@ int main(int argc, char *argv[])
             spec1, 64, 1);
     Material_t *phong_blue = phong_new(&scene, (color_t) {{ 0, 0, 0.5 }},
             spec2, 8);
-#if 0
-    Material_t *tiled = noisy_tile_new(&scene);
-#else
+
+#if 1
     Material_t *tiled = tile_new(&scene);
+#elif 1
+    Material_t *tiled = concentric_new(&scene);
+#else
+    Material_t *tiled = noisy_tile_new(&scene);
 #endif
 
     light_t light1 = (light_t) {

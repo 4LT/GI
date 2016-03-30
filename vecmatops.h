@@ -1,8 +1,8 @@
 #ifndef VECMATOPS_H_
 #define VECMATOPS_H_
 
-#include "types.h"
 #include <tgmath.h>
+#include "types.h"
 
 static const struct mat4 MAT4_IDENTITY = { {{ 1, 0, 0, 0 },
                                             { 0, 1, 0, 0 },

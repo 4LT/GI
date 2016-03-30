@@ -28,4 +28,6 @@ Material_t *shiny_new(struct scene *scene, color_t color, color_t spec_color,
 
 Material_t *noisy_tile_new(struct scene *scene);
 
+Material_t *concentric_new(struct scene *scene);
+
 #endif

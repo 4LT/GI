@@ -1,3 +1,4 @@
+#include <tgmath.h>
 #include "materials.h"
 #include "shapes.h"
 #include "scene.h"
@@ -67,7 +68,6 @@ color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 {
     const vfloat_t WAV_LEN = TILE_SIZE * 1.5;
     const vfloat_t AMP = TILE_SIZE / 2;
-    vfloat_t PI2 = 2*atan(-1.0);
     vfloat_t oldY = y;
     y = y + AMP * cos(PI2 * x / WAV_LEN);
     x = x + AMP * cos(PI2 * oldY / WAV_LEN);
@@ -89,6 +89,20 @@ color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
     out_color.c[high_i] = 1;
     out_color.c[mid_i] = rand() / (clrfloat_t)RAND_MAX;
     return out_color;
+}
+
+color_t concentric_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
+{
+    const color_t GREY = {{ 0.2, 0.2, 0.2 }};
+    const color_t GREEN = {{ 0, 1, 0 }};
+    const vfloat_t THICK = 2;
+    struct vec3 P1 = {{ -10, -40, 0 }}, P2 = {{ 30, 50, 0 }};
+    struct vec3 xyv = {{ x, y, 0 }};
+    vfloat_t r1 = v3_magnitude(v3_sub(P1, xyv)) / THICK;
+    vfloat_t r2 = v3_magnitude(v3_sub(P2, xyv)) / THICK;
+    vfloat_t scale = cos(PI2 * r1) + cos(PI2 * r2);
+    scale = (scale + 2)/4;
+    return clr_add(clr_scale(GREY, scale), clr_scale(GREEN, 1-scale));
 }
 
 color_t solid_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
@@ -248,6 +262,17 @@ Material_t *noisy_tile_new(struct scene *scene)
         .scene = scene,
         .shade = tile_shade,
         .diffuse_sample = noisy_sample
+    };
+    return mtrl;
+}
+
+Material_t *concentric_new(struct scene *scene)
+{
+    Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
+    *mtrl = (Material_t) {
+        .scene = scene,
+        .shade = tile_shade,
+        .diffuse_sample = concentric_sample
     };
     return mtrl;
 }
