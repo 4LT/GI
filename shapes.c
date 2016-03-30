@@ -117,5 +117,7 @@ Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
     tri->verts[0] = vert0;
     tri->verts[1] = vert1;
     tri->verts[2] = vert2;
+
+
     return tri;
 }
