@@ -65,6 +65,13 @@ color_t tile_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 
 color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 {
+    const vfloat_t WAV_LEN = TILE_SIZE * 1.5;
+    const vfloat_t AMP = TILE_SIZE / 2;
+    vfloat_t PI2 = 2*atan(-1.0);
+    vfloat_t oldY = y;
+    y = y + AMP * cos(PI2 * x / WAV_LEN);
+    x = x + AMP * cos(PI2 * oldY / WAV_LEN);
+
     int tx = (int)floor(x / TILE_SIZE);
     int ty = (int)floor(y / TILE_SIZE);
     srand(tx);
@@ -81,10 +88,7 @@ color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
     out_color.c[low_i] = 0;
     out_color.c[high_i] = 1;
     out_color.c[mid_i] = rand() / (clrfloat_t)RAND_MAX;
-#if 1
     return out_color;
-#else
-#endif
 }
 
 color_t solid_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
