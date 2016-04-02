@@ -92,31 +92,48 @@ Material_t *phong_new(struct scene *scene, color_t color, color_t spec_color,
         float spec_exp)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { scene, phong_shade, solid_sample,
-            color, spec_color, spec_exp };
-    return mtrl;
+    *mtrl = (Material_t) {
+        .scene = scene,
+        .shade = phong_shade,
+        .diffuse_sample = solid_sample,
+        .diffuse_color = color,
+        .specular_color = spec_color,
+        .specular_exp = spec_exp
+    };
+    return mtrl; 
 }
 
 Material_t *lambert_new(struct scene *scene, color_t color)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { scene, lambert_shade, solid_sample,
-            color, CLR_BLACK, 1 };
+    *mtrl = (Material_t) {
+        .scene = scene,
+        .shade = lambert_shade,
+        .diffuse_sample = solid_sample,
+        .diffuse_color = color
+    };
     return mtrl;
 }
 
 Material_t *fullbright_new(struct scene *scene, color_t color)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { scene, fullbright_shade, solid_sample,
-            color, CLR_BLACK , 1 };
+    *mtrl = (Material_t) {
+        .scene = scene,
+        .shade = fullbright_shade,
+        .diffuse_sample = solid_sample,
+        .diffuse_color = color
+    };
     return mtrl;
 }
 
 Material_t *tile_new(struct scene *scene)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { scene, tile_shade, tile_sample,
-            CLR_WHITE, CLR_BLACK, 1 };
+    *mtrl = (Material_t) {
+        .scene = scene,
+        .shade = tile_shade,
+        .diffuse_sample = tile_sample
+    };
     return mtrl;
 }

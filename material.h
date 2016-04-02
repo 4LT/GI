@@ -18,7 +18,9 @@ struct material
     sample_fp diffuse_sample;
     color_t diffuse_color;
     color_t specular_color;
-    vfloat_t specular_exp;
+    float specular_exp;
+    float reflect_scale;
+    float transmit_scale;
 };
 
 struct intersect_result
