@@ -37,6 +37,8 @@ void scene_add_light(scene_t scene, light_t *light);
 
 void scene_teardown(scene_t scene);
 
+color_t color_at(scene_t scene, ray_t ray);
+
 pixel_t pixel_at(scene_t scene, ray_t ray);
 
 void scene_render(scene_t scene, unsigned int w, unsigned int h,

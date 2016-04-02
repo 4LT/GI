@@ -44,16 +44,6 @@ Shape_t *transform(Shape_t *shape, struct mat4 transmat)
     return shape->transform(shape, transmat);
 }
 
-pixel_t color2pixel(color_t color)
-{
-    color.c[0] = color.c[0] > 1 ? 1 : color.c[0];
-    color.c[1] = color.c[1] > 1 ? 1 : color.c[1];
-    color.c[2] = color.c[2] > 1 ? 1 : color.c[2];
-    return (int)(255 * color.c[0]) << 24 |
-           (int)(255 * color.c[1]) << 16 |
-           (int)(255 * color.c[2]) << 8  | 0xFF;
-}
-
 intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
         vfloat_t max_dist, Material_t *def_material)
 {
@@ -77,7 +67,7 @@ intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
     return nearest;
 }
 
-pixel_t pixel_at(scene_t scene, ray_t ray)
+color_t color_at(scene_t scene, ray_t ray)
 {
     color_t out_color = CLR_BLACK;
     vfloat_t max_dist = MAX_DIST;
@@ -118,7 +108,18 @@ pixel_t pixel_at(scene_t scene, ray_t ray)
         out_color = sky_color;
     }
 
-    return color2pixel(out_color);
+    return out_color;
+}
+
+pixel_t pixel_at(scene_t scene, ray_t ray)
+{
+    color_t color = color_at(scene, ray);
+    color.c[0] = color.c[0] > 1 ? 1 : color.c[0];
+    color.c[1] = color.c[1] > 1 ? 1 : color.c[1];
+    color.c[2] = color.c[2] > 1 ? 1 : color.c[2];
+    return (int)(255 * color.c[0]) << 24 |
+           (int)(255 * color.c[1]) << 16 |
+           (int)(255 * color.c[2]) << 8  | 0xFF;
 }
 
 void scene_render(scene_t scene, unsigned int w, unsigned int h,
