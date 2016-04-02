@@ -10,10 +10,13 @@ color_t fullbright_shade(intersect_result_t res, light_t *light)
 
 vfloat_t attenuation(vfloat_t radius, vfloat_t distance)
 {
-    vfloat_t a = 1 +
-            (distance - radius) /
-            radius;
-    return 1 / (a*a);
+    /* derived from
+     * https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
+     * (approximation of spherical light sources)
+     * attenuation = 1 / (d/r + 1)^2
+     * where r = radius, d = distance - radius
+     */
+    return radius * radius / (distance * distance);
 }
 
 color_t diffuse_light(intersect_result_t res, color_t diffuse, light_t *light)
