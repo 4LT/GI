@@ -13,6 +13,7 @@ typedef color_t (*sample_fp) (Material_t *, vfloat_t, vfloat_t);
 
 struct material
 {
+    struct scene *scene;
     shader_fp shade;
     sample_fp diffuse_sample;
     color_t diffuse_color;

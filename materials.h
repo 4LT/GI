@@ -14,12 +14,13 @@ color_t lambert_shade(intersect_result_t res, light_t *light);
 
 color_t phong_shade(intersect_result_t res, light_t *light);
 
-Material_t *phong_new(color_t color, color_t spec_color, float spec_exp);
+Material_t *phong_new(struct scene *scene, color_t color, color_t spec_color,
+        float spec_exp);
 
-Material_t *lambert_new(color_t color);
+Material_t *lambert_new(struct scene *scene, color_t color);
 
-Material_t *fullbright_new(color_t color);
+Material_t *fullbright_new(struct scene *scene, color_t color);
 
-Material_t *tile_new();
+Material_t *tile_new(struct scene *scene);
 
 #endif

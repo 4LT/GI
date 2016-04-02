@@ -88,34 +88,35 @@ color_t phong_shade(intersect_result_t res, light_t *light)
     return clr_add(lambert_shade(res, light), phong_light(res, light));
 }
 
-Material_t *phong_new(color_t color, color_t spec_color, float spec_exp)
+Material_t *phong_new(struct scene *scene, color_t color, color_t spec_color,
+        float spec_exp)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { phong_shade, solid_sample,
+    *mtrl = (Material_t) { scene, phong_shade, solid_sample,
             color, spec_color, spec_exp };
     return mtrl;
 }
 
-Material_t *lambert_new(color_t color)
+Material_t *lambert_new(struct scene *scene, color_t color)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { lambert_shade, solid_sample,
+    *mtrl = (Material_t) { scene, lambert_shade, solid_sample,
             color, CLR_BLACK, 1 };
     return mtrl;
 }
 
-Material_t *fullbright_new(color_t color)
+Material_t *fullbright_new(struct scene *scene, color_t color)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { fullbright_shade, solid_sample,
+    *mtrl = (Material_t) { scene, fullbright_shade, solid_sample,
             color, CLR_BLACK , 1 };
     return mtrl;
 }
 
-Material_t *tile_new()
+Material_t *tile_new(struct scene *scene)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { tile_shade, tile_sample,
+    *mtrl = (Material_t) { scene, tile_shade, tile_sample,
             CLR_WHITE, CLR_BLACK, 1 };
     return mtrl;
 }

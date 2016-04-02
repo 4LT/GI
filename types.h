@@ -21,4 +21,6 @@ typedef struct
     struct vec3 direction;
 } ray_t;
 
+struct scene;
+
 #endif

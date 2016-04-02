@@ -7,12 +7,12 @@ scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
     Material_t *sky_mtrl = malloc(sizeof(Material_t));
     *sky_mtrl = (Material_t) {
+        .scene = NULL,
         .shade = fullbright_shade,
         .diffuse_color = sky_color,
         .specular_color = CLR_BLACK,
         .specular_exp = 1
     };
-
     return (scene_t){ sky_mtrl, camera, llist_new(), llist_new() };
 }
 

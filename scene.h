@@ -5,7 +5,6 @@
 #include "vecmatops.h"
 #include "shapes.h"
 #include "util/linkedlist.h"
-#include "material.h"
 #include "materials.h"
 #include "light.h"
 #include "types.h"
@@ -22,7 +21,7 @@ typedef struct
     struct vec3 lookAt;
 } camera_t;
 
-typedef struct
+typedef struct scene
 {
     Material_t *_sky;
     camera_t camera;

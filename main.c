@@ -23,13 +23,12 @@ int main(int argc, char *argv[])
 
     color_t spec1 = (color_t) {{ .002, .002, .002 }};
     color_t spec2 = (color_t) {{ .002, .002, .002 }};
-    Material_t *phong_green = phong_new((color_t) {{ 0, 0.7, 0 }}, spec1, 64);
-    Material_t *phong_blue = phong_new((color_t) {{ 0, 0, 0.5 }}, spec2, 8);
-#if 0
-    Material_t *tiled = lambert_new((color_t) {{ .7, .3, 0 }});
-#else
-    Material_t *tiled = tile_new();
-#endif
+    Material_t *phong_green = phong_new(&scene, (color_t) {{ 0, 0.7, 0 }},
+            spec1, 64);
+    Material_t *phong_blue = phong_new(&scene, (color_t) {{ 0, 0, 0.5 }},
+            spec2, 8);
+
+    Material_t *tiled = tile_new(&scene);
     light_t light1 = (light_t) { SPHERE, (struct vec3) {{ 65, -80, 128 }},
             v3_normalize((struct vec3) {{ 0, 0, -1 }} ),
             (color_t) {{ 200, 200, 200 }}, 6 };
