@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
 
     color_t spec1 = (color_t) {{ .002, .002, .002 }};
     color_t spec2 = (color_t) {{ .002, .002, .002 }};
-    Material_t *phong_green = phong_new(&scene, (color_t) {{ 0, 0.7, 0 }},
-            spec1, 64);
+    Material_t *shiny = shiny_new(&scene, (color_t) {{ 0.3, 0.3, 0.3 }},
+            spec1, 64, 1);
     Material_t *phong_blue = phong_new(&scene, (color_t) {{ 0, 0, 0.5 }},
             spec2, 8);
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
             (Shape_t *)sphere_new(phong_blue, 24,
             (struct vec3){{ 55, -20, 30 }}));
     scene_add_shape(scene,
-            (Shape_t *) sphere_new(phong_green, 18,
+            (Shape_t *) sphere_new(shiny, 18,
             (struct vec3){{ 20, 30, 22 }}));
     scene_add_shape(scene,
             (Shape_t *)triangle_new(tiled,

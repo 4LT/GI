@@ -30,3 +30,12 @@ color_t clr_scale(color_t clr, vfloat_t scale)
         out_color.c[i] = clr.c[i] * (clrfloat_t)scale;
     return out_color;
 }
+
+bool clr_eq(color_t clr1, color_t clr2)
+{
+    for (unsigned int i = 0; i < COLOR_COUNT; i++) {
+        if (clr1.c[i] != clr2.c[i])
+            return false;
+    }
+    return true;
+}

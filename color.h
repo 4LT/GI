@@ -1,6 +1,7 @@
 #ifndef COLOR_H_
 #define COLOR_H_
 
+#include <stdbool.h>
 #include "types.h"
 
 #define COLOR_COUNT 3
@@ -22,4 +23,6 @@ color_t clr_mul(color_t clr1, color_t clr2);
 color_t clr_clamp(color_t clr);
 
 color_t clr_scale(color_t clr, vfloat_t scale);
+
+bool clr_eq(color_t clr1, color_t clr2);
 #endif

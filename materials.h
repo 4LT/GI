@@ -23,4 +23,7 @@ Material_t *fullbright_new(struct scene *scene, color_t color);
 
 Material_t *tile_new(struct scene *scene);
 
+Material_t *shiny_new(struct scene *scene, color_t color, color_t spec_color,
+        float spec_exp, float reflect_scale);
+
 #endif

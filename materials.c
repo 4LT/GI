@@ -1,5 +1,6 @@
 #include "materials.h"
 #include "shapes.h"
+#include "scene.h"
 
 static const int TILE_SIZE = 20;
 
@@ -88,6 +89,27 @@ color_t phong_shade(intersect_result_t res, light_t *light)
     return clr_add(lambert_shade(res, light), phong_light(res, light));
 }
 
+color_t shiny_shade(intersect_result_t res, light_t *light)
+{
+    Material_t *mtrl = res.material;
+    color_t out_color = CLR_BLACK;
+
+    if (!clr_eq(mtrl->diffuse_color, CLR_BLACK))
+        out_color = clr_add(out_color, lambert_shade(res, light));
+    out_color = clr_add(out_color, phong_light(res, light));
+
+    struct vec3 proj_i = v3_project(res.normal, res.incoming);
+    struct vec3 proj_r = v3_add(proj_i, v3_scale(v3_sub(res.normal, proj_i),2));
+    ray_t reflected_ray = (ray_t){ res.position, v3_normalize(proj_r) };
+    reflected_ray.position = v3_add(reflected_ray.position,
+            v3_scale(reflected_ray.direction, .001));
+
+    out_color = clr_add(out_color,
+            clr_scale(color_at(*(mtrl->scene), reflected_ray),
+            mtrl->reflect_scale));
+    return out_color;
+}
+
 Material_t *phong_new(struct scene *scene, color_t color, color_t spec_color,
         float spec_exp)
 {
@@ -135,5 +157,14 @@ Material_t *tile_new(struct scene *scene)
         .shade = tile_shade,
         .diffuse_sample = tile_sample
     };
+    return mtrl;
+}
+
+Material_t *shiny_new(struct scene *scene, color_t color, color_t spec_color,
+        float spec_exp, float reflect_scale)
+{
+    Material_t *mtrl = phong_new(scene, color, spec_color, spec_exp);
+    mtrl->reflect_scale = reflect_scale;
+    mtrl->shade = shiny_shade;
     return mtrl;
 }
