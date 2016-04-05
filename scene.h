@@ -29,6 +29,8 @@ typedef struct scene
     llist_t *lights;
 } scene_t;
 
+bool shadow_test(intersect_result_t res, light_t *light);
+
 scene_t scene_empty_scene(color_t sky_color, camera_t camera);
 
 void scene_add_shape(scene_t scene, Shape_t *shape);

@@ -23,17 +23,25 @@ int main(int argc, char *argv[])
 
     color_t spec1 = (color_t) {{ .002, .002, .002 }};
     color_t spec2 = (color_t) {{ .002, .002, .002 }};
-    Material_t *shiny = shiny_new(&scene, (color_t) {{ 0.3, 0.3, 0.3 }},
+    Material_t *shiny = shiny_new(&scene, (color_t) {{ 0.2, 0.2, 0.2 }},
             spec1, 64, 1);
     Material_t *phong_blue = phong_new(&scene, (color_t) {{ 0, 0, 0.5 }},
             spec2, 8);
-
     Material_t *tiled = tile_new(&scene);
-    light_t light1 = (light_t) { SPHERE, (struct vec3) {{ 65, -80, 128 }},
-            v3_normalize((struct vec3) {{ 0, 0, -1 }} ),
-            (color_t) {{ 200, 200, 200 }}, 6 };
+
+    light_t light1 = (light_t) {
+        .type = SPHERE,
+        .position = (struct vec3) {{ 65, -80, 128 }},
+        .color = (color_t) {{ 200, 200, 200 }},
+        .radius = 6
+    };
+    light_t ambient = (light_t) {
+        .type = AMBIENT,
+        .color = clr_scale(BG_COLOR, 0.4)
+    };
 
     scene_add_light(scene, &light1);
+    scene_add_light(scene, &ambient);
 
     scene_add_shape(scene, 
             (Shape_t *)sphere_new(phong_blue, 24,

@@ -4,11 +4,6 @@
 
 static const int TILE_SIZE = 20;
 
-color_t fullbright_shade(intersect_result_t res, light_t *light)
-{
-    return res.material->diffuse_color;
-}
-
 vfloat_t attenuation(vfloat_t radius, vfloat_t distance)
 {
     /* derived from
@@ -20,8 +15,18 @@ vfloat_t attenuation(vfloat_t radius, vfloat_t distance)
     return radius * radius / (distance * distance);
 }
 
+color_t fullbright_shade(intersect_result_t res, light_t *light)
+{
+    return res.material->diffuse_color;
+}
+
 color_t diffuse_light(intersect_result_t res, color_t diffuse, light_t *light)
 {
+    if (light->type == AMBIENT)
+        return clr_mul(diffuse, light->color);
+    if (shadow_test(res, light))
+        return CLR_BLACK;
+
     struct vec3 lnorm;
     vfloat_t a;
     if (light->type == ORTHO) {
@@ -56,6 +61,9 @@ color_t solid_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 
 color_t phong_light(intersect_result_t res, light_t *light)
 {
+    if (shadow_test(res, light) || light->type == AMBIENT)
+        return CLR_BLACK;
+
     struct vec3 lnorm;
     if (light->type == ORTHO)
         lnorm = v3_scale(light->direction, -1);
@@ -94,9 +102,11 @@ color_t shiny_shade(intersect_result_t res, light_t *light)
     Material_t *mtrl = res.material;
     color_t out_color = CLR_BLACK;
 
-    if (!clr_eq(mtrl->diffuse_color, CLR_BLACK))
-        out_color = clr_add(out_color, lambert_shade(res, light));
+    out_color = clr_add(out_color, lambert_shade(res, light));
     out_color = clr_add(out_color, phong_light(res, light));
+
+    if (light->type != AMBIENT)
+        return out_color;
 
     struct vec3 proj_i = v3_project(res.normal, res.incoming);
     struct vec3 proj_r = v3_add(proj_i, v3_scale(v3_sub(res.normal, proj_i),2));

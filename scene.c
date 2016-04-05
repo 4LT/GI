@@ -67,6 +67,20 @@ intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
     return nearest;
 }
 
+bool shadow_test(intersect_result_t res, light_t *light)
+{
+    scene_t *scene = res.material->scene;
+    struct vec3 light_vec = v3_sub(res.position, light->position);
+    vfloat_t light_dist = v3_magnitude(light_vec);
+    ray_t light_ray = (ray_t){ light->position,
+            v3_divide(light_vec, light_dist) };
+
+    intersect_result_t shadow_res = scene_intersect(scene->shapes,
+            light_ray, MAX_DIST, NULL);
+
+    return light_dist > shadow_res.distance + FUDGE_SCALE;
+}
+
 color_t color_at(scene_t scene, ray_t ray)
 {
     color_t out_color = CLR_BLACK;
@@ -84,20 +98,9 @@ color_t color_at(scene_t scene, ray_t ray)
                 node = node->next)
         {
             light_t *light = (light_t *)(node->datum);
-            struct vec3 light_vec = v3_sub(res.position, light->position);
-            vfloat_t light_dist = v3_magnitude(light_vec);
-            ray_t light_ray = (ray_t){ light->position,
-                    v3_divide(light_vec, light_dist) };
-
-            intersect_result_t shadow_res = scene_intersect(scene.shapes,
-                    light_ray, max_dist, NULL);
-
-            if (shadow_res.distance + FUDGE_SCALE >= light_dist)
-            {
-                out_color = clr_add(out_color, shade(res, light));
-            }
+            out_color = clr_add(out_color, shade(res, light));
         }
-#if 1
+#if 0
         color_t diffuse = res.material->diffuse_sample(
                 res.material, res.position.v[0], res.position.v[1]);
         color_t ambient_color = clr_scale(sky_color, AMBIENT_SCALE);
