@@ -80,9 +80,6 @@ intersect_result_t triangle_intersect(Shape_t *shape, ray_t ray)
         return MISS;
     }
     else {
-/*        struct vec3 intersect = v3_add(
-            v3_add(v3_scale(e1, u), tri->verts[0]),
-            v3_add(v3_scale(e2, v), tri->verts[0])); */
         struct vec3 intersect = v3_add(v3_scale(tri->verts[0], 1-u-v),
                 v3_add(v3_scale(tri->verts[1], u), v3_scale(tri->verts[2], v)));
         struct vec3 normal = v3_normalize(v3_cross(e1, e2));
@@ -97,7 +94,26 @@ Shape_t *triangle_transform(Shape_t *shape, struct mat4 trans_mat)
     for (int i = 0; i < 3; i++) {
         triangle->verts[i] = m4v3_transform(trans_mat, triangle->verts[i]);
     }
-    return (Shape_t *)triangle;
+    return shape;
+}
+
+intersect_result_t quad_intersect(Shape_t *shape, ray_t ray)
+{
+    Quad_t *quad = (Quad_t *)shape;
+    /* the lazy solution. . . */
+    intersect_result_t res = triangle_intersect((Shape_t *)quad->t1, ray);
+    if (res.distance <= 0)
+        return triangle_intersect((Shape_t *)quad->t2, ray);
+    else
+        return res;
+}
+
+Shape_t *quad_transform(Shape_t *shape, struct mat4 trans_mat)
+{
+    Quad_t *quad = (Quad_t *)shape;
+    triangle_transform((Shape_t *)quad->t1, trans_mat);
+    triangle_transform((Shape_t *)quad->t2, trans_mat);
+    return shape;
 }
 
 Sphere_t *sphere_new(Material_t *mtrl, unsigned int radius, struct vec3 position)
@@ -118,6 +134,17 @@ Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
     tri->verts[1] = vert1;
     tri->verts[2] = vert2;
 
-
     return tri;
 }
+
+Quad_t *quad_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
+        struct vec3 vert2, struct vec3 vert3)
+{
+    Quad_t *quad = malloc(sizeof(Quad_t));
+    quad->base = (Shape_t) { quad_intersect, NULL, mtrl };
+    quad->t1 = triangle_new(mtrl, vert0, vert1, vert2);
+    quad->t2 = triangle_new(mtrl, vert2, vert3, vert0);
+
+    return quad;
+}
+

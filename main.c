@@ -4,8 +4,8 @@
 #include "scene.h"
 
 static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
-static const int SCREEN_W = 640;
-static const int SCREEN_H = 480;
+static const int SCREEN_W = 1366;
+static const int SCREEN_H = 768;
 
 #define CAM_POS {{ 55, -180, 40 }}
 #define CAM_UP {{ 0, 0, 1 }}
@@ -59,6 +59,14 @@ int main(int argc, char *argv[])
                 (struct vec3){{  100, -220, 0 }},
                 (struct vec3){{  100,  220, 0 }},
                 (struct vec3){{ -100,  220, 0 }} ));
+#if 0
+    scene_add_shape(scene,
+            (Shape_t *)quad_new(phong_blue,
+                (struct vec3){{ -100, 220, 0 }},
+                (struct vec3){{ 100,  220, 0 }},
+                (struct vec3){{ 100,  220, 100 }},
+                (struct vec3){{ -100, 220, 100 }} ));
+#endif
 
     pixel_t *img = malloc(SCREEN_W * SCREEN_H * sizeof(pixel_t));
     scene_render(scene, SCREEN_W, SCREEN_H, img);

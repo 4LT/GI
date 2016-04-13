@@ -29,6 +29,15 @@ typedef struct
     Shape_t base;
     struct vec3 verts[3];
 } Triangle_t;
+
+typedef struct
+{
+    Shape_t base;
+    /* TODO: possibly create quad intersect function, use 4 coords instead of
+     * 2 triangles */
+    Triangle_t *t1;
+    Triangle_t *t2;
+}   Quad_t;
     
 intersect_result_t intersect_shape(Shape_t *shape, ray_t ray);
 
@@ -41,4 +50,7 @@ Sphere_t *sphere_new(Material_t *mtrl,
 
 Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
         struct vec3 vert2);
+
+Quad_t *quad_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
+        struct vec3 vert2, struct vec3 vert3);
 #endif
