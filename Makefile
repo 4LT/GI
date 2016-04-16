@@ -6,10 +6,13 @@ else
 	LDFLAGS= -lSDL2 -lm
 endif
 
-all: raytrace Makefile
+all: rayt rad
 
-main.o: main.c types.h scene.h shapes.h material.h material.h materials.h light.h color.h
+main.o: main.c types.h scene.h shapes.h material.h materials.h light.h color.h
 	$(CC) $(CFLAGS) -c main.c
+
+rad.o: rad.c types.h scene.h shapes.h material.h materials.h light.h color.h
+	$(CC) $(CFLAGS) -c rad.c
 
 scene.o: scene.c scene.h
 	$(CC) $(CFLAGS) -c scene.c
@@ -35,6 +38,8 @@ color.o: color.c color.h
 util/linkedlist.o: util/linkedlist.c util/linkedlist.h
 	$(CC) $(CFLAGS) -o util/linkedlist.o -c util/linkedlist.c
 
-raytrace: main.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o
-	$(CC) $(CFLAGS) -o raytrace.out main.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o $(LDFLAGS)
+rayt: main.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o Makefile
+	$(CC) $(CFLAGS) -o rayt main.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o $(LDFLAGS)
 
+rad: rad.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o Makefile
+	$(CC) $(CFLAGS) -o rad rad.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o $(LDFLAGS)

@@ -91,6 +91,9 @@ color_t color_at(scene_t scene, ray_t ray)
     intersect_result_t res = scene_intersect(scene.shapes, ray, max_dist,
             scene._sky);
 
+    if (v3_magnitude(res.normal) < 0)
+        return color_at(scene, (ray_t){ res.position, ray.direction });
+
     if (res.distance < MAX_DIST)
     {
         /* for each light, illum */
