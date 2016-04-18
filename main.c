@@ -4,8 +4,8 @@
 #include "scene.h"
 
 static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
-static const int SCREEN_W = 1366;
-static const int SCREEN_H = 768;
+static const int SCREEN_W = 640;
+static const int SCREEN_H = 480;
 
 #define CAM_POS {{ 55, -180, 40 }}
 #define CAM_UP {{ 0, 0, 1 }}
