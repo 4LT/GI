@@ -3,6 +3,11 @@
 #include "scene.h"
 
 static const int TILE_SIZE = 20;
+#if 0
+static const double PI2 = atan(-1) * 8;
+#else
+static const double PI2 = 2 * 3.14159;
+#endif
 
 vfloat_t attenuation(vfloat_t radius, vfloat_t distance)
 {
@@ -13,6 +18,10 @@ vfloat_t attenuation(vfloat_t radius, vfloat_t distance)
      * where r = radius, d = distance - radius
      */
     return radius * radius / (distance * distance);
+}
+
+float rand_float() {
+    return (float)rand() / RAND_MAX;
 }
 
 color_t fullbright_shade(intersect_result_t res, light_t *light)
@@ -101,6 +110,7 @@ color_t shiny_shade(intersect_result_t res, light_t *light)
 {
     Material_t *mtrl = res.material;
     color_t out_color = CLR_BLACK;
+    struct vec3 normal = res.normal;
 
     out_color = clr_add(out_color, lambert_shade(res, light));
     out_color = clr_add(out_color, phong_light(res, light));
@@ -108,15 +118,39 @@ color_t shiny_shade(intersect_result_t res, light_t *light)
     if (light->type != AMBIENT)
         return out_color;
 
-    struct vec3 proj_i = v3_project(res.normal, res.incoming);
-    struct vec3 proj_r = v3_add(proj_i, v3_scale(v3_sub(res.normal, proj_i),2));
-    ray_t reflected_ray = (ray_t){ res.position, v3_normalize(proj_r) };
-    reflected_ray.position = v3_add(reflected_ray.position,
-            v3_scale(reflected_ray.direction, .001));
+    struct vec3 aa = (struct vec3) {{ 1, 0, 0 }};
+    if (fabs(normal.v[0]) > fabs(normal.v[1]))
+        aa = (struct vec3) {{ 0, 1, 0 }};
 
-    out_color = clr_add(out_color,
-            clr_scale(color_at(*(mtrl->scene), reflected_ray),
-            mtrl->reflect_scale));
+    struct vec3 unit_x = v3_normalize(v3_cross(normal, aa));
+    struct vec3 unit_y = v3_cross(normal, unit_x);
+    
+    const vfloat_t SPREAD = 1.5;
+    const int RAYCOUNT = 1000;
+    const bool UNIFORM = false;
+    for (int i = 0; i < RAYCOUNT; i++) {
+
+        float theta = PI2 * rand_float();
+        float r = rand_float();
+        if (UNIFORM) r = sqrt(r);
+        r*= SPREAD;
+        struct vec3 mod_normal = v3_add(normal, v3_add(
+                v3_scale(unit_x, r * cos(theta)),
+                v3_scale(unit_y, r * sin(theta)) ));
+        mod_normal = v3_normalize(mod_normal);
+                  
+        struct vec3 proj_i = v3_project(mod_normal, res.incoming);
+        struct vec3 proj_r = v3_add(proj_i,
+                v3_scale(v3_sub(mod_normal, proj_i),2));
+        ray_t reflected_ray = (ray_t){ res.position, v3_normalize(proj_r) };
+        reflected_ray.position = v3_add(reflected_ray.position,
+                v3_scale(reflected_ray.direction, .001));
+        
+        out_color = clr_add(out_color,
+                clr_scale(color_at(*(mtrl->scene), reflected_ray),
+                mtrl->reflect_scale / RAYCOUNT));
+    }
+
     return out_color;
 }
 
