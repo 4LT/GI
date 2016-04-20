@@ -11,7 +11,7 @@ static const int SCREEN_H = 480;
 #define CAM_UP {{ 0, 0, 1 }}
 #define CAM_LOOK {{ 63, 100, 30 }}
 
-static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK };
+static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK, 1.2, 1.0 };
 
 /*
  * Model[] -> Scene
@@ -53,12 +53,12 @@ int main(int argc, char *argv[])
             (Shape_t *)triangle_new(tiled,
                 (struct vec3){{ -100, -220, 0 }},
                 (struct vec3){{  100, -220, 0 }},
-                (struct vec3){{ -100,  220, 0 }} ));
+                (struct vec3){{ -100,  220, 0 }}, false ));
     scene_add_shape(scene,
             (Shape_t *)triangle_new(tiled,
                 (struct vec3){{  100, -220, 0 }},
                 (struct vec3){{  100,  220, 0 }},
-                (struct vec3){{ -100,  220, 0 }} ));
+                (struct vec3){{ -100,  220, 0 }}, false ));
 #if 0
     scene_add_shape(scene,
             (Shape_t *)quad_new(phong_blue,

@@ -10,8 +10,6 @@
 #include "types.h"
 #include "color.h"
 
-static const vfloat_t PLANE_WIDTH = 1.2;
-static const vfloat_t PLANE_DIST = 1.0;
 static const vfloat_t MAX_DIST = 5000;
 
 typedef struct
@@ -19,6 +17,9 @@ typedef struct
     struct vec3 pos;
     struct vec3 up;
     struct vec3 lookAt;
+
+    vfloat_t plane_width;
+    vfloat_t plane_dist;
 } camera_t;
 
 typedef struct scene

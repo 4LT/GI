@@ -15,6 +15,7 @@ typedef struct shape
     intersect_fp intersect;
     transform_fp transform;
     Material_t *material;
+    bool draw_backface;
 } Shape_t;
 
 typedef struct
@@ -49,8 +50,8 @@ Sphere_t *sphere_new(Material_t *mtrl,
         unsigned int radius, struct vec3 position);
 
 Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
-        struct vec3 vert2);
+        struct vec3 vert2, bool draw_backface);
 
 Quad_t *quad_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
-        struct vec3 vert2, struct vec3 vert3);
+        struct vec3 vert2, struct vec3 vert3, bool draw_backface);
 #endif

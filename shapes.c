@@ -68,6 +68,11 @@ intersect_result_t triangle_intersect(Shape_t *shape, ray_t ray)
     Triangle_t *tri = (Triangle_t *)shape;
     struct vec3 e1 = v3_sub(tri->verts[1], tri->verts[0]);
     struct vec3 e2 = v3_sub(tri->verts[2], tri->verts[0]);
+    struct vec3 normal = v3_normalize(v3_cross(e1, e2));
+
+    if (!shape->draw_backface && v3_dot(normal, ray.direction) > 0)
+        return MISS;
+
     struct vec3 T = v3_sub(ray.position, tri->verts[0]);
     struct vec3 P = v3_cross(ray.direction, e2);
     struct vec3 Q = v3_cross(T, e1);
@@ -82,7 +87,6 @@ intersect_result_t triangle_intersect(Shape_t *shape, ray_t ray)
     else {
         struct vec3 intersect = v3_add(v3_scale(tri->verts[0], 1-u-v),
                 v3_add(v3_scale(tri->verts[1], u), v3_scale(tri->verts[2], v)));
-        struct vec3 normal = v3_normalize(v3_cross(e1, e2));
         return (intersect_result_t) { intersect, normal, ray.direction,
                 barycoords.v[0], shape->material };
     }
@@ -119,17 +123,18 @@ Shape_t *quad_transform(Shape_t *shape, struct mat4 trans_mat)
 Sphere_t *sphere_new(Material_t *mtrl, unsigned int radius, struct vec3 position)
 {
     Sphere_t *sphere = malloc(sizeof(Sphere_t));
-    sphere->base = (Shape_t) { sphere_intersect, sphere_transform, mtrl };
+    sphere->base = (Shape_t) { sphere_intersect, sphere_transform, mtrl, true };
     sphere->radius = radius;
     sphere->position = position;
     return sphere;
 }
 
 Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
-        struct vec3 vert2)
+        struct vec3 vert2, bool draw_backface)
 {
     Triangle_t *tri = malloc(sizeof(Triangle_t));
-    tri->base = (Shape_t) { triangle_intersect, triangle_transform, mtrl };
+    tri->base = (Shape_t) { triangle_intersect, triangle_transform, mtrl,
+            draw_backface };
     tri->verts[0] = vert0;
     tri->verts[1] = vert1;
     tri->verts[2] = vert2;
@@ -138,12 +143,12 @@ Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
 }
 
 Quad_t *quad_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
-        struct vec3 vert2, struct vec3 vert3)
+        struct vec3 vert2, struct vec3 vert3, bool draw_backface)
 {
     Quad_t *quad = malloc(sizeof(Quad_t));
-    quad->base = (Shape_t) { quad_intersect, NULL, mtrl };
-    quad->t1 = triangle_new(mtrl, vert0, vert1, vert2);
-    quad->t2 = triangle_new(mtrl, vert2, vert3, vert0);
+    quad->base = (Shape_t) { quad_intersect, NULL, mtrl, draw_backface };
+    quad->t1 = triangle_new(mtrl, vert0, vert1, vert2, draw_backface);
+    quad->t2 = triangle_new(mtrl, vert2, vert3, vert0, draw_backface);
 
     return quad;
 }

@@ -136,8 +136,8 @@ void scene_render(scene_t scene, unsigned int w, unsigned int h,
     plane_up = v3_normalize(plane_up);
     lookVec = v3_normalize(lookVec);
 
-    vfloat_t plane_height = PLANE_WIDTH * (vfloat_t)h / w;
-    vfloat_t dx = PLANE_WIDTH / w;
+    vfloat_t plane_height = cam.plane_width * (vfloat_t)h / w;
+    vfloat_t dx = cam.plane_width / w;
     vfloat_t dy = plane_height / h;
 
     for (int r = 0; r < h; r++) {
@@ -148,7 +148,7 @@ void scene_render(scene_t scene, unsigned int w, unsigned int h,
                     v3_add(
                         v3_scale(plane_right, plane_x),
                         v3_scale(plane_up, plane_y)),
-                    v3_scale(lookVec, PLANE_DIST));
+                    v3_scale(lookVec, cam.plane_dist));
             ray_t ray;
             ray.position = cam.pos;
             ray.direction = v3_normalize(plane_world);
