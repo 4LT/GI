@@ -125,8 +125,8 @@ color_t shiny_shade(intersect_result_t res, light_t *light)
     struct vec3 unit_x = v3_normalize(v3_cross(normal, aa));
     struct vec3 unit_y = v3_cross(normal, unit_x);
     
-    const vfloat_t SPREAD = 1.5;
-    const int RAYCOUNT = 1000;
+    const vfloat_t SPREAD = 0;
+    const int RAYCOUNT = 1;
     const bool UNIFORM = false;
     for (int i = 0; i < RAYCOUNT; i++) {
 
