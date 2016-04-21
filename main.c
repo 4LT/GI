@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
             spec1, 64, 1);
     Material_t *phong_blue = phong_new(&scene, (color_t) {{ 0, 0, 0.5 }},
             spec2, 8);
-#if 1
+#if 0
     Material_t *tiled = noisy_tile_new(&scene);
 #else
     Material_t *tiled = tile_new(&scene);
