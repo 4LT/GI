@@ -244,7 +244,10 @@ Material_t *shiny_new(struct scene *scene, color_t color, color_t spec_color,
 Material_t *noisy_tile_new(struct scene *scene)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) { tile_shade, noisy_sample,
-            CLR_WHITE, CLR_BLACK, 1 };
+    *mtrl = (Material_t) {
+        .scene = scene,
+        .shade = tile_shade,
+        .diffuse_sample = noisy_sample;
+    };
     return mtrl;
 }
