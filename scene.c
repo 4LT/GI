@@ -5,15 +5,13 @@ const vfloat_t AMBIENT_SCALE = 0.4;
 
 scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
-    Material_t *sky_mtrl = malloc(sizeof(Material_t));
-    *sky_mtrl = (Material_t) {
-        .scene = NULL,
-        .shade = fullbright_shade,
-        .diffuse_color = sky_color,
-        .specular_color = CLR_BLACK,
-        .specular_exp = 1
-    };
-    return (scene_t){ sky_mtrl, camera, llist_new(), llist_new() };
+    Material_t *sky_mtrl = fullbright_new(NULL, sky_color);
+    return (scene_t) {
+        ._sky = sky_mtrl,
+        .ambient_light = clr_scale(sky_color, AMBIENT_SCALE),
+        .camera = camera,
+        .shapes = llist_new(),
+        .lights = llist_new() };
 }
 
 void scene_add_shape(scene_t scene, Shape_t *shape)
@@ -67,6 +65,8 @@ intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
     return nearest;
 }
 
+/* true - shadow
+ * false - illum */
 bool shadow_test(intersect_result_t res, light_t *light)
 {
     scene_t *scene = res.material->scene;
@@ -93,12 +93,14 @@ color_t color_at(scene_t scene, ray_t ray)
 
     if (res.distance < MAX_DIST)
     {
+        out_color = clr_add(out_color, shade_once(res));
+
         /* for each light, illum */
         for (llist_node_t *node = scene.lights->first; node != NULL;
                 node = node->next)
         {
             light_t *light = (light_t *)(node->datum);
-            out_color = clr_add(out_color, shade(res, light));
+            out_color = clr_add(out_color, shade_light(res, light));
         }
 #if 0
         color_t diffuse = res.material->diffuse_sample(

@@ -25,6 +25,7 @@ typedef struct
 typedef struct scene
 {
     Material_t *_sky;
+    color_t ambient_light;
     camera_t camera;
     llist_t *shapes;
     llist_t *lights;
