@@ -5,6 +5,7 @@
 
 static const int TILE_SIZE = 20;
 static const double PI2 = 2 * 3.14159;
+static const vfloat_t FUDGE = 0.001;
 
 vfloat_t attenuation(vfloat_t radius, vfloat_t distance)
 {
@@ -189,9 +190,10 @@ color_t reflect(intersect_result_t res)
         struct vec3 proj_i = v3_project(mod_normal, res.incoming);
         struct vec3 proj_r = v3_add(proj_i,
                 v3_scale(v3_sub(mod_normal, proj_i),2));
-        ray_t reflected_ray = (ray_t){ res.position, v3_normalize(proj_r) };
-        reflected_ray.position = v3_add(reflected_ray.position,
-                v3_scale(reflected_ray.direction, .001));
+        ray_t reflected_ray;
+        reflected_ray.direction = v3_normalize(proj_r);
+        reflected_ray.position = v3_add(res.position,
+                v3_scale(normal, FUDGE));
         
         out_color = clr_add(out_color,
                 clr_scale(color_at(*(mtrl->scene), reflected_ray),
