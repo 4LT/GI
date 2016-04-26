@@ -2,6 +2,7 @@
 
 const vfloat_t FUDGE_SCALE = 0.001;
 const vfloat_t AMBIENT_SCALE = 0.4;
+const int MAX_DEPTH = 10;
 
 scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
@@ -83,6 +84,11 @@ bool shadow_test(intersect_result_t res, light_t *light)
 
 color_t color_at(scene_t scene, ray_t ray)
 {
+    return color_at_rec(scene, ray, MAX_DEPTH);
+}
+
+color_t color_at_rec(scene_t scene, ray_t ray, int depth)
+{
     color_t out_color = CLR_BLACK;
     vfloat_t max_dist = MAX_DIST;
     color_t sky_color = scene._sky->diffuse_color;
@@ -90,6 +96,7 @@ color_t color_at(scene_t scene, ray_t ray)
     /* find nearest intersection */
     intersect_result_t res = scene_intersect(scene.shapes, ray, max_dist,
             scene._sky);
+    res.depth = depth;
 
     if (res.distance < MAX_DIST)
     {

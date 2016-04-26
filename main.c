@@ -26,8 +26,13 @@ int main(int argc, char *argv[])
 
     Material_t *shiny = shiny_new(&scene, (color_t) {{ 0.2, 0.2, 0.2 }},
             spec1, 64, 1, 0, 1);
+#if 1
     Material_t *phong_blue = phong_new(&scene, (color_t) {{ 0, 0, 0.5 }},
             spec2, 8);
+#else
+    Material_t *phong_blue = shiny_new(&scene, (color_t) {{ 0, 0, 0.5 }},
+            spec2, 8, 1, 0, 1);
+#endif
 
 #if 1
     Material_t *tiled = tile_new(&scene);
@@ -56,7 +61,11 @@ int main(int argc, char *argv[])
             (struct vec3){{ 55, -20, 30 }}));
     scene_add_shape(scene,
             (Shape_t *) sphere_new(shiny, 18,
+#if 1
             (struct vec3){{ 20, 30, 22 }}));
+#else
+            (struct vec3){{ 15, -30, 22 }}));
+#endif
     scene_add_shape(scene,
             (Shape_t *)triangle_new(tiled,
                 (struct vec3){{ -100, -220, 0 }},

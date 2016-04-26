@@ -163,9 +163,12 @@ color_t phong_shade(intersect_result_t res, light_t *light)
 
 color_t reflect(intersect_result_t res)
 {
+    if (res.depth == 0)
+        return CLR_BLACK;
+
+    color_t out_color = CLR_BLACK;
     Material_t *mtrl = res.material;
     struct vec3 normal = res.normal;
-    color_t out_color = CLR_BLACK;
 
     /* axis-aligned vector such that (aa x normal) is never (0, 0, 0) */
     struct vec3 aa = (struct vec3) {{ 1, 0, 0 }};
@@ -195,9 +198,11 @@ color_t reflect(intersect_result_t res)
         reflected_ray.position = v3_add(res.position,
                 v3_scale(normal, FUDGE));
         
-        out_color = clr_add(out_color,
-                clr_scale(color_at(*(mtrl->scene), reflected_ray),
-                mtrl->reflect_scale / mtrl->reflect_ray_count));
+        color_t reflect_color = color_at_rec(*(mtrl->scene), reflected_ray,
+                res.depth - 1);
+        reflect_color = clr_scale(reflect_color,
+                mtrl->reflect_scale / mtrl->reflect_ray_count);
+        out_color = clr_add(out_color, reflect_color);
     }
 
     return out_color;

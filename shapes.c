@@ -52,8 +52,13 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
     struct vec3 normal = v3_normalize(
             v3_sub(intersect_point, sphere->position));
     
-    return (intersect_result_t) { intersect_point, normal, ray.direction,
-            dist, mtrl };
+    intersect_result_t res;
+    res.position = intersect_point;
+    res.normal = normal;
+    res.incoming = ray.direction;
+    res.distance = dist;
+    res.material = mtrl;
+    return res;
 }
 
 Shape_t *sphere_transform(Shape_t *shape, struct mat4 trans_mat)
@@ -87,8 +92,13 @@ intersect_result_t triangle_intersect(Shape_t *shape, ray_t ray)
     else {
         struct vec3 intersect = v3_add(v3_scale(tri->verts[0], 1-u-v),
                 v3_add(v3_scale(tri->verts[1], u), v3_scale(tri->verts[2], v)));
-        return (intersect_result_t) { intersect, normal, ray.direction,
-                barycoords.v[0], shape->material };
+        intersect_result_t res;
+        res.position = intersect;
+        res.normal = normal;
+        res.incoming = ray.direction;
+        res.distance = barycoords.v[0];
+        res.material = shape->material;
+        return res;
     }
 }
 

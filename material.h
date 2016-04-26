@@ -25,7 +25,7 @@ struct material
     float transmit_scale;
     float roughness;
     int reflect_ray_count;
-    float refraction;
+    float ior;
 };
 
 struct intersect_result
@@ -34,6 +34,7 @@ struct intersect_result
     struct vec3 normal;
     struct vec3 incoming;
     vfloat_t distance;
+    int depth;
     Material_t *material;
 };
 

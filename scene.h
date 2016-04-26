@@ -43,7 +43,7 @@ void scene_teardown(scene_t scene);
 
 color_t color_at(scene_t scene, ray_t ray);
 
-pixel_t pixel_at(scene_t scene, ray_t ray);
+color_t color_at_rec(scene_t scene, ray_t ray, int depth);
 
 void scene_render(scene_t scene, unsigned int w, unsigned int h,
         pixel_t *pixmap);
