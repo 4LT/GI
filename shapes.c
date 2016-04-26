@@ -36,13 +36,18 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
     vfloat_t q = (b - p)/2;
     vfloat_t r = (b + p)/2;
 
+    bool exit = false;
     vfloat_t dist;
     if (q <= 0 && r <= 0)
         return MISS;
-    else if (q <= 0)
+    else if (q <= 0) {
         dist = r;
-    else if (r <= 0)
+        exit = true;
+    }
+    else if (r <= 0) {
         dist = q;
+        exit = true;
+    }
     else {
         dist = q < r ? q : r;
     }
@@ -51,12 +56,15 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
             v3_scale(ray.direction, dist), ray.position);
     struct vec3 normal = v3_normalize(
             v3_sub(intersect_point, sphere->position));
+    if (exit)
+        normal = v3_scale(normal, -1);
     
     intersect_result_t res;
     res.position = intersect_point;
     res.normal = normal;
     res.incoming = ray.direction;
     res.distance = dist;
+    res.exit = exit;
     res.material = mtrl;
     return res;
 }

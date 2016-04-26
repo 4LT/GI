@@ -35,6 +35,7 @@ struct intersect_result
     struct vec3 incoming;
     vfloat_t distance;
     int depth;
+    bool exit;
     Material_t *material;
 };
 

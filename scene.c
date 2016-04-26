@@ -2,11 +2,12 @@
 
 const vfloat_t FUDGE_SCALE = 0.001;
 const vfloat_t AMBIENT_SCALE = 0.4;
-const int MAX_DEPTH = 10;
+const int MAX_DEPTH = 80;
 
 scene_t scene_empty_scene(color_t sky_color, camera_t camera)
 {
     Material_t *sky_mtrl = fullbright_new(NULL, sky_color);
+    sky_mtrl->ior = 1;
     return (scene_t) {
         ._sky = sky_mtrl,
         .ambient_light = clr_scale(sky_color, AMBIENT_SCALE),

@@ -200,11 +200,49 @@ color_t reflect(intersect_result_t res)
         
         color_t reflect_color = color_at_rec(*(mtrl->scene), reflected_ray,
                 res.depth - 1);
-        reflect_color = clr_scale(reflect_color,
-                mtrl->reflect_scale / mtrl->reflect_ray_count);
         out_color = clr_add(out_color, reflect_color);
     }
 
+    return clr_scale(out_color, (vfloat_t)1/mtrl->reflect_ray_count);
+}
+
+color_t refract(intersect_result_t res)
+{
+    if (res.depth == 0)
+        return CLR_BLACK;
+
+    /* assume we're in air or space (atm ior = 1) */
+    vfloat_t refract_ratio = res.exit ? 1/res.material->ior : res.material->ior;
+
+    vfloat_t cos_theta1 = v3_dot(v3_scale(res.incoming, -1), res.normal);
+    vfloat_t discrim = 1 +
+        (refract_ratio*refract_ratio * (cos_theta1*cos_theta1 - 1));
+    if (discrim < 0) return reflect(res);
+
+    struct vec3 transmit = v3_add(v3_scale(res.incoming, refract_ratio),
+            v3_scale(res.normal, refract_ratio*cos_theta1 - sqrt(discrim)));
+
+    ray_t reflected_ray;
+    reflected_ray.direction = v3_normalize(transmit);
+    reflected_ray.position = v3_sub(res.position,
+            v3_scale(res.normal, FUDGE));
+
+    return color_at_rec(*(res.material->scene), reflected_ray,
+            res.depth - 1);
+}
+
+color_t recursive(intersect_result_t res)
+{
+    color_t out_color = CLR_BLACK;
+    Material_t *mtrl = res.material;
+    if (mtrl->reflect_scale != 0) {
+        out_color = clr_add(out_color, clr_scale(reflect(res),
+                    mtrl->reflect_scale));
+    }
+    if (mtrl->transmit_scale != 0) {
+        out_color = clr_add(out_color, clr_scale(refract(res),
+                    mtrl->transmit_scale));
+    }
     return out_color;
 }
 
@@ -267,9 +305,20 @@ Material_t *shiny_new(struct scene *scene, color_t color, color_t spec_color,
 {
     Material_t *mtrl = phong_new(scene, color, spec_color, spec_exp);
     mtrl->reflect_scale = reflect_scale;
-    mtrl->shade_once = reflect;
+    mtrl->transmit_scale = 0;
+    mtrl->shade_once = recursive;
     mtrl->roughness = roughness;
     mtrl->reflect_ray_count = ray_count;
+    return mtrl;
+}
+
+Material_t *refr_new(struct scene *scene, color_t color, color_t spec_color,
+        float spec_exp, float reflect_scale, float transmit_scale, float ior)
+{
+    Material_t *mtrl = shiny_new(scene, color, spec_color, spec_exp,
+            reflect_scale, 0, 1);
+    mtrl->transmit_scale = transmit_scale;
+    mtrl->ior = ior;
     return mtrl;
 }
 
