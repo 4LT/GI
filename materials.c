@@ -206,28 +206,33 @@ color_t reflect(intersect_result_t res)
     return clr_scale(out_color, (vfloat_t)1/mtrl->reflect_ray_count);
 }
 
+color_t recursive(intersect_result_t);
+
 color_t refract(intersect_result_t res)
 {
     if (res.depth == 0)
         return CLR_BLACK;
 
+    Material_t *mtrl = res.material;
+
     /* assume we're in air or space (atm ior = 1) */
-    vfloat_t refract_ratio = res.exit ? 1/res.material->ior : res.material->ior;
+    vfloat_t refract_ratio = res.exit ? mtrl->ior : 1/mtrl->ior;
 
     vfloat_t cos_theta1 = v3_dot(v3_scale(res.incoming, -1), res.normal);
     vfloat_t discrim = 1 +
         (refract_ratio*refract_ratio * (cos_theta1*cos_theta1 - 1));
-    if (discrim < 0) return reflect(res);
+
+    if (discrim <= 0) return reflect(res);
 
     struct vec3 transmit = v3_add(v3_scale(res.incoming, refract_ratio),
             v3_scale(res.normal, refract_ratio*cos_theta1 - sqrt(discrim)));
 
-    ray_t reflected_ray;
-    reflected_ray.direction = v3_normalize(transmit);
-    reflected_ray.position = v3_sub(res.position,
+    ray_t refracted_ray;
+    refracted_ray.direction = v3_normalize(transmit);
+    refracted_ray.position = v3_sub(res.position,
             v3_scale(res.normal, FUDGE));
 
-    return color_at_rec(*(res.material->scene), reflected_ray,
+    return color_at_rec(*(res.material->scene), refracted_ray,
             res.depth - 1);
 }
 

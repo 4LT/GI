@@ -28,11 +28,7 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
         return MISS;
     }
     p = sqrt(p);
-#if 0
-    vfloat_t q = (-b + p)/2;
-    vfloat_t r = (-b - p)/2;
-#endif
-    /*TODO stop-gap fix (why is this backwards?) */
+
     vfloat_t q = (b - p)/2;
     vfloat_t r = (b + p)/2;
 

@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 #endif
 
     Material_t *glass = refr_new(&scene, (color_t) {{ 0, 0, 0.1 }}, spec2, 8,
-            0.05, 0.95, 1/0.95);
+            0.05, 0.95, 0.95);
 
 #if 1
     Material_t *tiled = tile_new(&scene);
