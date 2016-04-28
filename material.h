@@ -1,6 +1,7 @@
 #ifndef MATERIAL_H_
 #define MATERIAL_H_
 
+#include <stdlib.h>
 #include "types.h"
 #include "light.h"
 #include "util/linkedlist.h"
@@ -37,6 +38,26 @@ struct intersect_result
     int depth;
     bool exit;
     Material_t *material;
+};
+
+color_t shade_nop(intersect_result_t res);
+color_t shade_nop_light(intersect_result_t r, light_t *l);
+color_t solid_sample(Material_t *mtrl, vfloat_t x, vfloat_t y);
+
+static const Material_t DEF_MTRL = (Material_t)
+{
+    .scene = NULL,
+    .shade_per_light = shade_nop_light,
+    .shade_once = shade_nop,
+    .diffuse_sample = solid_sample,
+    .diffuse_color = CLR_WHITE,
+    .specular_color = CLR_BLACK,
+    .specular_exp = 1,
+    .reflect_scale = 0,
+    .transmit_scale = 0,
+    .roughness = 0,
+    .reflect_ray_count = 1,
+    .ior = 1
 };
 
 color_t shade_light(intersect_result_t res, light_t *light);

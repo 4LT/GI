@@ -80,7 +80,8 @@ bool shadow_test(intersect_result_t res, light_t *light)
     intersect_result_t shadow_res = scene_intersect(scene->shapes,
             light_ray, MAX_DIST, NULL);
 
-    return light_dist > shadow_res.distance + FUDGE_SCALE;
+    return light_dist > shadow_res.distance + FUDGE_SCALE &&
+        shadow_res.material->transmit_scale < 0.5;
 }
 
 color_t color_at(scene_t scene, ray_t ray)

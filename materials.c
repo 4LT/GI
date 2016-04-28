@@ -22,9 +22,6 @@ float rand_float() {
     return (float)rand() / RAND_MAX;
 }
 
-color_t shade_nop(intersect_result_t res) { return CLR_BLACK; }
-color_t shade_nop_light(intersect_result_t r, light_t *l) { return CLR_BLACK; }
-
 color_t shade_fullbright(intersect_result_t res)
 {
     return res.material->diffuse_color;
@@ -103,11 +100,6 @@ color_t concentric_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
     vfloat_t scale = cos(PI2 * r1) + cos(PI2 * r2);
     scale = (scale + 2)/4;
     return clr_add(clr_scale(GREY, scale), clr_scale(GREEN, 1-scale));
-}
-
-color_t solid_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
-{
-    return mtrl->diffuse_color;
 }
 
 color_t specular_illum(intersect_result_t res, light_t *light)
@@ -255,53 +247,43 @@ Material_t *phong_new(struct scene *scene, color_t color, color_t spec_color,
         float spec_exp)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) {
-        .scene = scene,
-        .shade_per_light = phong_shade,
-        .shade_once = shade_nop,
-        .diffuse_sample = solid_sample,
-        .diffuse_color = color,
-        .specular_color = spec_color,
-        .specular_exp = spec_exp
-    };
+    *mtrl = DEF_MTRL;
+    mtrl->scene = scene;
+    mtrl->shade_per_light = phong_shade;
+    mtrl->diffuse_color = color;
+    mtrl->specular_color = spec_color;
+    mtrl->specular_exp = spec_exp;
     return mtrl; 
 }
 
 Material_t *lambert_new(struct scene *scene, color_t color)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) {
-        .scene = scene,
-        .shade_per_light = lambert_shade,
-        .shade_once = shade_nop,
-        .diffuse_sample = solid_sample,
-        .diffuse_color = color
-    };
+    *mtrl = DEF_MTRL;
+    mtrl->scene = scene;
+    mtrl->shade_per_light = lambert_shade;
+    mtrl->diffuse_sample = solid_sample;
+    mtrl->diffuse_color = color;
     return mtrl;
 }
 
 Material_t *fullbright_new(struct scene *scene, color_t color)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) {
-        .scene = scene,
-        .shade_per_light = shade_nop_light,
-        .shade_once = shade_fullbright,
-        .diffuse_sample = solid_sample,
-        .diffuse_color = color
-    };
+    *mtrl = DEF_MTRL;
+    mtrl->scene = scene;
+    mtrl->shade_once = shade_fullbright;
+    mtrl->diffuse_color = color;
     return mtrl;
 }
 
 Material_t *tile_new(struct scene *scene)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) {
-        .scene = scene,
-        .shade_per_light = tile_shade,
-        .shade_once = shade_nop,
-        .diffuse_sample = tile_sample
-    };
+    *mtrl = DEF_MTRL;
+    mtrl->scene = scene;
+    mtrl->shade_per_light = tile_shade;
+    mtrl->diffuse_sample = tile_sample;
     return mtrl;
 }
 
@@ -310,7 +292,6 @@ Material_t *shiny_new(struct scene *scene, color_t color, color_t spec_color,
 {
     Material_t *mtrl = phong_new(scene, color, spec_color, spec_exp);
     mtrl->reflect_scale = reflect_scale;
-    mtrl->transmit_scale = 0;
     mtrl->shade_once = recursive;
     mtrl->roughness = roughness;
     mtrl->reflect_ray_count = ray_count;
@@ -330,23 +311,19 @@ Material_t *refr_new(struct scene *scene, color_t color, color_t spec_color,
 Material_t *noisy_tile_new(struct scene *scene)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) {
-        .scene = scene,
-        .shade_per_light = tile_shade,
-        .shade_once = shade_nop,
-        .diffuse_sample = noisy_sample
-    };
+    *mtrl = DEF_MTRL;
+    mtrl->scene = scene;
+    mtrl->shade_per_light = tile_shade;
+    mtrl->diffuse_sample = noisy_sample;
     return mtrl;
 }
 
 Material_t *concentric_new(struct scene *scene)
 {
     Material_t *mtrl = (Material_t *) malloc(sizeof(Material_t));
-    *mtrl = (Material_t) {
-        .scene = scene,
-        .shade_per_light = tile_shade,
-        .shade_once = shade_nop,
-        .diffuse_sample = concentric_sample
-    };
+    *mtrl = DEF_MTRL;
+    mtrl->scene = scene;
+    mtrl->shade_per_light = tile_shade;
+    mtrl->diffuse_sample = concentric_sample;
     return mtrl;
 }
