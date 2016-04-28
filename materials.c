@@ -69,8 +69,8 @@ color_t noisy_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
     const vfloat_t WAV_LEN = TILE_SIZE * 1.5;
     const vfloat_t AMP = TILE_SIZE / 2;
     vfloat_t oldY = y;
-    y = y + AMP * cos(PI2 * x / WAV_LEN);
-    x = x + AMP * cos(PI2 * oldY / WAV_LEN);
+    y = y + AMP * cos(PI2 * x / WAV_LEN / 2) / 2;
+    x = x + AMP * cos(PI2 * oldY / WAV_LEN / 2) / 2;
 
     int tx = (int)floor(x / TILE_SIZE);
     int ty = (int)floor(y / TILE_SIZE);
@@ -97,9 +97,9 @@ color_t concentric_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
     const color_t GREEN = {{ 0, 1, 0 }};
     const vfloat_t THICK = 2;
     struct vec3 P1 = {{ -10, -40, 0 }}, P2 = {{ 30, 50, 0 }};
-    struct vec3 xyv = {{ x, y, 0 }};
-    vfloat_t r1 = v3_magnitude(v3_sub(P1, xyv)) / THICK;
-    vfloat_t r2 = v3_magnitude(v3_sub(P2, xyv)) / THICK;
+    struct vec3 xyv = {{ x/2, y/2, 0 }};
+    vfloat_t r1 = v3_magnitude(v3_sub(P1, xyv)) / THICK / 2;
+    vfloat_t r2 = v3_magnitude(v3_sub(P2, xyv)) / THICK / 2;
     vfloat_t scale = cos(PI2 * r1) + cos(PI2 * r2);
     scale = (scale + 2)/4;
     return clr_add(clr_scale(GREY, scale), clr_scale(GREEN, 1-scale));
