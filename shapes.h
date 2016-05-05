@@ -35,7 +35,7 @@ typedef struct
 {
     Shape_t base;
     /* TODO: possibly create quad intersect function, use 4 coords instead of
-     * 2 triangles */
+     * 2 triangles (non-planar) */
     Triangle_t *t1;
     Triangle_t *t2;
 }   Quad_t;

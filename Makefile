@@ -6,13 +6,19 @@ else
 	LDFLAGS= -lSDL2 -lm
 endif
 
-all: rayt rad
+all: rayt rad ply2tri
 
 main.o: main.c types.h scene.h shapes.h material.h materials.h light.h color.h
 	$(CC) $(CFLAGS) -c main.c
 
 rad.o: rad.c types.h scene.h shapes.h material.h materials.h light.h color.h
 	$(CC) $(CFLAGS) -c rad.c
+
+ply2tri.o: ply2tri.c types.h scene.h shapes.h material.h materials.h light.h color.h rply-1.1.4/rply.h
+	$(CC) $(CFLAGS) -c ply2tri.c
+
+rply-1.1.4/rply.o: rply-1.1.4/rply.c rply-1.1.4/rply.h rply-1.1.4/rplyfile.h
+	$(CC) $(CFLAGS) -o rply-1.1.4/rply.o -c rply-1.1.4/rply.c
 
 scene.o: scene.c scene.h
 	$(CC) $(CFLAGS) -c scene.c
@@ -43,3 +49,6 @@ rayt: main.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.
 
 rad: rad.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o Makefile
 	$(CC) $(CFLAGS) -o rad rad.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o $(LDFLAGS)
+
+ply2tri: ply2tri.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o rply-1.1.4/rply.o Makefile
+	$(CC) $(CFLAGS) -o ply2tri ply2tri.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o rply-1.1.4/rply.o $(LDFLAGS)
