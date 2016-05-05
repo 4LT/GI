@@ -29,6 +29,7 @@ typedef struct
 {
     Shape_t base;
     struct vec3 verts[3];
+    struct vec3 center;
 } Triangle_t;
 
 typedef struct
