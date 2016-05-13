@@ -4,6 +4,7 @@
 #include "rply-1.1.4/rply.h"
 #include "util/linkedlist.h"
 #include "shapes.h"
+#include "tone_mapping.h"
 
 static const int SCREEN_W = 640;
 static const int SCREEN_H = 480;
@@ -110,7 +111,7 @@ int main(int argc, char *argv[])
 */
     light_t light1 = (light_t) {
         .type = SPHERE,
-        .position = (struct vec3) {{ 65, -80, 128 }},
+        .position = (struct vec3) {{ 65, 80, 128 }},
         .color = (color_t) {{ 200, 200, 200 }},
         .radius = 7
     };
@@ -121,10 +122,16 @@ int main(int argc, char *argv[])
     scene_add_light(scene, &light1);
     scene_add_light(scene, &ambient);
 
-    pixel_t *img = malloc(SCREEN_W * SCREEN_H * sizeof(pixel_t));
+    size_t pix_count = SCREEN_W * SCREEN_H;
+    color_t *img = malloc(pix_count * sizeof(color_t));
     scene_render(scene, SCREEN_W, SCREEN_H, img);
-    int exit_status = draw(SCREEN_W, SCREEN_H, img);
+
+    pixel_t *pixmap = malloc(pix_count * sizeof(color_t));
+    tonemap_nop(img, pix_count, pixmap);
     free(img);
+
+    int exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
+    free(pixmap);
 
     return exit_status;
 }

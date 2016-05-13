@@ -2,6 +2,7 @@
 #include "canvas.h"
 #include "vecmatops.h"
 #include "scene.h"
+#include "tone_mapping.h"
 
 static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
 static const int SCREEN_W = 640;
@@ -87,11 +88,15 @@ int main(int argc, char *argv[])
                 (struct vec3){{ 100,  220, 100 }},
                 (struct vec3){{ -100, 220, 100 }} ));
 #endif
-
-    pixel_t *img = malloc(SCREEN_W * SCREEN_H * sizeof(pixel_t));
+    size_t pix_count = SCREEN_W * SCREEN_H;
+    color_t *img = malloc(pix_count * sizeof(color_t));
     scene_render(scene, SCREEN_W, SCREEN_H, img);
 
-    int exit_status = draw(SCREEN_W, SCREEN_H, img);
+    pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));
+    tonemap_ward(img, pix_count, pixmap, 3);
     free(img);
+
+    int exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
+    free(pixmap);
     return exit_status;
 }

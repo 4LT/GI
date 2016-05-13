@@ -41,10 +41,11 @@ void scene_add_light(scene_t scene, light_t *light);
 
 void scene_teardown(scene_t scene);
 
+void scene_render(scene_t scene, size_t w, size_t h,
+        color_t *img);
+
 color_t color_at(scene_t scene, ray_t ray);
 
 color_t color_at_rec(scene_t scene, ray_t ray, int depth);
 
-void scene_render(scene_t scene, unsigned int w, unsigned int h,
-        pixel_t *pixmap);
 #endif

@@ -6,6 +6,9 @@ else
 	LDFLAGS= -lSDL2 -lm
 endif
 
+COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o vecmatops.o\
+				color.o tone_mapping.o util/linkedlist.o
+
 all: rayt rad ply2tri
 
 main.o: main.c types.h scene.h shapes.h material.h materials.h light.h color.h
@@ -41,14 +44,18 @@ vecmatops.o: vecmatops.c vecmatops.h
 color.o: color.c color.h
 	$(CC) $(CFLAGS) -c color.c
 
+tone_mapping.o: tone_mapping.c tone_mapping.h
+	$(CC) $(CFLAGS) -c tone_mapping.c
+
 util/linkedlist.o: util/linkedlist.c util/linkedlist.h
 	$(CC) $(CFLAGS) -o util/linkedlist.o -c util/linkedlist.c
 
-rayt: main.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o Makefile
-	$(CC) $(CFLAGS) -o rayt main.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o $(LDFLAGS)
+rayt: main.o $(COMMON_OBJECTS) Makefile
+	$(CC) $(CFLAGS) -o rayt main.o $(COMMON_OBJECTS) $(LDFLAGS)
 
-rad: rad.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o Makefile
-	$(CC) $(CFLAGS) -o rad rad.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o $(LDFLAGS)
+rad: rad.o $(COMMON_OBJECTS) Makefile
+	$(CC) $(CFLAGS) -o rad rad.o $(COMMON_OBJECTS) $(LDFLAGS)
 
-ply2tri: ply2tri.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o rply-1.1.4/rply.o Makefile
-	$(CC) $(CFLAGS) -o ply2tri ply2tri.o scene.o shapes.o canvas.o material.o materials.o vecmatops.o color.o util/linkedlist.o rply-1.1.4/rply.o $(LDFLAGS)
+ply2tri: ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)  Makefile
+	$(CC) $(CFLAGS) -o ply2tri ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)\
+		$(LDFLAGS)

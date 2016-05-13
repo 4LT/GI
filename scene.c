@@ -84,11 +84,6 @@ bool shadow_test(intersect_result_t res, light_t *light)
         shadow_res.material->transmit_scale < 0.5;
 }
 
-color_t color_at(scene_t scene, ray_t ray)
-{
-    return color_at_rec(scene, ray, MAX_DEPTH);
-}
-
 color_t color_at_rec(scene_t scene, ray_t ray, int depth)
 {
     color_t out_color = CLR_BLACK;
@@ -125,19 +120,13 @@ color_t color_at_rec(scene_t scene, ray_t ray, int depth)
     return out_color;
 }
 
-pixel_t pixel_at(scene_t scene, ray_t ray)
+color_t color_at(scene_t scene, ray_t ray)
 {
-    color_t color = color_at(scene, ray);
-    color.c[0] = color.c[0] > 1 ? 1 : color.c[0];
-    color.c[1] = color.c[1] > 1 ? 1 : color.c[1];
-    color.c[2] = color.c[2] > 1 ? 1 : color.c[2];
-    return (int)(255 * color.c[0]) << 24 |
-           (int)(255 * color.c[1]) << 16 |
-           (int)(255 * color.c[2]) << 8  | 0xFF;
+    return color_at_rec(scene, ray, MAX_DEPTH);
 }
 
-void scene_render(scene_t scene, unsigned int w, unsigned int h,
-        pixel_t *pixmap)
+void scene_render(scene_t scene, size_t w, size_t h,
+        color_t *img)
 {
     camera_t cam = scene.camera;
     struct vec3 lookVec = v3_sub(cam.lookAt, cam.pos);
@@ -164,8 +153,7 @@ void scene_render(scene_t scene, unsigned int w, unsigned int h,
             ray.position = cam.pos;
             ray.direction = v3_normalize(plane_world);
 
-            pixel_t pix = pixel_at(scene, ray);
-            pixmap[r*w + c] = pix;
+            img[r*w + c] = color_at(scene, ray);
         }
     }
 }
