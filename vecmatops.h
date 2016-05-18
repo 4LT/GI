@@ -4,11 +4,6 @@
 #include <tgmath.h>
 #include "types.h"
 
-static const struct mat4 MAT4_IDENTITY = { {{ 1, 0, 0, 0 },
-                                            { 0, 1, 0, 0 },
-                                            { 0, 0, 1, 0 },
-                                            { 0, 0, 0, 1 }} };
-
 vfloat_t v3_dot(const struct vec3 vecA, const struct vec3 vecB);
 
 struct vec3 v3_cross(struct vec3 vecA, struct vec3 vecB);
@@ -29,6 +24,10 @@ vfloat_t v3_magnitude(struct vec3 in);
 struct vec3 v3_normalize(struct vec3 in);
 
 vfloat_t v3_distance(struct vec3 vecA, struct vec3 vecB);
+
+struct vec3 m4v3_column(struct mat4 mat, unsigned int index);
+
+struct vec3 m4v3_row(struct mat4 mat, unsigned int index);
 
 struct vec3 m4v3_transform(struct mat4 xformMat, struct vec3 in);
 

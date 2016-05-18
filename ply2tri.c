@@ -2,7 +2,6 @@
 #include "scene.h"
 #include "canvas.h"
 #include "rply-1.1.4/rply.h"
-#include "util/linkedlist.h"
 #include "shapes.h"
 #include "tone_mapping.h"
 
@@ -15,10 +14,12 @@ static const int SCREEN_H = 480;
 
 static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK, 1.2, 1.0 };
 
+static struct vec3 vert;
+static size_t vert_index = 0;
+static int face_element = 0;
+
 static int on_vertex(p_ply_argument argument)
 {
-    static struct vec3 vert;
-    static long index = 0;
     struct vec3 *vlist;
     long offset;
 
@@ -26,7 +27,7 @@ static int on_vertex(p_ply_argument argument)
     vfloat_t value = (vfloat_t)ply_get_argument_value(argument);
     vert.v[offset] = value;
     if (offset == 2) {
-        vlist[index++] = vert;
+        vlist[vert_index++] = vert;
     }
     return 1;
 }
@@ -35,12 +36,12 @@ static int on_face(p_ply_argument argument)
 {
     long *index;
     llist_t *tri_i;
-    static int element = 0;
+    static int face_element = 0;
 
-    if (element++ == 0) 
+    if (face_element++ == 0) 
         return 1;
     else 
-        if (element >= 4) element = 0;
+        if (face_element >= 4) face_element = 0;
 
     index = (long *) malloc(sizeof(long));
     *index = (long)ply_get_argument_value(argument);
@@ -51,6 +52,9 @@ static int on_face(p_ply_argument argument)
 
 llist_t *ply2tri(const char *filename)
 {
+    vert_index = 0;
+    face_element = 0;
+
     long vert_count, tri_count;
     struct vec3 *vlist;
     llist_t *tri_i = llist_new();
@@ -130,7 +134,10 @@ int main(int argc, char *argv[])
     tonemap_nop(img, pix_count, pixmap);
     free(img);
 
-    int exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
+    int exit_status = 0;
+#ifdef NODRAW
+    exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
+#endif
     free(pixmap);
 
     return exit_status;

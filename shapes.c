@@ -134,7 +134,8 @@ Shape_t *quad_transform(Shape_t *shape, struct mat4 trans_mat)
     return shape;
 }
 
-Sphere_t *sphere_new(Material_t *mtrl, unsigned int radius, struct vec3 position)
+Sphere_t *sphere_new(Material_t *mtrl, unsigned int radius,
+            struct vec3 position)
 {
     Sphere_t *sphere = malloc(sizeof(Sphere_t));
     sphere->base = (Shape_t) { sphere_intersect, sphere_transform, mtrl, true };

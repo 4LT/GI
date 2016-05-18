@@ -1,5 +1,11 @@
 #include "vecmatops.h"
 
+#define MAT4_IDENTITY = { {{ 1, 0, 0, 0 },\
+                           { 0, 1, 0, 0 },\
+                           { 0, 0, 1, 0 },\
+                           { 0, 0, 0, 1 }} };
+
+
 vfloat_t v3_dot(const struct vec3 vecA, const struct vec3 vecB)
 {
     return vecA.v[0]*vecB.v[0] + vecA.v[1]*vecB.v[1] + vecA.v[2]*vecB.v[2];
