@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "vecmatops.h"
 #include "shapes.h"
-#include "util/linkedlist.h"
+#include "util/linked_list.h"
 #include "materials.h"
 #include "light.h"
 #include "types.h"

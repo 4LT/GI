@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "types.h"
 #include "light.h"
-#include "util/linkedlist.h"
+#include "util/linked_list.h"
 
 typedef struct intersect_result intersect_result_t;
 typedef struct material Material_t;

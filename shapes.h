@@ -14,6 +14,8 @@ typedef struct shape
 {
     intersect_fp intersect;
     transform_fp transform;
+    vfloat_t bounds[3][2];
+    struct vec3 position;
     Material_t *material;
     bool draw_backface;
 } Shape_t;
@@ -22,14 +24,12 @@ typedef struct
 {
     Shape_t base;
     vfloat_t radius;
-    struct vec3 position;
 } Sphere_t;
 
 typedef struct
 {
     Shape_t base;
     struct vec3 verts[3];
-    struct vec3 center;
 } Triangle_t;
 
 typedef struct
@@ -47,8 +47,7 @@ Shape_t *transform(Shape_t *shape, struct mat4 transMat);
 
 color_t shade(intersect_result_t intrs_result, light_t *light);
 
-Sphere_t *sphere_new(Material_t *mtrl,
-        unsigned int radius, struct vec3 position);
+Sphere_t *sphere_new(Material_t *mtrl, vfloat_t radius, struct vec3 position);
 
 Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
         struct vec3 vert2, bool draw_backface);

@@ -21,6 +21,12 @@ typedef struct
     struct vec3 direction;
 } ray_t;
 
+typedef struct pair
+{
+    void *left;
+    void *right;
+} pair_t;
+
 struct scene;
 
 #endif

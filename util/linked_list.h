@@ -11,6 +11,7 @@ typedef struct
 {
     llist_node_t *first;
     llist_node_t *last;
+    unsigned int length;
 } llist_t;
 
 typedef void (*free_datum_fp)(void *datum);
@@ -22,5 +23,7 @@ void llist_free_all(llist_t *list, free_datum_fp);
 void llist_free_list(llist_t *list);
 
 void llist_append(llist_t *list, void *datum);
+
+void *llist_remove(llist_t *list);
 
 #endif

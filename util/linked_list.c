@@ -1,12 +1,12 @@
 #include <stdlib.h>
-#include "linkedlist.h"
+#include "linked_list.h"
 
 void free_nothing(void *datum) {}
 
 llist_t *llist_new()
 {
     llist_t *list = (llist_t *)malloc(sizeof (llist_t));
-    *list = (llist_t) { NULL, NULL };
+    *list = (llist_t) { .first = NULL, .last = NULL, .length = 0 };
     return list;
 }
 
@@ -36,6 +36,8 @@ void llist_append(llist_t *list, void *datum)
     llist_node_t *new_node = (llist_node_t *)malloc(sizeof (llist_node_t));
     new_node->datum = datum;
     new_node->next = NULL;
+    list->length++;
+
     if (list->first == NULL) {
         list->first = new_node;
         list->last = new_node;
@@ -44,4 +46,18 @@ void llist_append(llist_t *list, void *datum)
         list->last->next = new_node;
         list->last = new_node;
     }
+}
+
+void *llist_remove(llist_t *list)
+{
+    if (list->first == NULL)
+        return NULL;
+    llist_node_t *node = list->first;
+    list->first = node->next;
+    list->length--;
+    if (list->first == NULL)
+        list->last = NULL;
+    void *datum = node->datum;
+    free(node);
+    return datum;
 }

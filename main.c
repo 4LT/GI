@@ -20,6 +20,7 @@ static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK, 1.2, 1.0 };
  */
 int main(int argc, char *argv[])
 {
+
     scene_t scene = scene_empty_scene(BG_COLOR, CAM);
 
     color_t spec1 = (color_t) {{ .002, .002, .002 }};

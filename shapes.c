@@ -2,6 +2,7 @@
 #include <tgmath.h>
 #include <stdlib.h>
 #include "shapes.h"
+#include "util/ops.h"
 
 #define MISS ((intersect_result_t) {\
         .position = {{ 0, 0, 0 }},\
@@ -19,7 +20,7 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
 {
     Sphere_t *sphere = (Sphere_t *)shape;
     Material_t *mtrl = shape->material;
-    struct vec3 displacedPos = v3_sub(sphere->position, ray.position);
+    struct vec3 displacedPos = v3_sub(shape->position, ray.position);
     vfloat_t b = 2 * v3_dot(displacedPos, ray.direction);
     vfloat_t c = v3_dot(displacedPos, displacedPos) -
         sphere->radius * sphere->radius;
@@ -51,7 +52,7 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
     struct vec3 intersect_point = v3_add(
             v3_scale(ray.direction, dist), ray.position);
     struct vec3 normal = v3_normalize(
-            v3_sub(intersect_point, sphere->position));
+            v3_sub(intersect_point, shape->position));
     if (exit)
         normal = v3_scale(normal, -1);
     
@@ -68,7 +69,7 @@ intersect_result_t sphere_intersect(Shape_t *shape, ray_t ray)
 Shape_t *sphere_transform(Shape_t *shape, struct mat4 trans_mat)
 {
     Sphere_t *sphere = (Sphere_t *)shape;
-    sphere->position = m4v3_transform(trans_mat, sphere->position);
+    shape->position = m4v3_transform(trans_mat, shape->position);
     return (Shape_t *)sphere;
 }
 
@@ -134,13 +135,20 @@ Shape_t *quad_transform(Shape_t *shape, struct mat4 trans_mat)
     return shape;
 }
 
-Sphere_t *sphere_new(Material_t *mtrl, unsigned int radius,
+Sphere_t *sphere_new(Material_t *mtrl, vfloat_t radius,
             struct vec3 position)
 {
     Sphere_t *sphere = malloc(sizeof(Sphere_t));
-    sphere->base = (Shape_t) { sphere_intersect, sphere_transform, mtrl, true };
+    sphere->base = (Shape_t) {
+        .intersect = sphere_intersect,
+        .transform = sphere_transform,
+        .bounds = {{ position.v[0] - radius, position.v[0] + radius },
+                   { position.v[1] - radius, position.v[1] + radius },
+                   { position.v[2] - radius, position.v[2] + radius }},
+        .position = position,
+        .material = mtrl,
+        .draw_backface = true };
     sphere->radius = radius;
-    sphere->position = position;
     return sphere;
 }
 
@@ -148,13 +156,42 @@ Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
         struct vec3 vert2, bool draw_backface)
 {
     Triangle_t *tri = malloc(sizeof(Triangle_t));
-    tri->base = (Shape_t) { triangle_intersect, triangle_transform, mtrl,
-            draw_backface };
     tri->verts[0] = vert0;
     tri->verts[1] = vert1;
     tri->verts[2] = vert2;
-    tri->center = v3_divide(v3_add(v3_add(vert0, vert1), vert2), 3.0);
 
+    vfloat_t bounds[3][2];
+    for (int i = 0; i < 3; i++) {
+        bounds[i][0] = tri->verts[0].v[i];
+        bounds[i][1] = tri->verts[0].v[i];
+
+        for (int vert_i = 1; vert_i < 3; vert_i++) {
+            bounds[i][0] = ME_MIN(bounds[i][0], tri->verts[vert_i].v[i]);
+            bounds[i][1] = ME_MAX(bounds[i][1], tri->verts[vert_i].v[i]);
+        }
+    }
+
+    Shape_t shape = (Shape_t) {
+        .intersect = triangle_intersect,
+        .transform = triangle_transform,
+        .bounds = {{0}},
+        .position = v3_divide(v3_add(v3_add(vert0, vert1), vert2), 3.0),
+        .material = mtrl,
+        .draw_backface = draw_backface };
+
+    for (int i = 0; i < 3; i++) {
+        shape.bounds[i][0] = tri->verts[0].v[i];
+        shape.bounds[i][1] = tri->verts[0].v[i];
+
+        for (int vert_i = 1; vert_i < 3; vert_i++) {
+            shape.bounds[i][0] =
+                ME_MIN(shape.bounds[i][0], tri->verts[vert_i].v[i]);
+            shape.bounds[i][1] =
+                ME_MAX(shape.bounds[i][1], tri->verts[vert_i].v[i]);
+        }
+    }
+    
+    tri->base = shape;
     return tri;
 }
 
@@ -162,10 +199,28 @@ Quad_t *quad_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
         struct vec3 vert2, struct vec3 vert3, bool draw_backface)
 {
     Quad_t *quad = malloc(sizeof(Quad_t));
-    quad->base = (Shape_t) { quad_intersect, NULL, mtrl, draw_backface };
-    quad->t1 = triangle_new(mtrl, vert0, vert1, vert2, draw_backface);
-    quad->t2 = triangle_new(mtrl, vert2, vert3, vert0, draw_backface);
+    Triangle_t *t1 = triangle_new(mtrl, vert0, vert1, vert2, draw_backface);
+    Triangle_t *t2 = triangle_new(mtrl, vert2, vert3, vert0, draw_backface);
+    quad->t1 = t1;
+    quad->t2 = t2;
+    Shape_t *t1s = (Shape_t *)t1;
+    Shape_t *t2s = (Shape_t *)t2;
 
+    Shape_t qshape = (Shape_t) {
+        .intersect = quad_intersect,
+        .transform = NULL,
+        .bounds = {{0}},
+        .position = v3_divide(
+                v3_add(t1s->position, t2s->position), 2),
+        .material = mtrl,
+        .draw_backface = draw_backface };
+
+    for (int r = 0; r < 3; r++) {
+        qshape.bounds[r][0] = ME_MIN(t1s->bounds[r][0], t2s->bounds[r][0]);
+        qshape.bounds[r][1] = ME_MAX(t1s->bounds[r][1], t2s->bounds[r][1]);
+    }
+
+    quad->base = qshape;
     return quad;
 }
 
