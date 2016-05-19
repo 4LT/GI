@@ -68,7 +68,7 @@ llist_t *ply2tri(const char *filename)
     vert_index = 0;
     face_element = 0;
 
-    long vert_count, tri_count;
+    long vert_count;
     struct vec3 *vlist;
     llist_t *tri_i = llist_new();
     llist_t *tris = llist_new();
@@ -81,7 +81,9 @@ llist_t *ply2tri(const char *filename)
     ply_set_read_cb(ply, "vertex", "y", on_vertex, NULL, 1);
     ply_set_read_cb(ply, "vertex", "z", on_vertex, vlist, 2);
 
+#if 0
     tri_count =
+#endif
         ply_set_read_cb(ply, "face", "vertex_indices", on_face, tri_i, 0);
 
     ply_read(ply);
@@ -151,9 +153,7 @@ int main(int argc, char *argv[])
     free(img);
 
     int exit_status = 0;
-#ifdef NODRAW
     exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
-#endif
     free(pixmap);
 
     return exit_status;

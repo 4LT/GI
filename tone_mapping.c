@@ -6,7 +6,7 @@ static const float WARD_A = 1.219;
 static const float WARD_B = 0.4;
 static const float WARD_C = 2.5;
 static const float LD_MAX = 500; /* nits */
-static const color_t LUM_SCALE = (color_t){{ 0.27, 0.67, 0.06 }};
+#define LUM_SCALE ((color_t){{ 0.27, 0.67, 0.06 }})
 
 static clrfloat_t luminance(color_t in)
 {
