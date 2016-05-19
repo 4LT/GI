@@ -10,7 +10,6 @@ scene_t scene_empty_scene(color_t sky_color, camera_t camera)
     sky_mtrl->ior = 1;
     return (scene_t) {
         ._sky = sky_mtrl,
-        .ambient_light = clr_scale(sky_color, AMBIENT_SCALE),
         .camera = camera,
         .shapes = llist_new(),
         .lights = llist_new() };
@@ -28,7 +27,10 @@ void scene_add_light(scene_t scene, light_t *light)
 
 void scene_teardown(scene_t scene)
 {
-    /* TODO: apply free function */
+    /* TODO: apply free function?
+     * NOTE: implies ownership transfer of shapes and lights to scene/callee,
+     * mark appropriate functions 
+     * -OR- use arrays instead of linked lists, and dont transfer ownership */
     llist_free_list(scene.shapes);
     llist_free_list(scene.lights);
     free(scene._sky);
@@ -148,7 +150,7 @@ void scene_render(scene_t scene, size_t w, size_t h,
                     v3_add(
                         v3_scale(plane_right, plane_x),
                         v3_scale(plane_up, plane_y)),
-                    v3_scale(lookVec, cam.plane_dist));
+                    v3_scale(lookVec, cam.focal_length));
             ray_t ray;
             ray.position = cam.pos;
             ray.direction = v3_normalize(plane_world);

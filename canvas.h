@@ -3,6 +3,9 @@
 
 #include "types.h"
 
-int draw(unsigned int width, unsigned int height, pixel_t *pixmap);
+/* Draws image to screen.
+ * pixmap - final image in RGBA8888 pixels
+ */
+int draw(size_t width, size_t height, pixel_t *pixmap);
 
 #endif

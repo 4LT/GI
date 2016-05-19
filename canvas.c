@@ -9,7 +9,7 @@ static int sdlErr()
     return EXIT_FAILURE;
 }
 
-int draw(unsigned int width, unsigned int height, pixel_t *pixmap)
+int draw(size_t width, size_t height, pixel_t *pixmap)
 {
     SDL_Window *win = NULL;
     SDL_Surface *winSurf = NULL;

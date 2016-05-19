@@ -1,3 +1,9 @@
+/* vecmatops.h
+ *
+ * Vector an matrix operations. No pointers are used, so there are no
+ * side-effects.  Matrices are treated as Row-major.
+ * author: Seth Rader
+ */
 #ifndef VECMATOPS_H_
 #define VECMATOPS_H_
 
@@ -9,12 +15,13 @@
                            { 0, 0, 1, 0 },\
                            { 0, 0, 0, 1 }} };
 
-
+/* Dot product of vecA and vecB */
 static inline vfloat_t v3_dot(const struct vec3 vecA, const struct vec3 vecB)
 {
     return vecA.v[0]*vecB.v[0] + vecA.v[1]*vecB.v[1] + vecA.v[2]*vecB.v[2];
 }
 
+/* Cross porduct of VecA nad vecB */
 static inline struct vec3 v3_cross(struct vec3 vecA, struct vec3 vecB)
 {
     struct vec3 out;
@@ -24,6 +31,7 @@ static inline struct vec3 v3_cross(struct vec3 vecA, struct vec3 vecB)
     return out;
 }
 
+/* Multiplies each element of "in" by "scale". */
 static inline struct vec3 v3_scale(struct vec3 in, vfloat_t scale)
 {
     struct vec3 out;
@@ -33,11 +41,13 @@ static inline struct vec3 v3_scale(struct vec3 in, vfloat_t scale)
     return out;
 }
 
+/* Projects vector vecA onto vecB. */
 static inline struct vec3 v3_project(struct vec3 vecA, struct vec3 vecB)
 {
     return v3_scale(vecB, v3_dot(vecA, vecB) / v3_dot(vecB, vecB));
 }
 
+/* Divides each element of "in" by "divisor". */
 static inline struct vec3 v3_divide(struct vec3 in, vfloat_t divisor)
 {
     return v3_scale(in, 1.0f / divisor);
@@ -93,6 +103,7 @@ static inline struct vec3 m4v3_row(struct mat4 mat, unsigned int index)
     return (struct vec3){{ mat.m[index][0], mat.m[index][1], mat.m[index][2] }};
 }
 
+/* Use xformMat to transform the vector "in". */
 static inline struct vec3 m4v3_transform(struct mat4 xformMat, struct vec3 in)
 {
    struct vec3 out;
@@ -127,6 +138,7 @@ static inline struct mat4 m4_transpose(struct mat4 in)
     return out;
 }
 
+/* Performs matrix multiplication on matA and matB. */
 static inline struct mat4 m4_mul(struct mat4 matA, struct mat4 matB)
 {
     struct mat4 out;

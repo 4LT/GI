@@ -1,0 +1,34 @@
+-Ray Tracer-
+Seth Rader
+
+Setup
+
+1. Install required packages.
+
+SDL 2:
+ Mac OSX: Obtain development libraries from http://libsdl.org/download-2.0.php
+ Ubuntu: install package "libsdl2-dev"
+ Arch: install package "sdl2"
+
+2. Building
+ Requires gcc or clang, run "make". Run "make OPMZ=1" for local architecture
+ optimizations.
+
+3. Running
+ Run "./rayt" for main raytracer
+     "./rad" for incomplete cornell box
+     "./ply2tri" to draw stanford bunny at lowest resolution
+     "./ply2tri [filename]" to draw a ply file
+
+Bonuses
+
+ Reflection - BRDF cone
+  Extracted source in ./bonus/spread_bonus
+
+ Procedural Shading - "clearly different" shader and "noisy" shader
+  Extracted source (samplers) in ./bonus/proctex_bonus
+
+External Sources
+
+rply - ply format parser
+info provided in rply-1.1.4/LICENSE

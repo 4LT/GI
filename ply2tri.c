@@ -1,3 +1,8 @@
+/* ply2tri.c
+ *
+ * Draws a standford bunny.
+ * author: Seth Rader
+ */
 #include <stdlib.h>
 #include "scene.h"
 #include "canvas.h"
@@ -5,6 +10,7 @@
 #include "shapes.h"
 #include "tone_mapping.h"
 
+/* screen dimensions in pixels */
 static const int SCREEN_W = 640;
 static const int SCREEN_H = 480;
 
@@ -18,6 +24,9 @@ static struct vec3 vert;
 static size_t vert_index = 0;
 static int face_element = 0;
 
+/* (Callback) Adds a vertex component (X, Y, or Z) to the vertex list.
+ * argument - data from ply encountered by rply
+ */
 static int on_vertex(p_ply_argument argument)
 {
     struct vec3 *vlist;
@@ -32,6 +41,7 @@ static int on_vertex(p_ply_argument argument)
     return 1;
 }
 
+/* (Callback) Collects vertex indices for each face (triangle). */
 static int on_face(p_ply_argument argument)
 {
     long *index;
@@ -50,6 +60,9 @@ static int on_face(p_ply_argument argument)
     return 1;
 }
 
+/* Gets a list of triangles from a ply file.
+ * filename - name of ply file
+ */
 llist_t *ply2tri(const char *filename)
 {
     vert_index = 0;
@@ -83,6 +96,9 @@ llist_t *ply2tri(const char *filename)
     return tris;
 }
 
+/* Reads a ply file and draws it to the screen
+ * argv - first element is file name of ply file to draw
+ */
 int main(int argc, char *argv[])
 {
     llist_t *tris;

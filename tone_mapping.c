@@ -43,7 +43,6 @@ static pixel_t clr2pixel(color_t color)
            (int)(255 * color.c[2]) << 8  | 0xFF;
 }
 
-#include <stdio.h>
 void tonemap_ward(color_t *img, size_t pix_count, pixel_t *pixmap, double l_max)
 {
     if (l_max == 0) {
@@ -52,7 +51,6 @@ void tonemap_ward(color_t *img, size_t pix_count, pixel_t *pixmap, double l_max)
             l_max = lum > l_max ? lum : l_max;
         }
     }
-    printf("l_max = %f\n", l_max);
     color_t *scaled_img = malloc(pix_count * sizeof(color_t));
     for (size_t i = 0; i < pix_count; i++) {
         scaled_img[i] = clr_scale(img[i], 1/l_max);
