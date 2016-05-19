@@ -56,21 +56,21 @@ color_t shade_nop_light(intersect_result_t r, light_t *l);
 color_t solid_sample(Material_t *mtrl, vfloat_t x, vfloat_t y);
 
 /* default material */
-static const Material_t DEF_MTRL = (Material_t)
-{
-    .scene = NULL,
-    .shade_per_light = shade_nop_light,
-    .shade_once = shade_nop,
-    .diffuse_sample = solid_sample,
-    .diffuse_color = CLR_WHITE,
-    .specular_color = CLR_BLACK,
-    .specular_exp = 1,
-    .reflect_scale = 0,
-    .transmit_scale = 0,
-    .roughness = 0,
-    .reflect_ray_count = 1,
-    .ior = 1
-};
+#define DEF_MTRL ((Material_t) \
+{ \
+    .scene = NULL, \
+    .shade_per_light = shade_nop_light, \
+    .shade_once = shade_nop, \
+    .diffuse_sample = solid_sample, \
+    .diffuse_color = CLR_WHITE, \
+    .specular_color = CLR_BLACK, \
+    .specular_exp = 1, \
+    .reflect_scale = 0, \
+    .transmit_scale = 0, \
+    .roughness = 0, \
+    .reflect_ray_count = 1, \
+    .ior = 1 \
+}) 
 
 /* helper functions, i.e. foo(bar) instead of bar->foo(bar) */
 color_t shade_light(intersect_result_t res, light_t *light);
