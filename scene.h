@@ -103,4 +103,7 @@ color_t color_at(scene_t scene, ray_t ray);
 /* Fires rays recursively. */
 color_t color_at_rec(scene_t scene, ray_t ray, int depth);
 
+#if 0
+void scene_add_kdtree(scene_t *scene, Shape_t *shapes[]);
+#endif
 #endif
