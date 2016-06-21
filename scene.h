@@ -16,6 +16,7 @@
 #include "light.h"
 #include "types.h"
 #include "color.h"
+#include "kd.h"
 
 /* maximum draw distance */
 static const vfloat_t MAX_DIST = 5000;
@@ -39,6 +40,7 @@ typedef struct scene
     camera_t camera;
     llist_t *shapes;
     llist_t *lights;
+    KDnode_t *root;
 } scene_t;
 
 /* Tests if an object blocks a ray cast from a light source.
@@ -79,6 +81,10 @@ void scene_add_shape(scene_t scene, Shape_t *shape);
  */
 void scene_add_light(scene_t scene, light_t *light);
 
+/* Generates a KD tree using the scene's shapes
+ */
+void scene_gen_kdtree(scene_t *scene);
+
 /* Frees memory allocated in scene.
  *
  * scene - scene to tear down
@@ -106,4 +112,5 @@ color_t color_at_rec(scene_t scene, ray_t ray, int depth);
 #if 0
 void scene_add_kdtree(scene_t *scene, Shape_t *shapes[]);
 #endif
+
 #endif

@@ -12,7 +12,8 @@ scene_t scene_empty_scene(color_t sky_color, camera_t camera)
         ._sky = sky_mtrl,
         .camera = camera,
         .shapes = llist_new(),
-        .lights = llist_new() };
+        .lights = llist_new(),
+        .root = NULL };
 }
 
 void scene_add_shape(scene_t scene, Shape_t *shape)
@@ -23,6 +24,14 @@ void scene_add_shape(scene_t scene, Shape_t *shape)
 void scene_add_light(scene_t scene, light_t *light)
 {
     llist_append(scene.lights, (void *)light);
+}
+
+void scene_gen_kdtree(scene_t *scene)
+{
+    scene->root = kdnode_new_root(scene->shapes, KDP_YZ);
+    int depth = 0;
+    KDnode n = scene->root;
+
 }
 
 void scene_teardown(scene_t scene)
@@ -46,13 +55,20 @@ Shape_t *transform(Shape_t *shape, struct mat4 transmat)
     return shape->transform(shape, transmat);
 }
 
-intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
-        vfloat_t max_dist, Material_t *def_material)
+intersect_result_t scene_kd_intersect(scene_t scene, ray_t ray,
+        vfloat_t max_dist, KDnode_t *kdn);
+
+intersect_result_t scene_intersect(scene_t scene, ray_t ray,
+        vfloat_t max_dist)
 {
+    if (scene.root != NULL)
+        return scene_kd_intersect(scene, ray, max_dist, scene.root);
+
+    llist_t *shapes = scene.shapes;
     vfloat_t cur_dist = max_dist;
     intersect_result_t nearest;
     nearest.distance = max_dist;
-    nearest.material = def_material;
+    nearest.material = scene._sky;
 
     for (llist_node_t *node = shapes->first; node != NULL;
             node = node->next)
@@ -69,6 +85,43 @@ intersect_result_t scene_intersect(llist_t *shapes, ray_t ray,
     return nearest;
 }
 
+intersect_result_t scene_kd_intersect(scene_t scene, ray_t ray,
+        vfloat_t max_dist, KDnode_t *kdn)
+{
+    vfloat_t cur_dist = max_dist;
+    intersect_result_t nearest;
+    nearest.distance = max_dist;
+    nearest.material = scene._sky;
+
+    if (kdn->leaf_data != NULL) {
+        for (int i = 0; i < kdn->shape_count; i++) {
+            intersect_result_t r = intersect(kdn->leaf_data[i], ray);
+            if (r.distance > 0 && r.distance < cur_dist) {
+                nearest = r;
+                cur_dist = r.distance;
+            }
+        }
+    }
+    else {
+        vfloat_t side =  ray.position.v[kdn->plane] - kdn->plane_offset;
+        bool hit_plane = ray.direction.v[kdn->plane] * side <= 0;
+
+        if (side > 0)
+            nearest = scene_kd_intersect(scene, ray, max_dist, kdn->front);
+        else
+            nearest = scene_kd_intersect(scene, ray, max_dist, kdn->back);
+
+        if (hit_plane && nearest.distance >= max_dist) {
+            if (side > 0)
+                nearest = scene_kd_intersect(scene, ray, max_dist, kdn->back);
+            else
+                nearest = scene_kd_intersect(scene, ray, max_dist, kdn->front);
+        }
+    }
+
+    return nearest;
+}
+
 /* true - shadow
  * false - illum */
 bool shadow_test(intersect_result_t res, light_t *light)
@@ -79,8 +132,8 @@ bool shadow_test(intersect_result_t res, light_t *light)
     ray_t light_ray = (ray_t){ light->position,
             v3_divide(light_vec, light_dist) };
 
-    intersect_result_t shadow_res = scene_intersect(scene->shapes,
-            light_ray, MAX_DIST, NULL);
+    intersect_result_t shadow_res = scene_intersect(*scene,
+            light_ray, MAX_DIST);
 
     return light_dist > shadow_res.distance + FUDGE_SCALE &&
         shadow_res.material->transmit_scale < 0.5;
@@ -93,8 +146,8 @@ color_t color_at_rec(scene_t scene, ray_t ray, int depth)
     color_t sky_color = scene._sky->diffuse_color;
 
     /* find nearest intersection */
-    intersect_result_t res = scene_intersect(scene.shapes, ray, max_dist,
-            scene._sky);
+    intersect_result_t res;
+    res = scene_intersect(scene, ray, max_dist);
     res.depth = depth;
 
     if (res.distance < MAX_DIST)
@@ -108,12 +161,6 @@ color_t color_at_rec(scene_t scene, ray_t ray, int depth)
             light_t *light = (light_t *)(node->datum);
             out_color = clr_add(out_color, shade_light(res, light));
         }
-#if 0
-        color_t diffuse = res.material->diffuse_sample(
-                res.material, res.position.v[0], res.position.v[1]);
-        color_t ambient_color = clr_scale(sky_color, AMBIENT_SCALE);
-        out_color = clr_add(out_color, clr_mul(diffuse, ambient_color));
-#endif
     }
     else {
         out_color = sky_color;

@@ -14,10 +14,10 @@
 #define ME_MIN(a, b) \
     ((a) < (b) ? (a) : (b))
 
-#define MS_SWAP(a, b) {\
-    (a) ^= (b);\
-    (b) ^= (a);\
-    (a) ^= (b);\
+#define MS_SWAP(a, b, type) {\
+    type tmp__ = (a);\
+    (a) = (b);\
+    (b) = tmp__;\
 }
 
 #endif

@@ -112,25 +112,25 @@ int main(int argc, char *argv[])
         tris = ply2tri(argv[1]);
 
     Material_t *white = lambert_new(&scene, (color_t) {{ .8, .7, .7 }});
-#if 1
     //int ct = 0;
     for (llist_node_t *node = tris->first; node != NULL;) {
         struct vec3 tri[3];
         for (int i = 0; i < 3; i++, node = node->next) {
             struct vec3 vert = *((struct vec3 *)node->datum);
-            printf("%f %f %f\n", vert.v[0], vert.v[1], vert.v[2]);
             tri[i] = vert;
         }
         scene_add_shape(scene, (Shape_t *)triangle_new(white,
                 tri[0], tri[1], tri[2], false));
-        //if (ct++ > 1000) break;
     }
+
+#ifdef KDTREE
+    puts("Building tree...");
+    scene_gen_kdtree(&scene);
+    puts("Tree done");
+#else
+    puts("No tree");
 #endif
-/*    scene_add_shape(scene, (Shape_t *)triangle_new(white,
-                (struct vec3){{ -10, 0, 0 }},
-                (struct vec3){{ 10, 0, 0 }},
-                (struct vec3){{ 10, 0, 20 }}, true));
-*/
+
     light_t light1 = (light_t) {
         .type = SPHERE,
         .position = (struct vec3) {{ 65, 80, 128 }},
@@ -153,7 +153,12 @@ int main(int argc, char *argv[])
     free(img);
 
     int exit_status = 0;
+#ifndef NODRAW
+    puts("Drawing...");
     exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
+#else
+    puts("No drawing");
+#endif
     free(pixmap);
 
     return exit_status;

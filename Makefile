@@ -1,5 +1,5 @@
 CC=cc
-BASEFLAGS=-std=c99 -Wall -pedantic
+BASEFLAGS=-std=c99 -Wall -pedantic $(MORE_ARGS)
 
 ifeq ($(shell uname), Darwin)
 	LDFLAGS= -framework SDL2
@@ -8,19 +8,22 @@ else
 endif
 
 ifdef OPMZ
-	CFLAGS=$(BASEFLAGS) -march=native -O2
+	CFLAGS=$(BASEFLAGS) -O2 -march=native -ggdb -mno-avx
 else
 	CFLAGS=$(BASEFLAGS) -ggdb
 endif
 
 COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o\
-				color.o tone_mapping.o util/linked_list.o
+				color.o tone_mapping.o util/linked_list.o kd.o
 
 .PHONY: all clean opt
 all: rayt rad ply2tri
 
 main.o: main.c types.h scene.h shapes.h material.h materials.h light.h color.h
 	$(CC) $(CFLAGS) -c main.c
+
+kd.o: kd.c kd.h
+	$(CC) $(CFLAGS) -c kd.c
 
 rad.o: rad.c types.h scene.h shapes.h material.h materials.h light.h color.h
 	$(CC) $(CFLAGS) -c rad.c
@@ -46,9 +49,6 @@ material.o: material.c material.h
 materials.o: materials.c materials.h
 	$(CC) $(CFLAGS) -c materials.c
 
-#vecmatops.o: vecmatops.c vecmatops.h
-#	$(CC) $(CFLAGS) -c vecmatops.c
-
 color.o: color.c color.h
 	$(CC) $(CFLAGS) -c color.c
 
@@ -71,6 +71,5 @@ ply2tri: ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)  Makefile
 clean:
 	rm -f *.o 
 	rm -f util/*.o
-	rm -f kd/*.o
 	rm -f rply-1.1.4/*.o
 	rm -f rayt ply2tri rad

@@ -4,13 +4,6 @@
 #include "shapes.h"
 #include "util/ops.h"
 
-#define MISS ((intersect_result_t) {\
-        .position = {{ 0, 0, 0 }},\
-        .normal = {{ 0, 0, 0, }},\
-        .incoming = {{ 0, 0, 0 }}, \
-        .distance = 0,\
-        .material = NULL })
-
 intersect_result_t intersect_shape(Shape_t *shape, ray_t ray)
 {
     return shape->intersect(shape, ray);

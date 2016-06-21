@@ -4,6 +4,13 @@
 #include "vecmatops.h"
 #include "material.h"
 
+#define MISS ((intersect_result_t) {\
+        .position = {{ 0, 0, 0 }},\
+        .normal = {{ 0, 0, 0, }},\
+        .incoming = {{ 0, 0, 0 }}, \
+        .distance = 0,\
+        .material = NULL })
+
 struct shape;
 
 typedef intersect_result_t (*intersect_fp)(struct shape *, ray_t);
@@ -39,7 +46,7 @@ typedef struct
      * 2 triangles (non-planar) */
     Triangle_t *t1;
     Triangle_t *t2;
-}   Quad_t;
+} Quad_t;
 
 intersect_result_t intersect_shape(Shape_t *shape, ray_t ray);
 

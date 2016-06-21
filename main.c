@@ -11,8 +11,8 @@
 
 /* sky color */
 static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
-static const int SCREEN_W = 640;
-static const int SCREEN_H = 480;
+static const int SCREEN_W = 1366;
+static const int SCREEN_H = 768;
 
 #define CAM_POS {{ 55, -180, 40 }}
 #define CAM_UP {{ 0, 0, 1 }}
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     Material_t *glass = refr_new(&scene, (color_t) {{ 0, 0, 0.1 }}, spec2, 8,
             0.05, 0.95, 0.95);
 
-#if 1
+#if 0
     Material_t *tiled = tile_new(&scene);
 #elif 1
     Material_t *tiled = concentric_new(&scene);
