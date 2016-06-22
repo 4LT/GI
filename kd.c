@@ -3,8 +3,8 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const int KD_MAX_LEAF_SZ = 3;
-static const int MAX_REPEATS = 2;
+static const int KD_MAX_LEAF_SZ = 120;
+static const int MAX_REPEATS = 1;
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
        enum kd_plane_align a)
@@ -46,10 +46,12 @@ static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
 
 /* TRANSFERS ownership of "shapes" to CALLEE */
 KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, 
-        enum kd_plane_align a, int repeats, int *depth)
+        enum kd_plane_align a, int repeats, int *leaf_count)
 {
     KDnode_t *kdn = malloc(sizeof(KDnode_t));
     if (shapes_length <= KD_MAX_LEAF_SZ || repeats >= MAX_REPEATS) {
+        printf("%d ", (int)shapes_length);
+        (*leaf_count)++;
         kdn->leaf_data = malloc(shapes_length * sizeof(Shape_t *));
         memcpy(kdn->leaf_data, shapes, shapes_length * sizeof(Shape_t *));
         free(shapes);
@@ -91,14 +93,10 @@ KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
         case KDP_XY: new_align = KDP_YZ;
     }
 
-    (*depth)++;
-    int depth_x = *depth;
-    int depth_y = *depth;
     kdn->front = kdnode_new(front_shapes, front_sz, new_align,
-            (front_sz == shapes_length) ? repeats+1 : 0, &depth_x);
+            (front_sz == shapes_length) ? repeats+1 : 0, leaf_count);
     kdn->back = kdnode_new(back_shapes, back_sz, new_align,
-            (back_sz == shapes_length) ? repeats+1 : 0, &depth_y);
-    *depth = depth_y < depth_x ? depth_y : depth_x;
+            (back_sz == shapes_length) ? repeats+1 : 0, leaf_count);
     return kdn;
 }
 
@@ -107,18 +105,18 @@ KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
  * shapes (we don't know the type). Note as weakness to this style of
  * polymorphism. Perhaps add overridable deep copy to shape.
  */
-KDnode_t *kdnode_new_root(const llist_t *shapes, enum kd_plane_align a)
+KDnode_t *kdnode_new_root(const Llist_t *shapes, enum kd_plane_align a)
 {
-    llist_node_t *node = shapes->first;
+    Llist_node_t *node = shapes->first;
     Shape_t **shape_arr =
             (Shape_t **)malloc(shapes->length * sizeof(Shape_t *));
     for (int i = 0; i < shapes->length; i++) {
         shape_arr[i] = (Shape_t *)(node->datum);
         node = node->next;
     }
-    int depth = 0;
-    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, a, 0, &depth);
-    printf("shapes: %d\n", shapes->length);
-    printf("depth: %d\n", depth);
+    int leaf_count = 0;
+    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, a, 0, &leaf_count);
+    printf("\nshapes: %d\n", shapes->length);
+    printf("leaf count: %d\n", leaf_count);
     return kdn;
 }

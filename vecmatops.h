@@ -16,15 +16,15 @@
                            { 0, 0, 0, 1 }} };
 
 /* Dot product of vecA and vecB */
-static inline vfloat_t v3_dot(const struct vec3 vecA, const struct vec3 vecB)
+static inline vfloat_t v3_dot(const vec3_t vecA, const vec3_t vecB)
 {
     return vecA.v[0]*vecB.v[0] + vecA.v[1]*vecB.v[1] + vecA.v[2]*vecB.v[2];
 }
 
 /* Cross porduct of VecA nad vecB */
-static inline struct vec3 v3_cross(struct vec3 vecA, struct vec3 vecB)
+static inline vec3_t v3_cross(vec3_t vecA, vec3_t vecB)
 {
-    struct vec3 out;
+    vec3_t out;
     out.v[0] = vecA.v[1]*vecB.v[2] - vecA.v[2]*vecB.v[1];
     out.v[1] = vecA.v[2]*vecB.v[0] - vecA.v[0]*vecB.v[2];
     out.v[2] = vecA.v[0]*vecB.v[1] - vecA.v[1]*vecB.v[0];
@@ -32,9 +32,9 @@ static inline struct vec3 v3_cross(struct vec3 vecA, struct vec3 vecB)
 }
 
 /* Multiplies each element of "in" by "scale". */
-static inline struct vec3 v3_scale(struct vec3 in, vfloat_t scale)
+static inline vec3_t v3_scale(vec3_t in, vfloat_t scale)
 {
-    struct vec3 out;
+    vec3_t out;
     out.v[0] = scale * in.v[0];
     out.v[1] = scale * in.v[1];
     out.v[2] = scale * in.v[2];
@@ -42,45 +42,45 @@ static inline struct vec3 v3_scale(struct vec3 in, vfloat_t scale)
 }
 
 /* Projects vector vecA onto vecB. */
-static inline struct vec3 v3_project(struct vec3 vecA, struct vec3 vecB)
+static inline vec3_t v3_project(vec3_t vecA, vec3_t vecB)
 {
     return v3_scale(vecB, v3_dot(vecA, vecB) / v3_dot(vecB, vecB));
 }
 
 /* Divides each element of "in" by "divisor". */
-static inline struct vec3 v3_divide(struct vec3 in, vfloat_t divisor)
+static inline vec3_t v3_divide(vec3_t in, vfloat_t divisor)
 {
     return v3_scale(in, 1.0f / divisor);
 }
 
-static inline struct vec3 v3_add(struct vec3 vecA, struct vec3 vecB)
+static inline vec3_t v3_add(vec3_t vecA, vec3_t vecB)
 {
-    struct vec3 out;
+    vec3_t out;
     out.v[0] = vecA.v[0] + vecB.v[0];
     out.v[1] = vecA.v[1] + vecB.v[1];
     out.v[2] = vecA.v[2] + vecB.v[2];
     return out;
 }
 
-static inline struct vec3 v3_sub(struct vec3 vecA, struct vec3 vecB)
+static inline vec3_t v3_sub(vec3_t vecA, vec3_t vecB)
 {
-    struct vec3 out;
+    vec3_t out;
     out.v[0] = vecA.v[0] - vecB.v[0];
     out.v[1] = vecA.v[1] - vecB.v[1];
     out.v[2] = vecA.v[2] - vecB.v[2];
     return out;
 }
 
-static inline vfloat_t v3_magnitude(struct vec3 in)
+static inline vfloat_t v3_magnitude(vec3_t in)
 {
     return sqrt(v3_dot(in, in));
 }
 
-static inline struct vec3 v3_normalize(struct vec3 in)
+static inline vec3_t v3_normalize(vec3_t in)
 {
     vfloat_t magnitude = v3_magnitude(in);
     if (magnitude == 0) {
-        struct vec3 out = {{ 0, 0, 0 }};
+        vec3_t out = {{ 0, 0, 0 }};
         return out;
     }
     else {
@@ -88,25 +88,25 @@ static inline struct vec3 v3_normalize(struct vec3 in)
     }
 }
 
-static inline vfloat_t v3_distance(struct vec3 ptA, struct vec3 ptB)
+static inline vfloat_t v3_distance(vec3_t ptA, vec3_t ptB)
 {
     return v3_magnitude(v3_sub(ptB, ptA));
 }
 
-static inline struct vec3 m4v3_column(struct mat4 mat, unsigned int index)
+static inline vec3_t m4v3_column(mat4_t mat, unsigned int index)
 {
-    return (struct vec3){{ mat.m[0][index], mat.m[1][index], mat.m[2][index] }};
+    return (vec3_t){{ mat.m[0][index], mat.m[1][index], mat.m[2][index] }};
 }
 
-static inline struct vec3 m4v3_row(struct mat4 mat, unsigned int index)
+static inline vec3_t m4v3_row(mat4_t mat, unsigned int index)
 {
-    return (struct vec3){{ mat.m[index][0], mat.m[index][1], mat.m[index][2] }};
+    return (vec3_t){{ mat.m[index][0], mat.m[index][1], mat.m[index][2] }};
 }
 
 /* Use xformMat to transform the vector "in". */
-static inline struct vec3 m4v3_transform(struct mat4 xformMat, struct vec3 in)
+static inline vec3_t m4v3_transform(mat4_t xformMat, vec3_t in)
 {
-   struct vec3 out;
+   vec3_t out;
    for (int r = 0; r < 3; r++) {
        vfloat_t sum = 0;
        for (int c = 0; c < 3; c++)
@@ -118,19 +118,19 @@ static inline struct vec3 m4v3_transform(struct mat4 xformMat, struct vec3 in)
 }
 
 #if 0
-struct mat4 m4v3_buildMatrixRows(
-        struct vec3 v1, struct vec3 v2, struct vec3 v3, struct vec3 v4)
+mat4_t m4v3_buildMatrixRows(
+        vec3_t v1, vec3_t v2, vec3_t v3, vec3_t v4)
 {
-    struct mat4 out;
+    mat4_t out;
     for (int r = 0; r < 4; r++)
     for (int c = 0; c < 4; c++) {
         out[]
 }
 #endif
 
-static inline struct mat4 m4_transpose(struct mat4 in)
+static inline mat4_t m4_transpose(mat4_t in)
 {
-    struct mat4 out;
+    mat4_t out;
     for (int r = 0; r < 4; r++)
     for (int c = 0; c < 4; c++) {
         out.m[r][c] = in.m[c][r];
@@ -139,9 +139,9 @@ static inline struct mat4 m4_transpose(struct mat4 in)
 }
 
 /* Performs matrix multiplication on matA and matB. */
-static inline struct mat4 m4_mul(struct mat4 matA, struct mat4 matB)
+static inline mat4_t m4_mul(mat4_t matA, mat4_t matB)
 {
-    struct mat4 out;
+    mat4_t out;
     for (int r = 0; r < 4; r++)
     for (int c = 0; c < 4; c++) {
         float sum = 0;

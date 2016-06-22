@@ -41,9 +41,9 @@ struct material
 
 struct intersect_result
 {
-    struct vec3 position;
-    struct vec3 normal;
-    struct vec3 incoming;
+    vec3_t position;
+    vec3_t normal;
+    vec3_t incoming;
     vfloat_t distance;
     int depth;
     bool exit;

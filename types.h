@@ -15,22 +15,22 @@ typedef double vfloat_t;
 typedef int32_t pixel_t;
 
 /* 3D vector value type */
-struct vec3
+typedef struct
 {
     vfloat_t v[3];
-};
+} vec3_t;
 
 /* 4x4 matrix value type */
-struct mat4
+typedef struct
 {
     vfloat_t m[4][4];
-};
+} mat4_t;
 
 /* ray cast at some direction from some position */
 typedef struct
 {
-    struct vec3 position;
-    struct vec3 direction;
+    vec3_t position;
+    vec3_t direction;
 } ray_t;
 
 /* general-purpose pair type (not used) */

@@ -17,8 +17,8 @@ typedef struct
         ORTHO, /* parallel rays, i.e. sunlight */
         AMBIENT
     } type;
-    struct vec3 position;
-    struct vec3 direction; /* not used */
+    vec3_t position;
+    vec3_t direction; /* not used */
     color_t color;
     vfloat_t radius; /*used by sphere */
 } light_t;

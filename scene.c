@@ -11,38 +11,35 @@ scene_t scene_empty_scene(color_t sky_color, camera_t camera)
     return (scene_t) {
         ._sky = sky_mtrl,
         .camera = camera,
-        .shapes = llist_new(),
-        .lights = llist_new(),
+        .shapes = Llist_new(),
+        .lights = Llist_new(),
         .root = NULL };
 }
 
-void scene_add_shape(scene_t scene, Shape_t *shape)
+void scene_add_shape(scene_t *scene, const Shape_t *shape)
 {
-    llist_append(scene.shapes, (void *)shape);
+    Llist_append(scene->shapes, (void *)shape);
 }
 
-void scene_add_light(scene_t scene, light_t *light)
+void scene_add_light(scene_t *scene, const light_t *light)
 {
-    llist_append(scene.lights, (void *)light);
+    Llist_append(scene->lights, (void *)light);
 }
 
 void scene_gen_kdtree(scene_t *scene)
 {
     scene->root = kdnode_new_root(scene->shapes, KDP_YZ);
-    int depth = 0;
-    KDnode n = scene->root;
-
 }
 
-void scene_teardown(scene_t scene)
+void scene_teardown(scene_t *scene)
 {
     /* TODO: apply free function?
      * NOTE: implies ownership transfer of shapes and lights to scene/callee,
      * mark appropriate functions 
      * -OR- use arrays instead of linked lists, and dont transfer ownership */
-    llist_free_list(scene.shapes);
-    llist_free_list(scene.lights);
-    free(scene._sky);
+    Llist_free_list(scene->shapes);
+    Llist_free_list(scene->lights);
+    free(scene->_sky);
 }
 
 intersect_result_t intersect(Shape_t *shape, ray_t ray)
@@ -50,27 +47,27 @@ intersect_result_t intersect(Shape_t *shape, ray_t ray)
     return shape->intersect(shape, ray);
 }
 
-Shape_t *transform(Shape_t *shape, struct mat4 transmat)
+Shape_t *transform(Shape_t *shape, mat4_t transmat)
 {
     return shape->transform(shape, transmat);
 }
 
-intersect_result_t scene_kd_intersect(scene_t scene, ray_t ray,
+intersect_result_t scene_kd_intersect(scene_t *scene, ray_t ray,
         vfloat_t max_dist, KDnode_t *kdn);
 
-intersect_result_t scene_intersect(scene_t scene, ray_t ray,
+intersect_result_t scene_intersect(scene_t *scene, ray_t ray,
         vfloat_t max_dist)
 {
-    if (scene.root != NULL)
-        return scene_kd_intersect(scene, ray, max_dist, scene.root);
+    if (scene->root != NULL)
+        return scene_kd_intersect(scene, ray, max_dist, scene->root);
 
-    llist_t *shapes = scene.shapes;
+    Llist_t *shapes = scene->shapes;
     vfloat_t cur_dist = max_dist;
     intersect_result_t nearest;
     nearest.distance = max_dist;
-    nearest.material = scene._sky;
+    nearest.material = scene->_sky;
 
-    for (llist_node_t *node = shapes->first; node != NULL;
+    for (Llist_node_t *node = shapes->first; node != NULL;
             node = node->next)
     {
         Shape_t *shape = (Shape_t *)(node->datum);
@@ -85,13 +82,13 @@ intersect_result_t scene_intersect(scene_t scene, ray_t ray,
     return nearest;
 }
 
-intersect_result_t scene_kd_intersect(scene_t scene, ray_t ray,
+intersect_result_t scene_kd_intersect(scene_t *scene, ray_t ray,
         vfloat_t max_dist, KDnode_t *kdn)
 {
     vfloat_t cur_dist = max_dist;
     intersect_result_t nearest;
     nearest.distance = max_dist;
-    nearest.material = scene._sky;
+    nearest.material = scene->_sky;
 
     if (kdn->leaf_data != NULL) {
         for (int i = 0; i < kdn->shape_count; i++) {
@@ -127,23 +124,23 @@ intersect_result_t scene_kd_intersect(scene_t scene, ray_t ray,
 bool shadow_test(intersect_result_t res, light_t *light)
 {
     scene_t *scene = res.material->scene;
-    struct vec3 light_vec = v3_sub(res.position, light->position);
+    vec3_t light_vec = v3_sub(res.position, light->position);
     vfloat_t light_dist = v3_magnitude(light_vec);
     ray_t light_ray = (ray_t){ light->position,
             v3_divide(light_vec, light_dist) };
 
-    intersect_result_t shadow_res = scene_intersect(*scene,
+    intersect_result_t shadow_res = scene_intersect(scene,
             light_ray, MAX_DIST);
 
     return light_dist > shadow_res.distance + FUDGE_SCALE &&
         shadow_res.material->transmit_scale < 0.5;
 }
 
-color_t color_at_rec(scene_t scene, ray_t ray, int depth)
+color_t color_at_rec(scene_t *scene, ray_t ray, int depth)
 {
     color_t out_color = CLR_BLACK;
     vfloat_t max_dist = MAX_DIST;
-    color_t sky_color = scene._sky->diffuse_color;
+    color_t sky_color = scene->_sky->diffuse_color;
 
     /* find nearest intersection */
     intersect_result_t res;
@@ -155,7 +152,7 @@ color_t color_at_rec(scene_t scene, ray_t ray, int depth)
         out_color = clr_add(out_color, shade_once(res));
 
         /* for each light, illum */
-        for (llist_node_t *node = scene.lights->first; node != NULL;
+        for (Llist_node_t *node = scene->lights->first; node != NULL;
                 node = node->next)
         {
             light_t *light = (light_t *)(node->datum);
@@ -169,18 +166,18 @@ color_t color_at_rec(scene_t scene, ray_t ray, int depth)
     return out_color;
 }
 
-color_t color_at(scene_t scene, ray_t ray)
+color_t color_at(scene_t *scene, ray_t ray)
 {
     return color_at_rec(scene, ray, MAX_DEPTH);
 }
 
-void scene_render(scene_t scene, size_t w, size_t h,
+void scene_render(scene_t *scene, size_t w, size_t h,
         color_t *img)
 {
-    camera_t cam = scene.camera;
-    struct vec3 lookVec = v3_sub(cam.lookAt, cam.pos);
-    struct vec3 plane_right = v3_cross(lookVec, cam.up);
-    struct vec3 plane_up = v3_cross(plane_right, lookVec);
+    camera_t cam = scene->camera;
+    vec3_t lookVec = v3_sub(cam.lookAt, cam.pos);
+    vec3_t plane_right = v3_cross(lookVec, cam.up);
+    vec3_t plane_up = v3_cross(plane_right, lookVec);
     plane_right = v3_normalize(plane_right);
     plane_up = v3_normalize(plane_up);
     lookVec = v3_normalize(lookVec);
@@ -193,7 +190,7 @@ void scene_render(scene_t scene, size_t w, size_t h,
         vfloat_t plane_y = ((signed)h/2 - r) * dy - dy/2;
         for (int c = 0; c < w; c++) {
             vfloat_t plane_x = (c - (signed)w/2) * dx - dx/2;
-            struct vec3 plane_world = v3_add(
+            vec3_t plane_world = v3_add(
                     v3_add(
                         v3_scale(plane_right, plane_x),
                         v3_scale(plane_up, plane_y)),

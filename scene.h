@@ -25,9 +25,9 @@ static const vfloat_t MAX_DIST = 5000;
 typedef struct
 {
     /* orientation of camera */
-    struct vec3 pos;
-    struct vec3 up;
-    struct vec3 lookAt;
+    vec3_t pos;
+    vec3_t up;
+    vec3_t lookAt;
 
     /* properties for projection onto a plane */
     vfloat_t plane_width;
@@ -38,8 +38,8 @@ typedef struct scene
 {
     Material_t *_sky;
     camera_t camera;
-    llist_t *shapes;
-    llist_t *lights;
+    Llist_t *shapes;
+    Llist_t *lights;
     KDnode_t *root;
 } scene_t;
 
@@ -68,7 +68,7 @@ scene_t scene_empty_scene(color_t sky_color, camera_t camera);
  * TODO: use pointer to scene instead for consistency, and to make it clear that
  * the scene is mutable
  */
-void scene_add_shape(scene_t scene, Shape_t *shape);
+void scene_add_shape(scene_t *scene, const Shape_t *shape);
 
 /* Adds light source to the scene.
  *
@@ -79,7 +79,7 @@ void scene_add_shape(scene_t scene, Shape_t *shape);
  * TODO: use pointer to scene instead for consistency, and to make it clear that
  * the scene is mutable
  */
-void scene_add_light(scene_t scene, light_t *light);
+void scene_add_light(scene_t *scene, const light_t *light);
 
 /* Generates a KD tree using the scene's shapes
  */
@@ -89,7 +89,7 @@ void scene_gen_kdtree(scene_t *scene);
  *
  * scene - scene to tear down
  */
-void scene_teardown(scene_t scene);
+void scene_teardown(scene_t *scene);
 
 /* Renders image as [0-1] RGB colors to pre-allocated buffer.
  *
@@ -98,16 +98,16 @@ void scene_teardown(scene_t scene);
  * h - height of image
  * img - buffer to render to
  */
-void scene_render(scene_t scene, size_t w, size_t h,
+void scene_render(scene_t *scene, size_t w, size_t h,
         color_t *img);
 
 /* Fires a ray to obtain color from direct or indirect collision, or sky color
  * on a miss.
  */
-color_t color_at(scene_t scene, ray_t ray);
+color_t color_at(scene_t *scene, ray_t ray);
 
 /* Fires rays recursively. */
-color_t color_at_rec(scene_t scene, ray_t ray, int depth);
+color_t color_at_rec(scene_t *scene, ray_t ray, int depth);
 
 #if 0
 void scene_add_kdtree(scene_t *scene, Shape_t *shapes[]);

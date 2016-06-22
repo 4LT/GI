@@ -20,7 +20,7 @@ static const int SCREEN_H = 480;
 
 static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK, 1.2, 1.0 };
 
-static struct vec3 vert;
+static vec3_t vert;
 static size_t vert_index = 0;
 static int face_element = 0;
 
@@ -29,7 +29,7 @@ static int face_element = 0;
  */
 static int on_vertex(p_ply_argument argument)
 {
-    struct vec3 *vlist;
+    vec3_t *vlist;
     long offset;
 
     ply_get_argument_user_data(argument, (void *)&vlist, &offset);
@@ -45,7 +45,7 @@ static int on_vertex(p_ply_argument argument)
 static int on_face(p_ply_argument argument)
 {
     long *index;
-    llist_t *tri_i;
+    Llist_t *tri_i;
     static int face_element = 0;
 
     if (face_element++ == 0) 
@@ -56,28 +56,28 @@ static int on_face(p_ply_argument argument)
     index = (long *) malloc(sizeof(long));
     *index = (long)ply_get_argument_value(argument);
     ply_get_argument_user_data(argument, (void *)&tri_i, NULL);
-    llist_append(tri_i, index);
+    Llist_append(tri_i, index);
     return 1;
 }
 
 /* Gets a list of triangles from a ply file.
  * filename - name of ply file
  */
-llist_t *ply2tri(const char *filename)
+Llist_t *ply2tri(const char *filename)
 {
     vert_index = 0;
     face_element = 0;
 
     long vert_count;
-    struct vec3 *vlist;
-    llist_t *tri_i = llist_new();
-    llist_t *tris = llist_new();
+    vec3_t *vlist;
+    Llist_t *tri_i = Llist_new();
+    Llist_t *tris = Llist_new();
     printf("opening file \"%s\"\n", filename);
     p_ply ply = ply_open(filename, NULL, 0, NULL);
     ply_read_header(ply);
 
     vert_count = ply_set_read_cb(ply, "vertex", "x", on_vertex, NULL, 0);
-    vlist = malloc(sizeof(struct vec3) * vert_count);
+    vlist = malloc(sizeof(vec3_t) * vert_count);
     ply_set_read_cb(ply, "vertex", "y", on_vertex, NULL, 1);
     ply_set_read_cb(ply, "vertex", "z", on_vertex, vlist, 2);
 
@@ -88,13 +88,13 @@ llist_t *ply2tri(const char *filename)
 
     ply_read(ply);
 
-    for (llist_node_t *node = tri_i->first; node != NULL; node = node->next) {
-        struct vec3 *vert = (struct vec3 *) malloc(sizeof(struct vec3));
+    for (Llist_node_t *node = tri_i->first; node != NULL; node = node->next) {
+        vec3_t *vert = (vec3_t *) malloc(sizeof(vec3_t));
         *vert = vlist[*(long *)node->datum];
-        llist_append(tris, vert);
+        Llist_append(tris, vert);
     }
 
-    llist_free_all(tri_i, free);
+    Llist_free_all(tri_i, free);
     return tris;
 }
 
@@ -103,23 +103,23 @@ llist_t *ply2tri(const char *filename)
  */
 int main(int argc, char *argv[])
 {
-    llist_t *tris;
+    Llist_t *tris;
     scene_t scene = scene_empty_scene(CLR_BLACK, CAM);
 
     if (argc <= 1)
-        tris = ply2tri("bun_zipper_res4.ply");
+        tris = ply2tri("bun_zipper_res3.ply");
     else
         tris = ply2tri(argv[1]);
 
     Material_t *white = lambert_new(&scene, (color_t) {{ .8, .7, .7 }});
     //int ct = 0;
-    for (llist_node_t *node = tris->first; node != NULL;) {
-        struct vec3 tri[3];
+    for (Llist_node_t *node = tris->first; node != NULL;) {
+        vec3_t tri[3];
         for (int i = 0; i < 3; i++, node = node->next) {
-            struct vec3 vert = *((struct vec3 *)node->datum);
+            vec3_t vert = *((vec3_t *)node->datum);
             tri[i] = vert;
         }
-        scene_add_shape(scene, (Shape_t *)triangle_new(white,
+        scene_add_shape(&scene, (Shape_t *)triangle_new(white,
                 tri[0], tri[1], tri[2], false));
     }
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
     light_t light1 = (light_t) {
         .type = SPHERE,
-        .position = (struct vec3) {{ 65, 80, 128 }},
+        .position = (vec3_t) {{ 65, 80, 128 }},
         .color = (color_t) {{ 200, 200, 200 }},
         .radius = 7
     };
@@ -141,12 +141,12 @@ int main(int argc, char *argv[])
         .type = AMBIENT,
         .color = (color_t) {{ .5, .5, .5 }}
     };
-    scene_add_light(scene, &light1);
-    scene_add_light(scene, &ambient);
+    scene_add_light(&scene, &light1);
+    scene_add_light(&scene, &ambient);
 
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
-    scene_render(scene, SCREEN_W, SCREEN_H, img);
+    scene_render(&scene, SCREEN_W, SCREEN_H, img);
 
     pixel_t *pixmap = malloc(pix_count * sizeof(color_t));
     tonemap_nop(img, pix_count, pixmap);

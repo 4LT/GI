@@ -34,14 +34,14 @@ color_t ambient_illum(intersect_result_t res, color_t diffuse, light_t *light)
 
 color_t diffuse_illum(intersect_result_t res, color_t diffuse, light_t *light)
 {
-    struct vec3 lnorm;
+    vec3_t lnorm;
     vfloat_t a;
     if (light->type == ORTHO) {
         lnorm = v3_scale(light->direction, -1);
         a = 1;
     }
     else {
-        struct vec3 surf2light = v3_sub(light->position, res.position);
+        vec3_t surf2light = v3_sub(light->position, res.position);
         vfloat_t lmag = v3_magnitude(surf2light);
         a = attenuation(light->radius, lmag);
         lnorm = v3_divide(surf2light, lmag);
@@ -93,8 +93,8 @@ color_t concentric_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
     const color_t GREY = {{ 0.2, 0.2, 0.2 }};
     const color_t GREEN = {{ 0, 1, 0 }};
     const vfloat_t THICK = 2;
-    struct vec3 P1 = {{ -10, -40, 0 }}, P2 = {{ 30, 50, 0 }};
-    struct vec3 xyv = {{ x/2, y/2, 0 }};
+    vec3_t P1 = {{ -10, -40, 0 }}, P2 = {{ 30, 50, 0 }};
+    vec3_t xyv = {{ x/2, y/2, 0 }};
     vfloat_t r1 = v3_magnitude(v3_sub(P1, xyv)) / THICK / 2;
     vfloat_t r2 = v3_magnitude(v3_sub(P2, xyv)) / THICK / 2;
     vfloat_t scale = cos(PI2 * r1) + cos(PI2 * r2);
@@ -104,13 +104,13 @@ color_t concentric_sample(Material_t *mtrl, vfloat_t x, vfloat_t y)
 
 color_t specular_illum(intersect_result_t res, light_t *light)
 {
-    struct vec3 lnorm;
+    vec3_t lnorm;
     if (light->type == ORTHO)
         lnorm = v3_scale(light->direction, -1);
     else
         lnorm = v3_normalize(v3_sub(light->position, res.position));
 
-    struct vec3 half = v3_normalize(v3_add(
+    vec3_t half = v3_normalize(v3_add(
                 v3_scale(res.incoming, -1), lnorm));
 
     color_t specular_color = res.material->specular_color;
@@ -160,15 +160,15 @@ color_t reflect(intersect_result_t res)
 
     color_t out_color = CLR_BLACK;
     Material_t *mtrl = res.material;
-    struct vec3 normal = res.normal;
+    vec3_t normal = res.normal;
 
     /* axis-aligned vector such that (aa x normal) is never (0, 0, 0) */
-    struct vec3 aa = (struct vec3) {{ 1, 0, 0 }};
+    vec3_t aa = (vec3_t) {{ 1, 0, 0 }};
     if (fabs(normal.v[0]) > fabs(normal.v[1]))
-        aa = (struct vec3) {{ 0, 1, 0 }};
+        aa = (vec3_t) {{ 0, 1, 0 }};
 
-    struct vec3 unit_x = v3_normalize(v3_cross(normal, aa));
-    struct vec3 unit_y = v3_cross(normal, unit_x);
+    vec3_t unit_x = v3_normalize(v3_cross(normal, aa));
+    vec3_t unit_y = v3_cross(normal, unit_x);
     
     const bool UNIFORM = false;
     for (int i = 0; i < mtrl->reflect_ray_count; i++) {
@@ -177,20 +177,20 @@ color_t reflect(intersect_result_t res)
         float r = rand_float();
         if (UNIFORM) r = sqrt(r);
         r*= mtrl->roughness;
-        struct vec3 mod_normal = v3_add(normal, v3_add(
+        vec3_t mod_normal = v3_add(normal, v3_add(
                 v3_scale(unit_x, r * cos(theta)),
                 v3_scale(unit_y, r * sin(theta)) ));
         mod_normal = v3_normalize(mod_normal);
                   
-        struct vec3 proj_i = v3_project(mod_normal, res.incoming);
-        struct vec3 proj_r = v3_add(proj_i,
+        vec3_t proj_i = v3_project(mod_normal, res.incoming);
+        vec3_t proj_r = v3_add(proj_i,
                 v3_scale(v3_sub(mod_normal, proj_i),2));
         ray_t reflected_ray;
         reflected_ray.direction = v3_normalize(proj_r);
         reflected_ray.position = v3_add(res.position,
                 v3_scale(normal, FUDGE));
         
-        color_t reflect_color = color_at_rec(*(mtrl->scene), reflected_ray,
+        color_t reflect_color = color_at_rec(mtrl->scene, reflected_ray,
                 res.depth - 1);
         out_color = clr_add(out_color, reflect_color);
     }
@@ -216,7 +216,7 @@ color_t refract(intersect_result_t res)
 
     if (discrim <= 0) return reflect(res);
 
-    struct vec3 transmit = v3_add(v3_scale(res.incoming, refract_ratio),
+    vec3_t transmit = v3_add(v3_scale(res.incoming, refract_ratio),
             v3_scale(res.normal, refract_ratio*cos_theta1 - sqrt(discrim)));
 
     ray_t refracted_ray;
@@ -224,7 +224,7 @@ color_t refract(intersect_result_t res)
     refracted_ray.position = v3_sub(res.position,
             v3_scale(res.normal, FUDGE));
 
-    return color_at_rec(*(res.material->scene), refracted_ray,
+    return color_at_rec(res.material->scene, refracted_ray,
             res.depth - 1);
 }
 

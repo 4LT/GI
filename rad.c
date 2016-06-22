@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 {
     scene_t scene = scene_empty_scene(CLR_BLACK, CAM);
 
-    struct vec3 room_coords[] = {
+    vec3_t room_coords[] = {
         {{ 552.8, 0.0, 0.0 }},
         {{ 0.0, 0.0, 0.0 }},
         {{ 0.0, 0.0, 559.2 }},
@@ -42,25 +42,25 @@ int main(int argc, char *argv[])
         fullbright_new(&scene, (color_t) {{ 0.6, 0.6, 0.6 }});
 #endif
 
-    scene_add_shape(scene, (Shape_t *)quad_new(white, room_coords[0],
+    scene_add_shape(&scene, (Shape_t *)quad_new(white, room_coords[0],
             room_coords[1], room_coords[2], room_coords[3], false));
-    scene_add_shape(scene, (Shape_t *)quad_new(white, room_coords[4],
+    scene_add_shape(&scene, (Shape_t *)quad_new(white, room_coords[4],
             room_coords[5], room_coords[6], room_coords[7], false));
-    scene_add_shape(scene, (Shape_t *)quad_new(white, room_coords[6],
+    scene_add_shape(&scene, (Shape_t *)quad_new(white, room_coords[6],
             room_coords[5], room_coords[3], room_coords[2], false));
-    scene_add_shape(scene, (Shape_t *)quad_new(green, room_coords[7],
+    scene_add_shape(&scene, (Shape_t *)quad_new(green, room_coords[7],
             room_coords[6], room_coords[2], room_coords[1], false));
-    scene_add_shape(scene, (Shape_t *)quad_new(red, room_coords[0],
+    scene_add_shape(&scene, (Shape_t *)quad_new(red, room_coords[0],
             room_coords[3], room_coords[5], room_coords[4], false));
-    scene_add_shape(scene, (Shape_t *)quad_new(mag, room_coords[0],
+    scene_add_shape(&scene, (Shape_t *)quad_new(mag, room_coords[0],
             room_coords[4], room_coords[7], room_coords[1], false));
 
     light_t ambient = (light_t){ .type = AMBIENT, .color = CLR_BLACK };
-    scene_add_light(scene, &ambient);
+    scene_add_light(&scene, &ambient);
 
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
-    scene_render(scene, SCREEN_W, SCREEN_H, img);
+    scene_render(&scene, SCREEN_W, SCREEN_H, img);
 
     pixel_t *pixmap = malloc(pix_count * sizeof(color_t));
     tonemap_nop(img, pix_count, pixmap);

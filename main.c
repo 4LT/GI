@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 /* SET UP LIGHTS */
     light_t light1 = (light_t) {
         .type = SPHERE,
-        .position = (struct vec3) {{ 65, -80, 128 }},
+        .position = (vec3_t) {{ 65, -80, 128 }},
         .color = (color_t) {{ 200, 200, 200 }},
         .radius = 6
     };
@@ -58,35 +58,35 @@ int main(int argc, char *argv[])
         .color = clr_scale(BG_COLOR, 0.4)
     };
 
-    scene_add_light(scene, &light1);
-    scene_add_light(scene, &ambient);
+    scene_add_light(&scene, &light1);
+    scene_add_light(&scene, &ambient);
 
 /* SET UP GEOMETRY */
-    scene_add_shape(scene, 
+    scene_add_shape(&scene, 
             (Shape_t *)sphere_new(glass, 24,
-            (struct vec3){{ 55, -20, 30 }}));
-    scene_add_shape(scene,
+            (vec3_t){{ 55, -20, 30 }}));
+    scene_add_shape(&scene,
             (Shape_t *) sphere_new(shiny, 18,
 #if 1
-            (struct vec3){{ 20, 30, 22 }}));
+            (vec3_t){{ 20, 30, 22 }}));
 #else
-            (struct vec3){{ 15, -30, 22 }}));
+            (vec3_t){{ 15, -30, 22 }}));
 #endif
-    scene_add_shape(scene,
+    scene_add_shape(&scene,
             (Shape_t *)triangle_new(tiled,
-                (struct vec3){{ -100, -220, 0 }},
-                (struct vec3){{  100, -220, 0 }},
-                (struct vec3){{ -100,  220, 0 }}, false ));
-    scene_add_shape(scene,
+                (vec3_t){{ -100, -220, 0 }},
+                (vec3_t){{  100, -220, 0 }},
+                (vec3_t){{ -100,  220, 0 }}, false ));
+    scene_add_shape(&scene,
             (Shape_t *)triangle_new(tiled,
-                (struct vec3){{  100, -220, 0 }},
-                (struct vec3){{  100,  220, 0 }},
-                (struct vec3){{ -100,  220, 0 }}, false ));
+                (vec3_t){{  100, -220, 0 }},
+                (vec3_t){{  100,  220, 0 }},
+                (vec3_t){{ -100,  220, 0 }}, false ));
 
 /* render scene */
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
-    scene_render(scene, SCREEN_W, SCREEN_H, img);
+    scene_render(&scene, SCREEN_W, SCREEN_H, img);
 
 /* apply tone mapping */
     pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));

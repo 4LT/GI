@@ -15,14 +15,14 @@ struct shape;
 
 typedef intersect_result_t (*intersect_fp)(struct shape *, ray_t);
 
-typedef struct shape * (*transform_fp)(struct shape *, struct mat4);
+typedef struct shape * (*transform_fp)(struct shape *, mat4_t);
 
 typedef struct shape
 {
     intersect_fp intersect;
     transform_fp transform;
     vfloat_t bounds[3][2];
-    struct vec3 position;
+    vec3_t position;
     Material_t *material;
     bool draw_backface;
 } Shape_t;
@@ -36,7 +36,7 @@ typedef struct
 typedef struct
 {
     Shape_t base;
-    struct vec3 verts[3];
+    vec3_t verts[3];
 } Triangle_t;
 
 typedef struct
@@ -50,16 +50,16 @@ typedef struct
 
 intersect_result_t intersect_shape(Shape_t *shape, ray_t ray);
 
-Shape_t *transform(Shape_t *shape, struct mat4 transMat);
+Shape_t *transform(Shape_t *shape, mat4_t transMat);
 
 color_t shade(intersect_result_t intrs_result, light_t *light);
 
-Sphere_t *sphere_new(Material_t *mtrl, vfloat_t radius, struct vec3 position);
+Sphere_t *sphere_new(Material_t *mtrl, vfloat_t radius, vec3_t position);
 
-Triangle_t *triangle_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
-        struct vec3 vert2, bool draw_backface);
+Triangle_t *triangle_new(Material_t *mtrl, vec3_t vert0, vec3_t vert1,
+        vec3_t vert2, bool draw_backface);
 
-Quad_t *quad_new(Material_t *mtrl, struct vec3 vert0, struct vec3 vert1,
-        struct vec3 vert2, struct vec3 vert3, bool draw_backface);
+Quad_t *quad_new(Material_t *mtrl, vec3_t vert0, vec3_t vert1,
+        vec3_t vert2, vec3_t vert3, bool draw_backface);
 
 #endif
