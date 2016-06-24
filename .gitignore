@@ -30,6 +30,7 @@
 rayt
 rad
 ply2tri
+patches
 
 # Debug files
 *.dSYM/

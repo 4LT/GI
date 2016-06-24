@@ -80,4 +80,4 @@ clean:
 	rm -f *.o 
 	rm -f util/*.o
 	rm -f rply-1.1.4/*.o
-	rm -f rayt ply2tri rad
+	rm -f rayt ply2tri rad patches
