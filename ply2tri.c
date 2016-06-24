@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     color_t *img = malloc(pix_count * sizeof(color_t));
     scene_render(&scene, SCREEN_W, SCREEN_H, img);
 
-    pixel_t *pixmap = malloc(pix_count * sizeof(color_t));
+    pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));
     tonemap_nop(img, pix_count, pixmap);
     free(img);
 

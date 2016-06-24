@@ -20,6 +20,12 @@ typedef struct
     vfloat_t v[3];
 } vec3_t;
 
+/* 2D vector value type */
+typedef struct
+{
+    vfloat_t v[2];
+} vec2_t;
+
 /* 4x4 matrix value type */
 typedef struct
 {

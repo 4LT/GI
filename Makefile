@@ -16,8 +16,9 @@ endif
 COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o\
 				color.o tone_mapping.o util/linked_list.o kd.o
 
-.PHONY: all clean opt
-all: rayt rad ply2tri
+.PHONY: all clean rad ply2tri patches rayt
+
+all: rayt rad ply2tri patches
 
 main.o: main.c types.h scene.h shapes.h material.h materials.h light.h color.h
 	$(CC) $(CFLAGS) -c main.c
@@ -55,6 +56,9 @@ color.o: color.c color.h
 tone_mapping.o: tone_mapping.c tone_mapping.h
 	$(CC) $(CFLAGS) -c tone_mapping.c
 
+read_patches.o: read_patches.c read_patches.h
+	$(CC) $(CFLAGS) -c read_patches.c
+
 util/linked_list.o: util/linked_list.c util/linked_list.h
 	$(CC) $(CFLAGS) -o util/linked_list.o -c util/linked_list.c
 
@@ -66,6 +70,10 @@ rad: rad.o $(COMMON_OBJECTS) Makefile
 
 ply2tri: ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)  Makefile
 	$(CC) $(CFLAGS) -o ply2tri ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)\
+		$(LDFLAGS)
+
+patches: patches.o read_patches.o $(COMMON_OBJECTS) Makefile
+	$(CC) $(CFLAGS) -o patches patches.o read_patches.o $(COMMON_OBJECTS)\
 		$(LDFLAGS)
 
 clean:
