@@ -16,9 +16,11 @@ endif
 COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o\
 				color.o tone_mapping.o util/linked_list.o kd.o
 
-.PHONY: all clean rad ply2tri patches rayt
+PROGRAMS= rad ply2tri patches rayt box2p
 
-all: rayt rad ply2tri patches
+.PHONY: all clean $(PROGRAMS)
+
+all: $(PROGRAMS)
 
 main.o: main.c types.h scene.h shapes.h material.h materials.h light.h color.h
 	$(CC) $(CFLAGS) -c main.c
@@ -62,6 +64,9 @@ read_patches.o: read_patches.c read_patches.h
 util/linked_list.o: util/linked_list.c util/linked_list.h
 	$(CC) $(CFLAGS) -o util/linked_list.o -c util/linked_list.c
 
+box2p.o: box2p.c
+	$(CC) $(CFLAGS) -o box2p.o -c box2p.c
+
 rayt: main.o $(COMMON_OBJECTS) Makefile
 	$(CC) $(CFLAGS) -o rayt main.o $(COMMON_OBJECTS) $(LDFLAGS)
 
@@ -76,8 +81,11 @@ patches: patches.o read_patches.o $(COMMON_OBJECTS) Makefile
 	$(CC) $(CFLAGS) -o patches patches.o read_patches.o $(COMMON_OBJECTS)\
 		$(LDFLAGS)
 
+box2p: box2p.o $(COMMON_OBJECS) Makefile
+	$(CC) $(CFLAGS) -o box2p box2p.o $(COMMON_OBJECTS) $(LDFLAGS)
+
 clean:
 	rm -f *.o 
 	rm -f util/*.o
 	rm -f rply-1.1.4/*.o
-	rm -f rayt ply2tri rad patches
+	rm -f $(PROGRAMS)

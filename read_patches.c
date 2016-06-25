@@ -21,15 +21,22 @@ Quad_t *patch_read_quad(FILE* file, scene_t *scene)
     vec3_t vert1 = patch_read_vec3(file);
     vec3_t vert2 = patch_read_vec3(file);
     vec3_t vert3 = patch_read_vec3(file);
+#if 0
     vec3_t normal = patch_read_vec3(file);
     vec3_t my_normal = v3_cross(v3_sub(vert1, vert0), v3_sub(vert2, vert0));
+#else
+    patch_read_vec3(file);
+#endif
     patch_read_color(file); // discard initial exitance
     color_t mtrl_color = patch_read_color(file);
     Material_t *mtrl = fullbright_new(scene, mtrl_color);
-    if (v3_dot(normal, my_normal) < 0)
-        return quad_new(mtrl, vert0, vert1, vert2, vert3, true);
+#if 0
+    if (v3_dot(normal, my_normal) > 0)
+        return quad_new(mtrl, vert0, vert1, vert2, vert3, false);
     else
-        return quad_new(mtrl, vert0, vert3, vert2, vert1, true);
+        return quad_new(mtrl, vert0, vert3, vert2, vert1, false);
+#endif
+    return quad_new(mtrl, vert3, vert2, vert1, vert0, false);
 }
 
 scene_t *patch_read_file(const char *file_name)

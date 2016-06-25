@@ -50,7 +50,11 @@ static inline vec3_t v3_project(vec3_t vecA, vec3_t vecB)
 /* Divides each element of "in" by "divisor". */
 static inline vec3_t v3_divide(vec3_t in, vfloat_t divisor)
 {
-    return v3_scale(in, 1.0f / divisor);
+    vec3_t out;
+    out.v[0] = in.v[0] / divisor;
+    out.v[1] = in.v[1] / divisor;
+    out.v[2] = in.v[2] / divisor;
+    return out;
 }
 
 static inline vec3_t v3_add(vec3_t vecA, vec3_t vecB)
@@ -91,6 +95,15 @@ static inline vec3_t v3_normalize(vec3_t in)
 static inline vfloat_t v3_distance(vec3_t ptA, vec3_t ptB)
 {
     return v3_magnitude(v3_sub(ptB, ptA));
+}
+
+static inline vec3_t v3_blend(vec3_t vecA, vec3_t vecB, vfloat_t blend)
+{
+    vec3_t out;
+    for (int i = 0; i < 3; i++) {
+        out.v[i] = (1-blend)*vecA.v[i] + blend*vecB.v[i];
+    }
+    return out;
 }
 
 static inline vec3_t m4v3_column(mat4_t mat, unsigned int index)

@@ -7,7 +7,7 @@ static const int SCREEN_H = 256;
 
 int main(int argc, char *argv[])
 {
-    scene_t *scene = patch_read_file("coarse.txt");
+    scene_t *scene = patch_read_file("mymesh.txt");
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
     scene_gen_kdtree(scene);
