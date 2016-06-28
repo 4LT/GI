@@ -8,7 +8,7 @@ else
 endif
 
 ifdef OPMZ
-	CFLAGS=$(BASEFLAGS) -O2 -march=native -ggdb -mno-avx
+	CFLAGS=$(BASEFLAGS) -O2 -march=native -D NDEBUG
 else
 	CFLAGS=$(BASEFLAGS) -ggdb
 endif

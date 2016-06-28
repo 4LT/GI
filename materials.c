@@ -1,11 +1,10 @@
 #include <tgmath.h>
+#include "constants.h"
 #include "materials.h"
 #include "shapes.h"
 #include "scene.h"
 
 static const int TILE_SIZE = 20;
-static const double PI2 = 2 * 3.14159;
-static const vfloat_t FUDGE = 0.001;
 
 vfloat_t attenuation(vfloat_t radius, vfloat_t distance)
 {
@@ -188,7 +187,7 @@ color_t reflect(intersect_result_t res)
         ray_t reflected_ray;
         reflected_ray.direction = v3_normalize(proj_r);
         reflected_ray.position = v3_add(res.position,
-                v3_scale(normal, FUDGE));
+                v3_scale(normal, VEC_FUDGE));
         
         color_t reflect_color = color_at_rec(mtrl->scene, reflected_ray,
                 res.depth - 1);
@@ -222,7 +221,7 @@ color_t refract(intersect_result_t res)
     ray_t refracted_ray;
     refracted_ray.direction = v3_normalize(transmit);
     refracted_ray.position = v3_sub(res.position,
-            v3_scale(res.normal, FUDGE));
+            v3_scale(res.normal, VEC_FUDGE));
 
     return color_at_rec(res.material->scene, refracted_ray,
             res.depth - 1);
