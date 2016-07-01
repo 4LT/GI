@@ -171,8 +171,8 @@ color_t color_at(scene_t *scene, ray_t ray)
     return color_at_rec(scene, ray, MAX_DEPTH);
 }
 
-void scene_render(scene_t *scene, size_t w, size_t h,
-        color_t *img)
+void scene_render_offset(scene_t *scene, size_t w, size_t h, int off_x,
+        int off_y, color_t *img)
 {
     camera_t cam = scene->camera;
     vec3_t lookVec = v3_sub(cam.lookAt, cam.pos);
@@ -187,9 +187,9 @@ void scene_render(scene_t *scene, size_t w, size_t h,
     vfloat_t dy = plane_height / h;
 
     for (int r = 0; r < h; r++) {
-        vfloat_t plane_y = ((signed)h/2 - r) * dy - dy/2;
+        vfloat_t plane_y = (r - (signed)h/2 + off_y) * dy - dy/2;
         for (int c = 0; c < w; c++) {
-            vfloat_t plane_x = (c - (signed)w/2) * dx - dx/2;
+            vfloat_t plane_x = (c - (signed)w/2 + off_x) * dx - dx/2;
             vec3_t plane_world = v3_add(
                     v3_add(
                         v3_scale(plane_right, plane_x),
@@ -203,3 +203,10 @@ void scene_render(scene_t *scene, size_t w, size_t h,
         }
     }
 }
+
+void scene_render(scene_t *scene, size_t w, size_t h,
+        color_t *img)
+{
+    scene_render_offset(scene, w, h, 0, 0, img);
+}
+

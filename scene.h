@@ -101,6 +101,18 @@ void scene_teardown(scene_t *scene);
 void scene_render(scene_t *scene, size_t w, size_t h,
         color_t *img);
 
+/* Renders image with an offset in pixels. 
+ *
+ * scene - scene to render
+ * w - width of image
+ * h - height of image
+ * off_x - x offset of image in pixels
+ * off_y - y offset of image in pixels
+ * img - buffer to render to
+ */
+void scene_render_offset(scene_t *scene, size_t w, size_t h, int off_x,
+        int off_y, color_t *img);
+
 /* Fires a ray to obtain color from direct or indirect collision, or sky color
  * on a miss.
  */
