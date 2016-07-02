@@ -39,19 +39,22 @@ Quad_t *patch_read_quad(FILE* file, scene_t *scene)
     return quad_new(mtrl, vert3, vert2, vert1, vert0, false);
 }
 
-scene_t *patch_read_file(const char *file_name)
+void patch_read_file(const char *file_name, scene_t *scene, camera_t *cam)
 {
     FILE *f = fopen(file_name, "r");
-    scene_t *scene = malloc(sizeof(scene_t));
     vec3_t cam_pos = patch_read_vec3(f);
     vec3_t cam_look = patch_read_vec3(f);
     vec3_t cam_up = patch_read_vec3(f);
-    *scene = scene_empty_scene(CLR_BLACK,
-            (camera_t) { cam_pos, cam_up, cam_look, 1.2, 1.0});
 
-    int discard;
-    for (int i = 0; i < 5; i++)
+    int width, height, discard;
+    fscanf(f, "%d", &width);
+    fscanf(f, "%d", &height);
+    for (int i = 0; i < 3; i++)
         fscanf(f, "%d ", &discard);
+
+    *scene = scene_empty_scene(CLR_BLACK);
+    *cam = cam_centered(cam_pos, cam_up, cam_look, width, height);
+    cam_set_projection(cam, 1.2, 1.0);
 
     int last_ch;
     while ((last_ch = getc(f)) != EOF) {
@@ -61,7 +64,6 @@ scene_t *patch_read_file(const char *file_name)
     }
 
     fclose(f);
-    return scene;
 }
 
 

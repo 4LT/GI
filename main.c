@@ -14,19 +14,19 @@ static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
 static const int SCREEN_W = 1366;
 static const int SCREEN_H = 768;
 
-#define CAM_POS {{ 55, -180, 40 }}
-#define CAM_UP {{ 0, 0, 1 }}
-#define CAM_LOOK {{ 63, 100, 30 }}
-
-static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK, 1.2, 1.0 };
+static const vec3_t CAM_POS = (vec3_t) {{ 55, -180, 40 }};
+static const vec3_t CAM_UP = (vec3_t) {{ 0, 0, 1 }};
+static const vec3_t CAM_LOOK = (vec3_t) {{ 63, 100, 30 }};
 
 /*
  * Builds a scene with a floor and two spheres
  */
 int main(int argc, char *argv[])
 {
+    camera_t cam = cam_centered(CAM_POS, CAM_UP, CAM_LOOK, SCREEN_W, SCREEN_H);
+    cam_set_projection(&cam, 1.2, 1);
 
-    scene_t scene = scene_empty_scene(BG_COLOR, CAM);
+    scene_t scene = scene_empty_scene(BG_COLOR);
 
 /* SET UP MATERIALS */
     color_t spec1 = (color_t) {{ .002, .002, .002 }};
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 /* render scene */
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
-    scene_render(&scene, SCREEN_W, SCREEN_H, img);
+    scene_render(&scene, &cam, img);
 
 /* apply tone mapping */
     pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));

@@ -14,11 +14,9 @@
 static const int SCREEN_W = 640;
 static const int SCREEN_H = 480;
 
-#define CAM_POS {{ 0, 0.1, 0.25 }}
-#define CAM_UP {{ 0, 1, 0 }}
-#define CAM_LOOK {{ 0, 0.1, 0 }}
-
-static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK, 1.2, 1.0 };
+static const vec3_t CAM_POS = (vec3_t) {{ 0, 0.1, 0.25 }};
+static const vec3_t CAM_UP = (vec3_t) {{ 0, 1, 0 }};
+static const vec3_t CAM_LOOK = {{ 0, 0.1, 0 }};
 
 static vec3_t vert;
 static size_t vert_index = 0;
@@ -104,7 +102,9 @@ Llist_t *ply2tri(const char *filename)
 int main(int argc, char *argv[])
 {
     Llist_t *tris;
-    scene_t scene = scene_empty_scene(CLR_BLACK, CAM);
+    camera_t cam = cam_centered(CAM_POS, CAM_UP, CAM_LOOK, SCREEN_W, SCREEN_H);
+    cam_set_projection(&cam, 1.2, 1.0);
+    scene_t scene = scene_empty_scene(CLR_BLACK);
 
     if (argc <= 1)
         tris = ply2tri("bun_zipper_res3.ply");
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
-    scene_render(&scene, SCREEN_W, SCREEN_H, img);
+    scene_render(&scene, &cam, img);
 
     pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));
     tonemap_nop(img, pix_count, pixmap);

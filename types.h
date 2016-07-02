@@ -39,13 +39,6 @@ typedef struct
     vec3_t direction;
 } ray_t;
 
-/* general-purpose pair type (not used) */
-typedef struct pair
-{
-    void *left;
-    void *right;
-} pair_t;
-
 /* scene containing shapes, light sources, and a camera */
 struct scene;
 

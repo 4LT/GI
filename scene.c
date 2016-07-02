@@ -4,13 +4,12 @@ const vfloat_t FUDGE_SCALE = 0.001;
 const vfloat_t AMBIENT_SCALE = 0.4;
 const int MAX_DEPTH = 10;
 
-scene_t scene_empty_scene(color_t sky_color, camera_t camera)
+scene_t scene_empty_scene(color_t sky_color)
 {
     Material_t *sky_mtrl = fullbright_new(NULL, sky_color);
     sky_mtrl->ior = 1;
     return (scene_t) {
         ._sky = sky_mtrl,
-        .camera = camera,
         .shapes = Llist_new(),
         .lights = Llist_new(),
         .root = NULL };
@@ -171,42 +170,35 @@ color_t color_at(scene_t *scene, ray_t ray)
     return color_at_rec(scene, ray, MAX_DEPTH);
 }
 
-void scene_render_offset(scene_t *scene, size_t w, size_t h, int off_x,
-        int off_y, color_t *img)
+void scene_render(const scene_t *scene, const camera_t *cam, color_t *img)
 {
-    camera_t cam = scene->camera;
-    vec3_t lookVec = v3_sub(cam.lookAt, cam.pos);
-    vec3_t plane_right = v3_cross(lookVec, cam.up);
+    int w = cam->img_width;
+    int h = cam->img_height;
+    vec3_t lookVec = v3_sub(cam->lookAt, cam->pos);
+    vec3_t plane_right = v3_cross(lookVec, cam->up);
     vec3_t plane_up = v3_cross(plane_right, lookVec);
     plane_right = v3_normalize(plane_right);
     plane_up = v3_normalize(plane_up);
     lookVec = v3_normalize(lookVec);
 
-    vfloat_t plane_height = cam.plane_width * (vfloat_t)h / w;
-    vfloat_t dx = cam.plane_width / w;
+    vfloat_t plane_height = cam->plane_width * (vfloat_t)h / w;
+    vfloat_t dx = cam->plane_width / w;
     vfloat_t dy = plane_height / h;
 
     for (int r = 0; r < h; r++) {
-        vfloat_t plane_y = (r - (signed)h/2 + off_y) * dy - dy/2;
+        vfloat_t plane_y = (r - (signed)h/2 + cam->y_off) * dy - dy/2;
         for (int c = 0; c < w; c++) {
-            vfloat_t plane_x = (c - (signed)w/2 + off_x) * dx - dx/2;
+            vfloat_t plane_x = (c - (signed)w/2 + cam->x_off) * dx - dx/2;
             vec3_t plane_world = v3_add(
                     v3_add(
                         v3_scale(plane_right, plane_x),
                         v3_scale(plane_up, plane_y)),
-                    v3_scale(lookVec, cam.focal_length));
+                    v3_scale(lookVec, cam->focal_length));
             ray_t ray;
-            ray.position = cam.pos;
+            ray.position = cam->pos;
             ray.direction = v3_normalize(plane_world);
 
             img[r*w + c] = color_at(scene, ray);
         }
     }
 }
-
-void scene_render(scene_t *scene, size_t w, size_t h,
-        color_t *img)
-{
-    scene_render_offset(scene, w, h, 0, 0, img);
-}
-
