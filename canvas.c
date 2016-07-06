@@ -22,8 +22,10 @@ int draw(size_t width, size_t height, pixel_t *pixmap)
     const uint32_t B_MASK = 0xFF00;
     const uint32_t A_MASK = 0xFF;
 
-    for (int r = 0; r < height; r++) 
-        memcpy(flipped_pix + r*width, pixmap + (height-r)*width, width * px_sz);
+    for (int r = 0; r < height; r++) {
+        memcpy(flipped_pix + r*width, pixmap + (height-1-r)*width,
+                width * px_sz);
+    }
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         return sdlErr();
