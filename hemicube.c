@@ -2,13 +2,9 @@
 #include "hemicube.h"
 #include "constants.h"
 
-/**/
-static const int RESOLUTION = 256;
-static const int HALF_RES = RESOLUTION/2;
-/*/
 #define RESOLUTION 256
 #define HALF_RES (RESOLUTION / 2)
-/**/
+
 static const vfloat_t CELL_W = 2 / (vfloat_t)RESOLUTION;
 static const vfloat_t CELL_AREA = CELL_W * CELL_W;
 
