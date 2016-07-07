@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "canvas.h"
 #include "tone_mapping.h"
+#include "hemicube.h"
 
 static const int SCREEN_W = 512;
 static const int SCREEN_H = 512;
@@ -63,12 +64,21 @@ int main(int argc, char *argv[])
     color_t *img = malloc(pix_count * sizeof(color_t));
     scene_render(&scene, &cam, img);
 
-    pixel_t *pixmap = malloc(pix_count * sizeof(color_t));
+    pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));
     tonemap_nop(img, pix_count, pixmap);
     free(img);
 
-    int exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
+    draw(SCREEN_W, SCREEN_H, pixmap);
     free(pixmap);
+
+    color_t *img2 = Hcube_render(&scene,
+            (vec3_t){{278, 274, 10}}, (vec3_t){{0, 0, 1}});
+    pix_count = (4*256 * 3*256/2);
+    pixel_t *pmap2 = malloc(pix_count * sizeof(pixel_t));
+    tonemap_nop(img2, pix_count, pmap2);
+    free(img2);
+    int exit_status = draw(4*256, 3*256/2, pmap2);
+    free(pmap2);
 
     return exit_status;
 }

@@ -87,10 +87,10 @@ void scene_render(const scene_t *scene, const camera_t *cam, color_t *img);
 /* Fires a ray to obtain color from direct or indirect collision, or sky color
  * on a miss.
  */
-color_t color_at(scene_t *scene, ray_t ray);
+color_t color_at(const scene_t *scene, ray_t ray);
 
 /* Fires rays recursively. */
-color_t color_at_rec(scene_t *scene, ray_t ray, int depth);
+color_t color_at_rec(const scene_t *scene, ray_t ray, int depth);
 
 #if 0
 void scene_add_kdtree(scene_t *scene, Shape_t *shapes[]);

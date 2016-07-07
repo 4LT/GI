@@ -61,6 +61,9 @@ tone_mapping.o: tone_mapping.c tone_mapping.h
 read_patches.o: read_patches.c read_patches.h
 	$(CC) $(CFLAGS) -c read_patches.c
 
+hemicube.o: hemicube.c hemicube.h
+	$(CC) $(CFLAGS) -c hemicube.c
+
 util/linked_list.o: util/linked_list.c util/linked_list.h
 	$(CC) $(CFLAGS) -o util/linked_list.o -c util/linked_list.c
 
@@ -70,8 +73,8 @@ box2p.o: box2p.c
 rayt: main.o $(COMMON_OBJECTS) Makefile
 	$(CC) $(CFLAGS) -o rayt main.o $(COMMON_OBJECTS) $(LDFLAGS)
 
-rad: rad.o $(COMMON_OBJECTS) Makefile
-	$(CC) $(CFLAGS) -o rad rad.o $(COMMON_OBJECTS) $(LDFLAGS)
+rad: rad.o hemicube.o $(COMMON_OBJECTS) Makefile
+	$(CC) $(CFLAGS) -o rad rad.o hemicube.o $(COMMON_OBJECTS) $(LDFLAGS)
 
 ply2tri: ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)  Makefile
 	$(CC) $(CFLAGS) -o ply2tri ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)\

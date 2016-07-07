@@ -51,10 +51,10 @@ Shape_t *transform(Shape_t *shape, mat4_t transmat)
     return shape->transform(shape, transmat);
 }
 
-intersect_result_t scene_kd_intersect(scene_t *scene, ray_t ray,
+intersect_result_t scene_kd_intersect(const scene_t *scene, ray_t ray,
         vfloat_t max_dist, KDnode_t *kdn);
 
-intersect_result_t scene_intersect(scene_t *scene, ray_t ray,
+intersect_result_t scene_intersect(const scene_t *scene, ray_t ray,
         vfloat_t max_dist)
 {
     if (scene->root != NULL)
@@ -81,7 +81,7 @@ intersect_result_t scene_intersect(scene_t *scene, ray_t ray,
     return nearest;
 }
 
-intersect_result_t scene_kd_intersect(scene_t *scene, ray_t ray,
+intersect_result_t scene_kd_intersect(const scene_t *scene, ray_t ray,
         vfloat_t max_dist, KDnode_t *kdn)
 {
     vfloat_t cur_dist = max_dist;
@@ -135,7 +135,7 @@ bool shadow_test(intersect_result_t res, light_t *light)
         shadow_res.material->transmit_scale < 0.5;
 }
 
-color_t color_at_rec(scene_t *scene, ray_t ray, int depth)
+color_t color_at_rec(const scene_t *scene, ray_t ray, int depth)
 {
     color_t out_color = CLR_BLACK;
     vfloat_t max_dist = MAX_DIST;
@@ -165,7 +165,7 @@ color_t color_at_rec(scene_t *scene, ray_t ray, int depth)
     return out_color;
 }
 
-color_t color_at(scene_t *scene, ray_t ray)
+color_t color_at(const scene_t *scene, ray_t ray)
 {
     return color_at_rec(scene, ray, MAX_DEPTH);
 }

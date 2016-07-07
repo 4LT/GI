@@ -41,6 +41,11 @@ static inline vec3_t v3_scale(vec3_t in, vfloat_t scale)
     return out;
 }
 
+static inline vec3_t v3_neg(vec3_t in)
+{
+    return v3_scale(in, -1);
+}
+
 /* Projects vector vecA onto vecB. */
 static inline vec3_t v3_project(vec3_t vecA, vec3_t vecB)
 {
@@ -104,6 +109,16 @@ static inline vec3_t v3_blend(vec3_t vecA, vec3_t vecB, vfloat_t blend)
         out.v[i] = (1-blend)*vecA.v[i] + blend*vecB.v[i];
     }
     return out;
+}
+
+/* Arbitrary vector normal to input vector.  Chooses a vector perpendicular to
+ * vecIn and either the Y axis or Z axis, whichever has a better
+ * approximation. */
+static inline vec3_t v3_arbinormal(vec3_t in)
+{
+    return in.v[1] > in.v[2] ?
+            v3_cross(in, (vec3_t){{ 0, 0, 1 }}) :
+            v3_cross((vec3_t) {{ 0, 1, 0 }}, in);
 }
 
 static inline vec3_t m4v3_column(mat4_t mat, unsigned int index)
