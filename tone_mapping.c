@@ -1,6 +1,7 @@
 #include "tone_mapping.h"
 
 #include <tgmath.h>
+#include "util/ops.h"
 
 static const float WARD_A = 1.219;
 static const float WARD_B = 0.4;
@@ -62,8 +63,26 @@ void tonemap_ward(color_t *img, size_t pix_count, pixel_t *pixmap, double l_max)
     }
 }
 
-void tonemap_nop(color_t *img, size_t pix_count, pixel_t *pixmap)
+void tonemap_linear(
+        color_t *img, size_t pix_count, pixel_t *pixmap, vfloat_t scale)
 {
     for (size_t i = 0; i < pix_count; i++)
-        pixmap[i] = clr2pixel(img[i]);
+        pixmap[i] = clr2pixel(clr_scale(img[i], scale));
 }
+
+void tonemap_nop(color_t *img, size_t pix_count, pixel_t *pixmap)
+{
+    tonemap_linear(img, pix_count, pixmap, 1);
+}
+
+void tonemap_max(color_t *img, size_t pix_count, pixel_t *pixmap)
+{
+    vfloat_t max = 0;
+    for (size_t i = 0; i < pix_count; i++)
+    for (int j = 0; j < COLOR_COUNT; j++) {
+        max = ME_MAX(max, img[i].c[j]);
+    }
+
+    tonemap_linear(img, pix_count, pixmap, 1/max);
+}
+

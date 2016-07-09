@@ -68,17 +68,12 @@ int main(int argc, char *argv[])
     tonemap_nop(img, pix_count, pixmap);
     free(img);
 
-    draw(SCREEN_W, SCREEN_H, pixmap);
+    int exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
     free(pixmap);
 
-    color_t *img2 = Hcube_render(&scene,
+    color_t c = Hcube_gather(&scene,
             (vec3_t){{278, 274, 10}}, (vec3_t){{0, 0, 1}});
-    pix_count = (4*256 * 3*256/2);
-    pixel_t *pmap2 = malloc(pix_count * sizeof(pixel_t));
-    tonemap_nop(img2, pix_count, pmap2);
-    free(img2);
-    int exit_status = draw(4*256, 3*256/2, pmap2);
-    free(pmap2);
+    printf("COLOR (%f %f %f)\n", c.c[0], c.c[1], c.c[2]);
 
     return exit_status;
 }

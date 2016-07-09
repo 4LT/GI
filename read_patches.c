@@ -54,7 +54,7 @@ void patch_read_file(const char *file_name, scene_t *scene, camera_t *cam)
 
     *scene = scene_empty_scene(CLR_BLACK);
     *cam = cam_centered(cam_pos, cam_up, cam_look, width, height);
-    cam_set_projection(cam, 1.2, 1.0);
+    cam_set_projection(cam, 0.035, 0.05);
 
     int last_ch;
     while ((last_ch = getc(f)) != EOF) {
