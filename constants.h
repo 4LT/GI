@@ -2,9 +2,9 @@
 #define CONSTANTS_H_
 #include "types.h"
 
-const double PI =
+static const double PI =
 3.14159265358979323846264338327950288419716939937510582097494459230781640628620;
-const double PI2 = 2 * PI;
-const vfloat_t VEC_FUDGE = 0.001;
+#define PI2  2 * PI
+static const vfloat_t VEC_FUDGE = 0.001;
 
 #endif
