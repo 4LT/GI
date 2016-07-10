@@ -14,9 +14,9 @@ static const color_t BG_COLOR = {{ 0.4, 0.7, 1.0 }};
 static const int SCREEN_W = 1366;
 static const int SCREEN_H = 768;
 
-static const vec3_t CAM_POS = (vec3_t) {{ 55, -180, 40 }};
-static const vec3_t CAM_UP = (vec3_t) {{ 0, 0, 1 }};
-static const vec3_t CAM_LOOK = (vec3_t) {{ 63, 100, 30 }};
+static const vec3_t CAM_POS = {{ 55.0, -180.0, 40.0 }};
+static const vec3_t CAM_UP = {{ 0.0, 0.0, 1.0 }};
+static const vec3_t CAM_LOOK = {{ 63.0, 100.0, 30.0 }};
 
 /*
  * Builds a scene with a floor and two spheres

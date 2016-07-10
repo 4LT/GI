@@ -97,6 +97,8 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
         case KDP_XZ: new_align = KDP_XY;
                      break;
         case KDP_XY: new_align = KDP_YZ;
+                     break;
+        default: new_align = KDP_XZ; /* get rid of warning */
     }
 
     kdn->front = kdnode_new(front_shapes, front_sz, new_align,

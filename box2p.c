@@ -6,9 +6,9 @@
 static const int SCREEN_W = 256;
 static const int SCREEN_H = 256;
 
-static const vec3_t CAM_POS = (vec3_t) {{ 278, 273, -800 }};
-static const vec3_t CAM_UP = (vec3_t) {{ 0, 1, 0 }};
-static const vec3_t CAM_LOOK = (vec3_t) {{ 278, 273, 0 }};
+static const vec3_t CAM_POS = {{ 278.0, 273.0, -800.0 }};
+static const vec3_t CAM_UP = {{ 0.0, 1.0, 0.0 }};
+static const vec3_t CAM_LOOK = {{ 278.0, 273.0, 0.0 }};
 
 void print_vec3(FILE *f, vec3_t vec)
 {

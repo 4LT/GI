@@ -14,9 +14,9 @@
 static const int SCREEN_W = 640;
 static const int SCREEN_H = 480;
 
-static const vec3_t CAM_POS = (vec3_t) {{ 0, 0.1, 0.25 }};
-static const vec3_t CAM_UP = (vec3_t) {{ 0, 1, 0 }};
-static const vec3_t CAM_LOOK = {{ 0, 0.1, 0 }};
+static const vec3_t CAM_POS = {{ 0.0, 0.1, 0.25 }};
+static const vec3_t CAM_UP = {{ 0.0, 1.0, 0.0 }};
+static const vec3_t CAM_LOOK = {{ 0.0, 0.1, 0.0 }};
 
 static vec3_t vert;
 static size_t vert_index = 0;
