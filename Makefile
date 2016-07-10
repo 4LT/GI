@@ -18,7 +18,7 @@ COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o\
 
 PROGRAMS= rad ply2tri draw_patches rayt box2p
 
-.PHONY: all clean $(PROGRAMS)
+.PHONY: all clean
 
 all: $(PROGRAMS)
 

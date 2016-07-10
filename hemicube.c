@@ -9,7 +9,7 @@
 #define HALF_RES (RESOLUTION / 2)
 
 static const vfloat_t CELL_W = 2 / (vfloat_t)RESOLUTION;
-static const vfloat_t CELL_AREA = CELL_W * CELL_W;
+#define CELL_AREA (CELL_W * CELL_W)
 
 static vfloat_t dff_top[RESOLUTION][RESOLUTION];
 static vfloat_t dff_side[RESOLUTION][HALF_RES];
