@@ -4,13 +4,12 @@ const vfloat_t FUDGE_SCALE = 0.001;
 const vfloat_t AMBIENT_SCALE = 0.4;
 const int MAX_DEPTH = 10;
 
-scene_t scene_empty_scene(color_t sky_color, camera_t camera)
+scene_t scene_empty_scene(color_t sky_color)
 {
     Material_t *sky_mtrl = fullbright_new(NULL, sky_color);
     sky_mtrl->ior = 1;
     return (scene_t) {
         ._sky = sky_mtrl,
-        .camera = camera,
         .shapes = Llist_new(),
         .lights = Llist_new(),
         .root = NULL };
@@ -52,10 +51,10 @@ Shape_t *transform(Shape_t *shape, mat4_t transmat)
     return shape->transform(shape, transmat);
 }
 
-intersect_result_t scene_kd_intersect(scene_t *scene, ray_t ray,
+intersect_result_t scene_kd_intersect(const scene_t *scene, ray_t ray,
         vfloat_t max_dist, KDnode_t *kdn);
 
-intersect_result_t scene_intersect(scene_t *scene, ray_t ray,
+intersect_result_t scene_intersect(const scene_t *scene, ray_t ray,
         vfloat_t max_dist)
 {
     if (scene->root != NULL)
@@ -82,7 +81,7 @@ intersect_result_t scene_intersect(scene_t *scene, ray_t ray,
     return nearest;
 }
 
-intersect_result_t scene_kd_intersect(scene_t *scene, ray_t ray,
+intersect_result_t scene_kd_intersect(const scene_t *scene, ray_t ray,
         vfloat_t max_dist, KDnode_t *kdn)
 {
     vfloat_t cur_dist = max_dist;
@@ -136,7 +135,7 @@ bool shadow_test(intersect_result_t res, light_t *light)
         shadow_res.material->transmit_scale < 0.5;
 }
 
-color_t color_at_rec(scene_t *scene, ray_t ray, int depth)
+color_t color_at_rec(const scene_t *scene, ray_t ray, int depth)
 {
     color_t out_color = CLR_BLACK;
     vfloat_t max_dist = MAX_DIST;
@@ -166,37 +165,37 @@ color_t color_at_rec(scene_t *scene, ray_t ray, int depth)
     return out_color;
 }
 
-color_t color_at(scene_t *scene, ray_t ray)
+color_t color_at(const scene_t *scene, ray_t ray)
 {
     return color_at_rec(scene, ray, MAX_DEPTH);
 }
 
-void scene_render(scene_t *scene, size_t w, size_t h,
-        color_t *img)
+void scene_render(const scene_t *scene, const camera_t *cam, color_t *img)
 {
-    camera_t cam = scene->camera;
-    vec3_t lookVec = v3_sub(cam.lookAt, cam.pos);
-    vec3_t plane_right = v3_cross(lookVec, cam.up);
+    int w = cam->img_width;
+    int h = cam->img_height;
+    vec3_t lookVec = v3_sub(cam->lookAt, cam->pos);
+    vec3_t plane_right = v3_cross(lookVec, cam->up);
     vec3_t plane_up = v3_cross(plane_right, lookVec);
     plane_right = v3_normalize(plane_right);
     plane_up = v3_normalize(plane_up);
     lookVec = v3_normalize(lookVec);
 
-    vfloat_t plane_height = cam.plane_width * (vfloat_t)h / w;
-    vfloat_t dx = cam.plane_width / w;
+    vfloat_t plane_height = cam->plane_width * (vfloat_t)h / w;
+    vfloat_t dx = cam->plane_width / w;
     vfloat_t dy = plane_height / h;
 
     for (int r = 0; r < h; r++) {
-        vfloat_t plane_y = ((signed)h/2 - r) * dy - dy/2;
+        vfloat_t plane_y = (r - (signed)h/2 + cam->y_off) * dy - dy/2;
         for (int c = 0; c < w; c++) {
-            vfloat_t plane_x = (c - (signed)w/2) * dx - dx/2;
+            vfloat_t plane_x = (c - (signed)w/2 + cam->x_off) * dx - dx/2;
             vec3_t plane_world = v3_add(
                     v3_add(
                         v3_scale(plane_right, plane_x),
                         v3_scale(plane_up, plane_y)),
-                    v3_scale(lookVec, cam.focal_length));
+                    v3_scale(lookVec, cam->focal_length));
             ray_t ray;
-            ray.position = cam.pos;
+            ray.position = cam->pos;
             ray.direction = v3_normalize(plane_world);
 
             img[r*w + c] = color_at(scene, ray);

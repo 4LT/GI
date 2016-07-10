@@ -2,24 +2,26 @@
 #include "scene.h"
 #include "canvas.h"
 #include "tone_mapping.h"
+#include "hemicube.h"
 
 static const int SCREEN_W = 512;
 static const int SCREEN_H = 512;
 
 #if 1
-    #define CAM_POS {{ 278, 273, -800 }}
+    static const vec3_t CAM_POS = (vec3_t) {{ 278, 273, -800 }};
 #else
-    #define CAM_POS {{ 278, 273, 1359.2 }}
+    static const vec3_t CAM_POS = (vec3_t) {{ 278, 273, 1359.2 }};
 #endif
 
-#define CAM_UP {{ 0, 1, 0 }}
-#define CAM_LOOK {{ 278, 273, 0 }}
-
-static const camera_t CAM = { CAM_POS, CAM_UP, CAM_LOOK, 0.035, .05 };
+static const vec3_t CAM_UP = (vec3_t) {{ 0, 1, 0 }};
+static const vec3_t CAM_LOOK = (vec3_t) {{ 278, 273, 0 }};
 
 int main(int argc, char *argv[])
 {
-    scene_t scene = scene_empty_scene(CLR_BLACK, CAM);
+    camera_t cam = cam_centered(CAM_POS, CAM_UP, CAM_LOOK, SCREEN_W, SCREEN_H);
+    cam_set_projection(&cam, 0.035, 0.05);
+
+    scene_t scene = scene_empty_scene(CLR_BLACK);
 
     vec3_t room_coords[] = {
         {{ 552.8, 0.0, 0.0 }},
@@ -60,14 +62,18 @@ int main(int argc, char *argv[])
 
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
-    scene_render(&scene, SCREEN_W, SCREEN_H, img);
+    scene_render(&scene, &cam, img);
 
-    pixel_t *pixmap = malloc(pix_count * sizeof(color_t));
+    pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));
     tonemap_nop(img, pix_count, pixmap);
     free(img);
 
     int exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
     free(pixmap);
+
+    color_t c = Hcube_gather(&scene,
+            (vec3_t){{278, 274, 10}}, (vec3_t){{0, 0, 1}});
+    printf("COLOR (%f %f %f)\n", c.c[0], c.c[1], c.c[2]);
 
     return exit_status;
 }

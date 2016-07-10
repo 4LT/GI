@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "scene.h"
 
-
-scene_t *patch_read_file(const char *file_name);
+void patch_read_file(const char *file_name, scene_t *scene, camera_t *cam);
 
 #endif

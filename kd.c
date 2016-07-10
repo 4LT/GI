@@ -3,7 +3,7 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const int KD_MAX_LEAF_SZ = 120;
+static const int KD_MAX_LEAF_SZ = 31;
 static const int MAX_REPEATS = 1;
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
@@ -44,13 +44,20 @@ static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
         return shapes[l]->position.v[a];
 }
 
+/* *approximate* median */
+static vfloat_t find_median(Shape_t **shapes, int shapes_length,
+        enum kd_plane_align a)
+{
+    return select_kth(shapes, 0, shapes_length - 1, (shapes_length-1)/2, a);
+}
+
 /* TRANSFERS ownership of "shapes" to CALLEE */
-KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, 
+static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, 
         enum kd_plane_align a, int repeats, int *leaf_count)
 {
     KDnode_t *kdn = malloc(sizeof(KDnode_t));
     if (shapes_length <= KD_MAX_LEAF_SZ || repeats >= MAX_REPEATS) {
-        printf("%d ", (int)shapes_length);
+        printf("[%zu]\n", shapes_length);
         (*leaf_count)++;
         kdn->leaf_data = malloc(shapes_length * sizeof(Shape_t *));
         memcpy(kdn->leaf_data, shapes, shapes_length * sizeof(Shape_t *));
@@ -63,9 +70,7 @@ KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
 
     kdn->leaf_data = NULL;
 
-    /* *approximate* median */
-    vfloat_t median = select_kth(
-            shapes, 0, shapes_length - 1, (shapes_length-1)/2, a);
+    vfloat_t median = find_median(shapes, shapes_length, a);
     kdn->plane_offset = median;
     kdn->plane = a;
 
@@ -73,9 +78,9 @@ KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
     Shape_t **back_shapes  = malloc(shapes_length * sizeof(Shape_t *));
     size_t front_sz = 0, back_sz = 0;
     for (size_t i = 0; i < shapes_length; i++) {
-        if (shapes[i]->bounds[a][1] > median)
+        if (shapes[i]->bounds[a][1] >= median)
             front_shapes[front_sz++] = shapes[i];
-        if (shapes[i]->bounds[a][0] < median)
+        if (shapes[i]->bounds[a][0] <= median)
             back_shapes[back_sz++] = shapes[i];
     }
 
@@ -83,6 +88,7 @@ KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
     shapes = NULL;
     front_shapes = realloc(front_shapes, front_sz * sizeof(Shape_t *));
     back_shapes  = realloc(back_shapes, back_sz * sizeof(Shape_t *));
+    printf("%zu: (%zu) (%zu)\n", shapes_length, front_sz, back_sz);
 
     enum kd_plane_align new_align;
     switch (a) {
