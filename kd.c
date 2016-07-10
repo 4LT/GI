@@ -45,7 +45,7 @@ static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
 }
 
 /* TRANSFERS ownership of "shapes" to CALLEE */
-KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, 
+static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, 
         enum kd_plane_align a, int repeats, int *leaf_count)
 {
     KDnode_t *kdn = malloc(sizeof(KDnode_t));
