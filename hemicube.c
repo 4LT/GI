@@ -48,8 +48,8 @@ color_t Hcube_gather(const scene_t *scene, vec3_t pos, vec3_t normal)
 {
     static bool initialized = false;
     if (!initialized) {
-        initialized = true;
         init_d_formfactors();
+        initialized = true;
     }
 
     vec3_t local_z = normal;
