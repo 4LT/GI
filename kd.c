@@ -3,7 +3,7 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const int KD_MAX_LEAF_SZ = 31;
+static const int KD_MAX_LEAF_SZ = 14;
 static const int MAX_REPEATS = 1;
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
@@ -57,7 +57,6 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
 {
     KDnode_t *kdn = malloc(sizeof(KDnode_t));
     if (shapes_length <= KD_MAX_LEAF_SZ || repeats >= MAX_REPEATS) {
-        printf("[%zu]\n", shapes_length);
         (*leaf_count)++;
         kdn->leaf_data = malloc(shapes_length * sizeof(Shape_t *));
         memcpy(kdn->leaf_data, shapes, shapes_length * sizeof(Shape_t *));
@@ -88,7 +87,9 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
     shapes = NULL;
     front_shapes = realloc(front_shapes, front_sz * sizeof(Shape_t *));
     back_shapes  = realloc(back_shapes, back_sz * sizeof(Shape_t *));
-    printf("%zu: (%zu) (%zu)\n", shapes_length, front_sz, back_sz);
+    double efficiency = 100 -
+        (double)(front_sz + back_sz - shapes_length)/(shapes_length) * 100;
+    printf("%3zu:%3zu %3zu %6.2f\n", shapes_length, front_sz, back_sz, efficiency);
 
     enum kd_plane_align new_align;
     switch (a) {
