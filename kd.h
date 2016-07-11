@@ -36,8 +36,7 @@ struct KDnode
 
 /* Creates a new kd-tree.
  * shapes - shapes that are added to the tree
- * kd_plane_align - alignment of plane to split root node
  */
-KDnode_t *kdnode_new_root(const Llist_t *shapes, enum kd_plane_align a);
+KDnode_t *kdnode_new_root(const Llist_t *shapes);
 
 #endif

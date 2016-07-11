@@ -27,7 +27,7 @@ void scene_add_light(scene_t *scene, const light_t *light)
 
 void scene_gen_kdtree(scene_t *scene)
 {
-    scene->root = kdnode_new_root(scene->shapes, KDP_YZ);
+    scene->root = kdnode_new_root(scene->shapes);
 }
 
 void scene_teardown(scene_t *scene)
