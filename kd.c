@@ -3,7 +3,7 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const double REDUNDANCY_LIMIT = 0.50;
+static const double REDUNDANCY_LIMIT = 0.09;
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
        enum kd_plane_align a)
@@ -67,29 +67,26 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
     }
 #endif
 
-    vfloat_t cur_median;
     vfloat_t best_median;
     size_t cur_redundancy;
     size_t best_redundancy = SIZE_MAX;
-    Shape_t **front_shapes, **back_shapes;
     Shape_t **best_front = NULL, **best_back = NULL;
-    size_t front_sz, back_sz;
+    size_t best_front_sz, best_back_sz;
     enum kd_plane_align best_align;
 
     for (enum kd_plane_align a = 0; a < 3; a++) {
-        cur_median = find_median(shapes, shapes_length, a);
-        front_sz = 0;
-        back_sz = 0;
-        front_shapes = malloc(shapes_length * sizeof(Shape_t *));
-        back_shapes  = malloc(shapes_length * sizeof(Shape_t *));
+        vfloat_t cur_median = find_median(shapes, shapes_length, a);
+        size_t cur_front_sz = 0, cur_back_sz = 0;
+        Shape_t **front_shapes = malloc(shapes_length * sizeof(Shape_t *));
+        Shape_t **back_shapes  = malloc(shapes_length * sizeof(Shape_t *));
 
         for (size_t i = 0; i < shapes_length; i++) {
             if (shapes[i]->bounds[a][1] >= cur_median)
-                front_shapes[front_sz++] = shapes[i];
+                front_shapes[cur_front_sz++] = shapes[i];
             if (shapes[i]->bounds[a][0] <= cur_median)
-                back_shapes[back_sz++] = shapes[i];
+                back_shapes[cur_back_sz++] = shapes[i];
         }
-        cur_redundancy = front_sz + back_sz;
+        cur_redundancy = cur_front_sz + cur_back_sz;
 
         if (cur_redundancy < best_redundancy) {
             best_redundancy = cur_redundancy;
@@ -100,6 +97,8 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
             }
             best_front = front_shapes;
             best_back = back_shapes;
+            best_front_sz = cur_front_sz;
+            best_back_sz = cur_back_sz;
             best_align = a;
         }
         else {
@@ -125,16 +124,16 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
     else {
         free(shapes);
         shapes = NULL;
-        best_front = realloc(best_front, front_sz * sizeof(Shape_t *));
-        best_back  = realloc(best_back, back_sz * sizeof(Shape_t *));
+        best_front = realloc(best_front, best_front_sz * sizeof(Shape_t *));
+        best_back  = realloc(best_back, best_back_sz * sizeof(Shape_t *));
         printf("%3zu:%3zu %3zu %5.2f\n",
-                shapes_length, front_sz, back_sz, redundancy_frac);
+                shapes_length, best_front_sz, best_back_sz, redundancy_frac);
 
         kdn->leaf_data = NULL;
         kdn->plane_offset = best_median;
         kdn->plane = best_align;
-        kdn->front = kdnode_new(best_front, front_sz);
-        kdn->back = kdnode_new(best_back, back_sz);
+        kdn->front = kdnode_new(best_front, best_front_sz);
+        kdn->back = kdnode_new(best_back, best_back_sz);
     }
 
     return kdn;
