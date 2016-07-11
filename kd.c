@@ -140,11 +140,6 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
     return kdn;
 }
 
-/* TODO: if caller later-on frees the data in shapes, we're in trouble.
- * However, we can't re-allocate shapes because we don't know the size of the
- * shapes (we don't know the type). Note as weakness to this style of
- * polymorphism. Perhaps add overridable deep copy to shape.
- */
 KDnode_t *kdnode_new_root(const Llist_t *shapes)
 {
     Llist_node_t *node = shapes->first;
