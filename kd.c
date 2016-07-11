@@ -3,7 +3,7 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const int KD_MAX_LEAF_SZ = 14;
+static const int KD_MAX_LEAF_SZ = 120;
 static const int MAX_REPEATS = 1;
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
