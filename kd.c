@@ -3,8 +3,7 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const int KD_MAX_LEAF_SZ = 14;
-static const int MAX_REPEATS = 1;
+static const double REDUNDANCY_LIMIT = 0.50;
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
        enum kd_plane_align a)
@@ -52,10 +51,10 @@ static vfloat_t find_median(Shape_t **shapes, int shapes_length,
 }
 
 /* TRANSFERS ownership of "shapes" to CALLEE */
-static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, 
-        enum kd_plane_align a, int repeats, int *leaf_count)
+static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
 {
     KDnode_t *kdn = malloc(sizeof(KDnode_t));
+#if 0
     if (shapes_length <= KD_MAX_LEAF_SZ || repeats >= MAX_REPEATS) {
         (*leaf_count)++;
         kdn->leaf_data = malloc(shapes_length * sizeof(Shape_t *));
@@ -66,46 +65,78 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
         kdn->shape_count = shapes_length;
         return kdn;
     }
+#endif
 
-    kdn->leaf_data = NULL;
+    vfloat_t cur_median;
+    vfloat_t best_median;
+    size_t cur_redundancy;
+    size_t best_redundancy = SIZE_MAX;
+    Shape_t **front_shapes, **back_shapes;
+    Shape_t **best_front = NULL, **best_back = NULL;
+    size_t front_sz, back_sz;
+    enum kd_plane_align best_align;
 
-    vfloat_t median = find_median(shapes, shapes_length, a);
-    kdn->plane_offset = median;
-    kdn->plane = a;
+    for (enum kd_plane_align a = 0; a < 3; a++) {
+        cur_median = find_median(shapes, shapes_length, a);
+        front_sz = 0;
+        back_sz = 0;
+        front_shapes = malloc(shapes_length * sizeof(Shape_t *));
+        back_shapes  = malloc(shapes_length * sizeof(Shape_t *));
 
-    Shape_t **front_shapes = malloc(shapes_length * sizeof(Shape_t *));
-    Shape_t **back_shapes  = malloc(shapes_length * sizeof(Shape_t *));
-    size_t front_sz = 0, back_sz = 0;
-    for (size_t i = 0; i < shapes_length; i++) {
-        if (shapes[i]->bounds[a][1] >= median)
-            front_shapes[front_sz++] = shapes[i];
-        if (shapes[i]->bounds[a][0] <= median)
-            back_shapes[back_sz++] = shapes[i];
+        for (size_t i = 0; i < shapes_length; i++) {
+            if (shapes[i]->bounds[a][1] >= cur_median)
+                front_shapes[front_sz++] = shapes[i];
+            if (shapes[i]->bounds[a][0] <= cur_median)
+                back_shapes[back_sz++] = shapes[i];
+        }
+        cur_redundancy = front_sz + back_sz;
+
+        if (cur_redundancy < best_redundancy) {
+            best_redundancy = cur_redundancy;
+            best_median = cur_median;
+            if (best_front != NULL) {
+                free(best_front);
+                free(best_back);
+            }
+            best_front = front_shapes;
+            best_back = back_shapes;
+            best_align = a;
+        }
+        else {
+            free(front_shapes);
+            free(back_shapes);
+        }
     }
 
-    free(shapes);
-    shapes = NULL;
-    front_shapes = realloc(front_shapes, front_sz * sizeof(Shape_t *));
-    back_shapes  = realloc(back_shapes, back_sz * sizeof(Shape_t *));
-    double efficiency = 100 -
-        (double)(front_sz + back_sz - shapes_length)/(shapes_length) * 100;
-    printf("%3zu:%3zu %3zu %6.2f\n", shapes_length, front_sz, back_sz, efficiency);
-
-    enum kd_plane_align new_align;
-    switch (a) {
-        case KDP_YZ: new_align = KDP_XZ;
-                     break;
-        case KDP_XZ: new_align = KDP_XY;
-                     break;
-        case KDP_XY: new_align = KDP_YZ;
-                     break;
-        default: new_align = KDP_XZ; /* get rid of warning */
+    double redundancy_frac =
+        (best_redundancy - shapes_length) / (double)shapes_length;
+    if (redundancy_frac >= REDUNDANCY_LIMIT) {
+        /*
+        kdn->leaf_data = malloc(shapes_length * sizeof(Shape_t *));
+        memcpy(kdn->leaf_data, shapes, shapes_length * sizeof(Shape_t *));
+        free(shapes);
+        */
+        kdn->leaf_data = shapes;
+        kdn->front = NULL;
+        kdn->back = NULL;
+        kdn->shape_count = shapes_length;
     }
 
-    kdn->front = kdnode_new(front_shapes, front_sz, new_align,
-            (front_sz == shapes_length) ? repeats+1 : 0, leaf_count);
-    kdn->back = kdnode_new(back_shapes, back_sz, new_align,
-            (back_sz == shapes_length) ? repeats+1 : 0, leaf_count);
+    else {
+        free(shapes);
+        shapes = NULL;
+        best_front = realloc(best_front, front_sz * sizeof(Shape_t *));
+        best_back  = realloc(best_back, back_sz * sizeof(Shape_t *));
+        printf("%3zu:%3zu %3zu %5.2f\n",
+                shapes_length, front_sz, back_sz, redundancy_frac);
+
+        kdn->leaf_data = NULL;
+        kdn->plane_offset = best_median;
+        kdn->plane = best_align;
+        kdn->front = kdnode_new(best_front, front_sz);
+        kdn->back = kdnode_new(best_back, back_sz);
+    }
+
     return kdn;
 }
 
@@ -114,7 +145,7 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
  * shapes (we don't know the type). Note as weakness to this style of
  * polymorphism. Perhaps add overridable deep copy to shape.
  */
-KDnode_t *kdnode_new_root(const Llist_t *shapes, enum kd_plane_align a)
+KDnode_t *kdnode_new_root(const Llist_t *shapes)
 {
     Llist_node_t *node = shapes->first;
     Shape_t **shape_arr =
@@ -123,9 +154,7 @@ KDnode_t *kdnode_new_root(const Llist_t *shapes, enum kd_plane_align a)
         shape_arr[i] = (Shape_t *)(node->datum);
         node = node->next;
     }
-    int leaf_count = 0;
-    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, a, 0, &leaf_count);
+    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length);
     printf("\nshapes: %d\n", shapes->length);
-    printf("leaf count: %d\n", leaf_count);
     return kdn;
 }
