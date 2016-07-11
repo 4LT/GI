@@ -3,7 +3,7 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const double REDUNDANCY_LIMIT = 0.09;
+static const double REDUNDANCY_LIMIT = 0.10;
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
        enum kd_plane_align a)
