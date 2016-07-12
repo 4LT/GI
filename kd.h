@@ -36,7 +36,8 @@ struct KDnode
 
 /* Creates a new kd-tree.
  * shapes - shapes that are added to the tree
+ * redundancy_limit - max number of shapes per tree node
  */
-KDnode_t *kdnode_new_root(const Llist_t *shapes);
+KDnode_t *kdnode_new_root(const Llist_t *shapes, double redundancy_limit);
 
 #endif

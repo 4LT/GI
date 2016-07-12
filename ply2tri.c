@@ -18,6 +18,9 @@ static const vec3_t CAM_POS = {{ 0.0, 0.1, 0.25 }};
 static const vec3_t CAM_UP = {{ 0.0, 1.0, 0.0 }};
 static const vec3_t CAM_LOOK = {{ 0.0, 0.1, 0.0 }};
 
+static const char *const DEFAULT_BUNNY = "bun_zipper_res3.ply";
+static const double DEFAULT_REDUNDANCY_LIMIT = 0.125;
+
 static vec3_t vert;
 static size_t vert_index = 0;
 static int face_element = 0;
@@ -102,14 +105,13 @@ Llist_t *ply2tri(const char *filename)
 int main(int argc, char *argv[])
 {
     Llist_t *tris;
+    double redundancy_limit;
     camera_t cam = cam_centered(CAM_POS, CAM_UP, CAM_LOOK, SCREEN_W, SCREEN_H);
     cam_set_projection(&cam, 1.2, 1.0);
     scene_t scene = scene_empty_scene(CLR_BLACK);
 
-    if (argc <= 1)
-        tris = ply2tri("bun_zipper_res3.ply");
-    else
-        tris = ply2tri(argv[1]);
+    tris = argc > 1 ? ply2tri(argv[1]) : ply2tri(DEFAULT_BUNNY);
+    redundancy_limit = argc > 2 ? atof(argv[2]) : DEFAULT_REDUNDANCY_LIMIT;
 
     Material_t *white = lambert_new(&scene, (color_t) {{ .8, .7, .7 }});
     //int ct = 0;
@@ -125,7 +127,7 @@ int main(int argc, char *argv[])
 
 #ifdef KDTREE
     puts("Building tree...");
-    scene_gen_kdtree(&scene);
+    scene_gen_kdtree(&scene, redundancy_limit);
     puts("Tree done");
 #else
     puts("No tree");

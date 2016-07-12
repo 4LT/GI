@@ -3,8 +3,6 @@
 #include <string.h>
 #include "util/ops.h"
 
-static const double REDUNDANCY_LIMIT = 0.10;
-
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
        enum kd_plane_align a)
 {
@@ -51,21 +49,10 @@ static vfloat_t find_median(Shape_t **shapes, int shapes_length,
 }
 
 /* TRANSFERS ownership of "shapes" to CALLEE */
-static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
+static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
+        double redundancy_limit)
 {
     KDnode_t *kdn = malloc(sizeof(KDnode_t));
-#if 0
-    if (shapes_length <= KD_MAX_LEAF_SZ || repeats >= MAX_REPEATS) {
-        (*leaf_count)++;
-        kdn->leaf_data = malloc(shapes_length * sizeof(Shape_t *));
-        memcpy(kdn->leaf_data, shapes, shapes_length * sizeof(Shape_t *));
-        free(shapes);
-        kdn->front = NULL;
-        kdn->back = NULL;
-        kdn->shape_count = shapes_length;
-        return kdn;
-    }
-#endif
 
     vfloat_t best_median;
     size_t cur_redundancy;
@@ -109,12 +96,7 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
 
     double redundancy_frac =
         (best_redundancy - shapes_length) / (double)shapes_length;
-    if (redundancy_frac >= REDUNDANCY_LIMIT) {
-        /*
-        kdn->leaf_data = malloc(shapes_length * sizeof(Shape_t *));
-        memcpy(kdn->leaf_data, shapes, shapes_length * sizeof(Shape_t *));
-        free(shapes);
-        */
+    if (redundancy_frac >= redundancy_limit) {
         kdn->leaf_data = shapes;
         kdn->front = NULL;
         kdn->back = NULL;
@@ -132,14 +114,14 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length)
         kdn->leaf_data = NULL;
         kdn->plane_offset = best_median;
         kdn->plane = best_align;
-        kdn->front = kdnode_new(best_front, best_front_sz);
-        kdn->back = kdnode_new(best_back, best_back_sz);
+        kdn->front = kdnode_new(best_front, best_front_sz, redundancy_limit);
+        kdn->back = kdnode_new(best_back, best_back_sz, redundancy_limit);
     }
 
     return kdn;
 }
 
-KDnode_t *kdnode_new_root(const Llist_t *shapes)
+KDnode_t *kdnode_new_root(const Llist_t *shapes, double redundancy_limit)
 {
     Llist_node_t *node = shapes->first;
     Shape_t **shape_arr =
@@ -148,7 +130,7 @@ KDnode_t *kdnode_new_root(const Llist_t *shapes)
         shape_arr[i] = (Shape_t *)(node->datum);
         node = node->next;
     }
-    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length);
+    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, redundancy_limit);
     printf("\nshapes: %d\n", shapes->length);
     return kdn;
 }

@@ -25,9 +25,9 @@ void scene_add_light(scene_t *scene, const light_t *light)
     Llist_append(scene->lights, (void *)light);
 }
 
-void scene_gen_kdtree(scene_t *scene)
+void scene_gen_kdtree(scene_t *scene, double redundancy_limit)
 {
-    scene->root = kdnode_new_root(scene->shapes);
+    scene->root = kdnode_new_root(scene->shapes, redundancy_limit);
 }
 
 void scene_teardown(scene_t *scene)

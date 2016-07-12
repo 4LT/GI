@@ -66,9 +66,11 @@ void scene_add_shape(scene_t *scene, const Shape_t *shape);
  */
 void scene_add_light(scene_t *scene, const light_t *light);
 
-/* Generates a KD tree using the scene's shapes
+/* Generates a KD tree using the scene's shapes, enables KD tree optimization.
+ * scene - scene whose KD tree is created
+ * redundancy_limit - maximum redundant shapes in KD tree nodes
  */
-void scene_gen_kdtree(scene_t *scene);
+void scene_gen_kdtree(scene_t *scene, double redundancy_limit);
 
 /* Frees memory allocated in scene.
  *
