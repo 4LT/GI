@@ -21,9 +21,9 @@ static const vec3_t CAM_LOOK = {{ 0.0, 0.1, 0.0 }};
 static const char *const DEFAULT_BUNNY = "bun_zipper_res3.ply";
 static const double DEFAULT_REDUNDANCY_LIMIT = 0.125;
 
-static vec3_t vert;
-static size_t vert_index = 0;
-static int face_element = 0;
+static vec3_t g_vert;
+static size_t g_vert_index = 0;
+static int g_face_element = 0;
 
 /* (Callback) Adds a vertex component (X, Y, or Z) to the vertex list.
  * argument - data from ply encountered by rply
@@ -35,9 +35,9 @@ static int on_vertex(p_ply_argument argument)
 
     ply_get_argument_user_data(argument, (void *)&vlist, &offset);
     vfloat_t value = (vfloat_t)ply_get_argument_value(argument);
-    vert.v[offset] = value;
+    g_vert.v[offset] = value;
     if (offset == 2) {
-        vlist[vert_index++] = vert;
+        vlist[g_vert_index++] = g_vert;
     }
     return 1;
 }
@@ -45,7 +45,7 @@ static int on_vertex(p_ply_argument argument)
 /* (Callback) Collects vertex indices for each face (triangle). */
 static int on_face(p_ply_argument argument)
 {
-    long *index;
+    size_t *index;
     Llist_t *tri_i;
     static int face_element = 0;
 
@@ -54,8 +54,8 @@ static int on_face(p_ply_argument argument)
     else 
         if (face_element >= 4) face_element = 0;
 
-    index = (long *) malloc(sizeof(long));
-    *index = (long)ply_get_argument_value(argument);
+    index = malloc(sizeof(size_t));
+    *index = (size_t)ply_get_argument_value(argument);
     ply_get_argument_user_data(argument, (void *)&tri_i, NULL);
     Llist_append(tri_i, index);
     return 1;
@@ -66,10 +66,10 @@ static int on_face(p_ply_argument argument)
  */
 Llist_t *ply2tri(const char *filename)
 {
-    vert_index = 0;
-    face_element = 0;
+    g_vert_index = 0;
+    g_face_element = 0;
 
-    long vert_count;
+    size_t vert_count;
     vec3_t *vlist;
     Llist_t *tri_i = Llist_new();
     Llist_t *tris = Llist_new();
@@ -90,8 +90,8 @@ Llist_t *ply2tri(const char *filename)
     ply_read(ply);
 
     for (Llist_node_t *node = tri_i->first; node != NULL; node = node->next) {
-        vec3_t *vert = (vec3_t *) malloc(sizeof(vec3_t));
-        *vert = vlist[*(long *)node->datum];
+        vec3_t *vert = malloc(sizeof(vec3_t));
+        *vert = vlist[*(size_t *)node->datum];
         Llist_append(tris, vert);
     }
 

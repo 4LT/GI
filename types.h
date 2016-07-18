@@ -14,6 +14,9 @@ typedef double vfloat_t;
 /* pixel format for pixel buffer sent to canvas */
 typedef int32_t pixel_t;
 
+/* enumerated axis-aligned plane alignments. */
+enum kd_plane_align { KDP_YZ = 0, KDP_XZ = 1, KDP_XY = 2 };
+
 /* 3D vector value type */
 typedef struct
 {

@@ -9,11 +9,6 @@
 #include "util/linked_list.h"
 #include "shapes.h"
 
-/* enumerated axis-aligned plane alignments. */
-enum kd_plane_align { KDP_YZ = 0, KDP_XZ = 1, KDP_XY = 2 };
-/* ways that a ray may interact with the plane */
-//enum kd_plane_intersect { KDP_FRONT, KDP_BACK, KDP_MISS };
-
 /* Binary tree divided by planes.  Leaf nodes have NULL children and a list of
  * shapes, while non-leaf nodes have NULL shape data children. */
 typedef struct KDnode KDnode_t;
@@ -21,6 +16,10 @@ struct KDnode
 {
     /* plane with which shapes are divided */
     enum kd_plane_align plane;
+
+    /* axis-aligned bounding box */
+    aabb_t bbox;
+
     /* how far the plane is offset from the origin */
     vfloat_t plane_offset;
 

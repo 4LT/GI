@@ -14,7 +14,7 @@ else
 endif
 
 COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o\
-				color.o tone_mapping.o util/linked_list.o kd.o
+				color.o tone_mapping.o util/linked_list.o kd.o aabb.o
 
 PROGRAMS= rad ply2tri draw_patches rayt box2p
 
@@ -42,6 +42,9 @@ scene.o: scene.c scene.h
 
 shapes.o: shapes.c shapes.h util/ops.h
 	$(CC) $(CFLAGS) -c shapes.c
+
+aabb.o: aabb.c aabb.h
+	$(CC) $(CFLAGS) -c aabb.c
 
 canvas.o: canvas.c canvas.h
 	$(CC) $(CFLAGS) -c canvas.c

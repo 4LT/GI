@@ -9,6 +9,7 @@
 
 #include <tgmath.h>
 #include "types.h"
+#include "util/ops.h"
 
 #define MAT4_IDENTITY = { {{ 1, 0, 0, 0 },\
                            { 0, 1, 0, 0 },\
@@ -77,6 +78,22 @@ static inline vec3_t v3_sub(vec3_t vecA, vec3_t vecB)
     out.v[0] = vecA.v[0] - vecB.v[0];
     out.v[1] = vecA.v[1] - vecB.v[1];
     out.v[2] = vecA.v[2] - vecB.v[2];
+    return out;
+}
+
+static inline vec3_t v3_min(vec3_t vecA, vec3_t vecB)
+{
+    vec3_t out;
+    for (int i = 0; i < 3; i++)
+        out.v[i] = ME_MIN(vecA.v[i], vecB.v[i]);
+    return out;
+}
+
+static inline vec3_t v3_max(vec3_t vecA, vec3_t vecB)
+{
+    vec3_t out;
+    for (int i = 0; i < 3; i++)
+        out.v[i] = ME_MAX(vecA.v[i], vecB.v[i]);
     return out;
 }
 

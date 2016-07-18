@@ -12,11 +12,11 @@ Llist_t *Llist_new()
 
 void free_nodes(Llist_node_t *node, free_datum_fp free_datum)
 {
-    if (node != NULL) {
+    while (node != NULL) {
         Llist_node_t *next = node->next;
         free_datum(node->datum);
         free(node);
-        free_nodes(next, free_datum);
+        node = next;
     }
 }
 

@@ -3,6 +3,7 @@
 
 #include "vecmatops.h"
 #include "material.h"
+#include "aabb.h"
 
 #define MISS ((intersect_result_t) {\
         .position = {{ 0, 0, 0 }},\
@@ -21,7 +22,7 @@ typedef struct shape
 {
     intersect_fp intersect;
     transform_fp transform;
-    vfloat_t bounds[3][2];
+    aabb_t bbox;
     vec3_t position;
     Material_t *material;
     bool draw_backface;

@@ -2,6 +2,7 @@
 #include <tgmath.h>
 #include <stdlib.h>
 #include "shapes.h"
+#include "aabb.h"
 #include "util/ops.h"
 
 intersect_result_t intersect_shape(Shape_t *shape, ray_t ray)
@@ -135,9 +136,9 @@ Sphere_t *sphere_new(Material_t *mtrl, vfloat_t radius,
     sphere->base = (Shape_t) {
         .intersect = sphere_intersect,
         .transform = sphere_transform,
-        .bounds = {{ position.v[0] - radius, position.v[0] + radius },
-                   { position.v[1] - radius, position.v[1] + radius },
-                   { position.v[2] - radius, position.v[2] + radius }},
+        .bbox = init_aabb(
+            v3_sub(position, (vec3_t) {{ radius, radius, radius }}),
+            v3_add(position, (vec3_t) {{ radius, radius, radius }})),
         .position = position,
         .material = mtrl,
         .draw_backface = true };
@@ -153,6 +154,7 @@ Triangle_t *triangle_new(Material_t *mtrl, vec3_t vert0, vec3_t vert1,
     tri->verts[1] = vert1;
     tri->verts[2] = vert2;
 
+#if 0
     vfloat_t bounds[3][2];
     for (int i = 0; i < 3; i++) {
         bounds[i][0] = tri->verts[0].v[i];
@@ -163,26 +165,17 @@ Triangle_t *triangle_new(Material_t *mtrl, vec3_t vert0, vec3_t vert1,
             bounds[i][1] = ME_MAX(bounds[i][1], tri->verts[vert_i].v[i]);
         }
     }
+#endif
 
     Shape_t shape = (Shape_t) {
         .intersect = triangle_intersect,
         .transform = triangle_transform,
-        .bounds = {{0}},
+        .bbox = init_aabb(vert0, vert1),
         .position = v3_divide(v3_add(v3_add(vert0, vert1), vert2), 3.0),
         .material = mtrl,
         .draw_backface = draw_backface };
 
-    for (int i = 0; i < 3; i++) {
-        shape.bounds[i][0] = tri->verts[0].v[i];
-        shape.bounds[i][1] = tri->verts[0].v[i];
-
-        for (int vert_i = 1; vert_i < 3; vert_i++) {
-            shape.bounds[i][0] =
-                ME_MIN(shape.bounds[i][0], tri->verts[vert_i].v[i]);
-            shape.bounds[i][1] =
-                ME_MAX(shape.bounds[i][1], tri->verts[vert_i].v[i]);
-        }
-    }
+    grow_aabb_by_vertex(&shape.bbox, vert2);
     
     tri->base = shape;
     return tri;
@@ -202,16 +195,13 @@ Quad_t *quad_new(Material_t *mtrl, vec3_t vert0, vec3_t vert1,
     Shape_t qshape = (Shape_t) {
         .intersect = quad_intersect,
         .transform = NULL,
-        .bounds = {{0}},
+        .bbox = t1s->bbox,
         .position = v3_divide(
                 v3_add(t1s->position, t2s->position), 2),
         .material = mtrl,
         .draw_backface = draw_backface };
 
-    for (int r = 0; r < 3; r++) {
-        qshape.bounds[r][0] = ME_MIN(t1s->bounds[r][0], t2s->bounds[r][0]);
-        qshape.bounds[r][1] = ME_MAX(t1s->bounds[r][1], t2s->bounds[r][1]);
-    }
+    grow_aabb_by_aabb(&qshape.bbox, &t2s->bbox);
 
     quad->base = qshape;
     return quad;

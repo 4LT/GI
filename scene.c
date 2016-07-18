@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "aabb.h"
 
 const vfloat_t FUDGE_SCALE = 0.001;
 const vfloat_t AMBIENT_SCALE = 0.4;
@@ -97,11 +98,25 @@ intersect_result_t scene_kd_intersect(const scene_t *scene, ray_t ray,
                 cur_dist = r.distance;
             }
         }
+        return nearest;
     }
     else {
+#if 0
         vfloat_t side =  ray.position.v[kdn->plane] - kdn->plane_offset;
         bool hit_plane = ray.direction.v[kdn->plane] * side <= 0;
+#endif
 
+        if (hit_aabb(&kdn->front->bbox, ray))
+            nearest = scene_kd_intersect(scene, ray, max_dist, kdn->front);
+        if (hit_aabb(&kdn->back->bbox, ray)) {
+            intersect_result_t test_nearest =
+                    scene_kd_intersect(scene, ray, max_dist, kdn->back);
+            if (test_nearest.distance < nearest.distance)
+                nearest = test_nearest;
+        }
+
+        return nearest;
+#if 0
         if (side > 0)
             nearest = scene_kd_intersect(scene, ray, max_dist, kdn->front);
         else
@@ -113,9 +128,8 @@ intersect_result_t scene_kd_intersect(const scene_t *scene, ray_t ray,
             else
                 nearest = scene_kd_intersect(scene, ray, max_dist, kdn->front);
         }
+#endif
     }
-
-    return nearest;
 }
 
 /* true - shadow

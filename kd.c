@@ -1,6 +1,7 @@
 #include "kd.h"
 #include <stdio.h>
 #include <string.h>
+#include "aabb.h"
 #include "util/ops.h"
 
 static vfloat_t select_kth(Shape_t *shapes[], int start, int end, int k,
@@ -49,10 +50,11 @@ static vfloat_t find_median(Shape_t **shapes, int shapes_length,
 }
 
 /* TRANSFERS ownership of "shapes" to CALLEE */
-static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
+static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, aabb_t bbox,
         double redundancy_limit)
 {
     KDnode_t *kdn = malloc(sizeof(KDnode_t));
+    kdn->bbox = bbox;
 
     vfloat_t best_median;
     size_t cur_redundancy;
@@ -68,9 +70,9 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
         Shape_t **back_shapes  = malloc(shapes_length * sizeof(Shape_t *));
 
         for (size_t i = 0; i < shapes_length; i++) {
-            if (shapes[i]->bounds[a][1] >= cur_median)
+            if (shapes[i]->bbox.upper.v[a] >= cur_median)
                 front_shapes[cur_front_sz++] = shapes[i];
-            if (shapes[i]->bounds[a][0] <= cur_median)
+            if (shapes[i]->bbox.lower.v[a] <= cur_median)
                 back_shapes[cur_back_sz++] = shapes[i];
         }
         cur_redundancy = cur_front_sz + cur_back_sz;
@@ -96,7 +98,12 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
 
     double redundancy_frac =
         (best_redundancy - shapes_length) / (double)shapes_length;
-    if (redundancy_frac >= redundancy_limit) {
+#if 0
+    if (redundancy_frac >= redundancy_limit || best_front_sz < 1 ||
+            best_back_sz < 1) { 
+#else
+    if (best_back_sz < 10 || best_front_sz < 10) {
+#endif
         kdn->leaf_data = shapes;
         kdn->front = NULL;
         kdn->back = NULL;
@@ -108,14 +115,21 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
         shapes = NULL;
         best_front = realloc(best_front, best_front_sz * sizeof(Shape_t *));
         best_back  = realloc(best_back, best_back_sz * sizeof(Shape_t *));
+#if 1
         printf("%3zu:%3zu %3zu %5.2f\n",
                 shapes_length, best_front_sz, best_back_sz, redundancy_frac);
+#endif
+
+        aabb_t front_box, back_box;
+        split_aabb(&bbox, best_align, best_median, &front_box, &back_box);
 
         kdn->leaf_data = NULL;
         kdn->plane_offset = best_median;
         kdn->plane = best_align;
-        kdn->front = kdnode_new(best_front, best_front_sz, redundancy_limit);
-        kdn->back = kdnode_new(best_back, best_back_sz, redundancy_limit);
+        kdn->front = kdnode_new(best_front, best_front_sz, front_box,
+                redundancy_limit);
+        kdn->back = kdnode_new(best_back, best_back_sz, back_box,
+                redundancy_limit);
     }
 
     return kdn;
@@ -124,13 +138,16 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length,
 KDnode_t *kdnode_new_root(const Llist_t *shapes, double redundancy_limit)
 {
     Llist_node_t *node = shapes->first;
-    Shape_t **shape_arr =
-            (Shape_t **)malloc(shapes->length * sizeof(Shape_t *));
+    Shape_t **shape_arr = malloc(shapes->length * sizeof(Shape_t *));
+    aabb_t bbox = ((Shape_t *)(node->datum)) -> bbox;
     for (int i = 0; i < shapes->length; i++) {
         shape_arr[i] = (Shape_t *)(node->datum);
         node = node->next;
+        grow_aabb_by_aabb(&bbox, &shape_arr[i]->bbox);
     }
-    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, redundancy_limit);
+    KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, bbox, redundancy_limit);
+#if 1
     printf("\nshapes: %d\n", shapes->length);
+#endif
     return kdn;
 }
