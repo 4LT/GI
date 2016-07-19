@@ -98,9 +98,9 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, aabb_t bbox,
 
     double redundancy_frac =
         (best_redundancy - shapes_length) / (double)shapes_length;
-#if 0
-    if (redundancy_frac >= redundancy_limit || best_front_sz < 1 ||
-            best_back_sz < 1) { 
+#if 1
+    if (redundancy_frac >= redundancy_limit || best_front_sz < 10 ||
+            best_back_sz < 10) { 
 #else
     if (best_back_sz < 10 || best_front_sz < 10) {
 #endif
