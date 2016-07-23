@@ -104,6 +104,10 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, aabb_t bbox,
 #else
     if (best_back_sz < 10 || best_front_sz < 10) {
 #endif
+        free(best_front);
+        free(best_back);
+        best_front = NULL;
+        best_back = NULL;
         kdn->leaf_data = shapes;
         kdn->front = NULL;
         kdn->back = NULL;
@@ -145,6 +149,7 @@ KDnode_t *kdnode_new_root(const Llist_t *shapes, double redundancy_limit)
         node = node->next;
         grow_aabb_by_aabb(&bbox, &shape_arr[i]->bbox);
     }
+    printf("min y: %f\nmax y: %f\n", bbox.lower.v[1], bbox.upper.v[1]);
     KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, bbox, redundancy_limit);
 #if 1
     printf("\nshapes: %d\n", shapes->length);
