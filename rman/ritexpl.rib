@@ -1,0 +1,108 @@
+##RenderMan RIB-Structure 1.0
+version 3.03
+
+###########################################################################
+#
+# This RIB file give a demonstration of the use of automatic shadows
+# which can be attenuated by opacity of individual objects.
+#
+# Casting shadows:
+#    By default, light sources do not cast shadows.  The following RIB
+#    sets a nonstandard attribute which causes any subsequently declared
+#    light sources to automatically cast shadows using ray tracing:
+#              Declare "shadows" "string"
+#              Attribute "light" "shadows" "on"
+#              LightSource ....
+#    This attribute "affixes" itself to the lightsource when it's
+#    declared.  Note that it can be pushed and popped by AttributeBegin/End,
+#    just like any other attribute.
+#
+# Occluder options:
+#    When a light source casts shadows, by default the object casts a
+#    shadow which blocks out light according to the Opacity in effect
+#    when the object was declared.  For some complex objects (like the
+#    ones in this scene), the surface shader needs to be evaluated before
+#    the renderer can know exactly what the opacity needs to be.  This
+#    is slower than the default, and only needs to be done when the 
+#    surface shader causes the opacity to change across the surface.  In
+#    this case, the proper attribute to set is:
+#           Declare "casts_shadows" "string"
+#           Attribute "render" "casts_shadows" "shade"
+#
+# These attributes are all described in the "BMRT User Guide".
+#
+###########################################################################
+
+Option "searchpath" "shader" [".:../shaders:&"]
+
+# Place the result image in a file named image.tif
+# If "file" is replaced with "window", the result will be displayed
+# directly in a window
+Display "image.tif" "file" "rgb" "compression" "none"
+
+# Image size and aspect ration (width/height)
+Format 240 180 -1
+
+# How many samples to take per pixel; used to control aliasing
+PixelSamples 1 1
+
+# Projection type and camera field of view angle
+Projection "perspective" "fov" 45
+
+# The default camera is at the world coordinate origin, pointing down +z.
+# These transformations place the camera in the world.
+Translate 0 -2 8
+Rotate -110 1 0 0
+
+
+WorldBegin
+
+# Our scene has two light sources, one ambient, one distant point light.
+# These shaders are located in the Pixar shader directory
+LightSource "ambientlight" 1 "intensity" 0.5
+
+LightSource "distantlight" 1 "from" [0 1 4] "to" [0 0 0] "intensity" 0.8
+
+# We don't use these global variables - instead, these are supplied as
+# parameters to the brick shader
+# Declare "brickwidth" float
+# Declare "brickheight" float
+# Declare "mortarthickness" float
+
+# The following section describes the floor, a polygon whose surface shader
+# is the "brick" shader.  The values following "brick" override the default
+# values of the "brick" shader's instance variables.
+#
+# Polygon vertices are given in a counterclockwise order.
+AttributeBegin
+  Color  [ 1.0 1.0 1.0  ] 
+  Surface "brick" "brickwidth" 1.0 "brickheight" 0.25 "mortarthickness" 0.05
+  Polygon "P"  [ -5 -5 0 5 -5 0 5 5 0 -5 5 0  ] 
+AttributeEnd
+
+# The following section describes the wall, a polygon whose surface shader
+# is the "wood2" shader.  Default values of the "wood2" instance variables
+# are used.
+AttributeBegin
+  Color  [ 1.0 1.0 1.0  ] 
+  Surface "wood2"
+  Polygon "P" [ -5 -5 5  5 -5 5  5 -5 -5  -5 -5 -5    ] 
+AttributeEnd
+
+# The following section describes the sphere,  whose surface shader is
+# the "plastic" shader.  Default values of the "plastic" instance
+# variables are used.  Notice that the sphere has been translated before
+# placement.  The sphere parameters are the radius, lowest z value to
+# use, highest z value to use, and the number of degrees around.  In this
+# case we have a complete sphere rather than a hollow hunk of cheese.
+# For comparison, try
+#    Sphere 1 -.5 .5 270
+AttributeBegin
+  Translate 0 0 2
+  Color [1 1 .06]
+  Surface "plastic"
+  Sphere 1 -1 1 360
+AttributeEnd
+
+WorldEnd
+

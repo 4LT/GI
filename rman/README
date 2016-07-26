@@ -1,0 +1,7 @@
+These files form the basis for the CG2 RenderMan(tm) shader assignment.
+These are intended for use with the CG2 course; please do not redistribute
+them.
+
+Files in the Archive subdirectory are tar, gzipped tar, and ZIPped
+archives; the ZIP archive files have CR/LF (carriage return, newline)
+end-of-line markers, and the other two just have LF (newline) markers.
