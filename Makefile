@@ -15,6 +15,7 @@ endif
 
 COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o\
 				color.o tone_mapping.o util/linked_list.o kd.o aabb.o
+RAD_OBJECTS= hemicube.o patch.o
 
 PROGRAMS= rad ply2tri draw_patches rayt box2p
 
@@ -67,6 +68,9 @@ read_patches.o: read_patches.c read_patches.h
 hemicube.o: hemicube.c hemicube.h
 	$(CC) $(CFLAGS) -c hemicube.c
 
+patch.o: patch.c patch.h
+	$(CC) $(CFLAGS) -c patch.c
+
 util/linked_list.o: util/linked_list.c util/linked_list.h
 	$(CC) $(CFLAGS) -o util/linked_list.o -c util/linked_list.c
 
@@ -76,8 +80,8 @@ box2p.o: box2p.c
 rayt: main.o $(COMMON_OBJECTS) Makefile
 	$(CC) $(CFLAGS) -o rayt main.o $(COMMON_OBJECTS) $(LDFLAGS)
 
-rad: rad.o hemicube.o $(COMMON_OBJECTS) Makefile
-	$(CC) $(CFLAGS) -o rad rad.o hemicube.o $(COMMON_OBJECTS) $(LDFLAGS)
+rad: rad.o $(RAD_OBJECTS) $(COMMON_OBJECTS) Makefile
+	$(CC) $(CFLAGS) -o rad rad.o $(RAD_OBJECTS) $(COMMON_OBJECTS) $(LDFLAGS)
 
 ply2tri: ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)  Makefile
 	$(CC) $(CFLAGS) -o ply2tri ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)\

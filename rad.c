@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
+    scene_gen_kdtree(&scene, 0.125);
     scene_render(&scene, &cam, img);
 
     pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));
@@ -70,10 +71,6 @@ int main(int argc, char *argv[])
 
     int exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
     free(pixmap);
-
-    color_t c = Hcube_gather(&scene,
-            (vec3_t){{278, 274, 10}}, (vec3_t){{0, 0, 1}});
-    printf("COLOR (%f %f %f)\n", c.c[0], c.c[1], c.c[2]);
 
     return exit_status;
 }
