@@ -10,7 +10,7 @@ static const int SCREEN_H = 512;
 #if 1
 static const vec3_t CAM_POS = {{ 278.0, 273.0, -800.0 }};
 #else
-static const vec3_t CAM_POS ((vec3_t) {{ 278.0, 273.0, 1359.2 }};
+static const vec3_t CAM_POS ((vec3_t) {{ 278.0, 273.0, 1359.2 }});
 #endif
 
 static const vec3_t CAM_UP = {{ 0.0, 1.0, 0.0 }};
