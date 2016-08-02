@@ -33,6 +33,12 @@ rad
 ply2tri
 patches
 box2p
+draw_patches
+
+# Directories
+tst
+rply-1.1.4/etc
+rply-1.1.4/manual
 
 # Debug files
 *.dSYM/
