@@ -1,7 +1,7 @@
 build: image.tif Makefile
 
 view: image.tif Makefile
-	/Applications/GIMP.app/Contents/MacOS/GIMP image.tif
+	open image.tif
 
 .PHONY: build view
 
@@ -17,5 +17,8 @@ constant.slo: constant.sl
 reflect.slo: reflect.sl
 	shader reflect.sl
 
-image.tif: scene.rib matte.slo rim.slo constant.slo reflect.slo
+imager_spec.slo: imager_spec.sl
+	shader imager_spec.sl
+
+image.tif: scene.rib matte.slo rim.slo constant.slo reflect.slo imager_spec.slo
 	prman scene.rib

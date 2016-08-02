@@ -1,7 +1,7 @@
 build: image.tif Makefile
 
 view: image.tif Makefile
-	/Applications/GIMP.app/Contents/MacOS/GIMP image.tif
+	open image.tif
 
 .PHONY: build view
 

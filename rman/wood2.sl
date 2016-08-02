@@ -22,18 +22,18 @@
 
 
 surface
-wood2 ( float Ka = 1, Kd = .75, Ks = .4, roughness = .1;
-        float ringscale = 15;
-        float txtscale = 1;
+wood2 ( float Ka = 1, Kd = .75, Ks = .9, roughness = .1;
+        float ringscale = 8;
+        float txtscale = 1.5;
         color lightwood = color (0.69, 0.44, 0.25);
         color darkwood  = color (0.35, 0.22, 0.08);
-        float grainy = 1; )
+        float grainy = 0.3; )
 {
     /* Calculate in shader space */
     point PP = txtscale * transform ("shader", P);
 
     float my_t = zcomp(PP) / ringscale;
-    point PQ = point (xcomp(PP)*8, ycomp(PP)*8, zcomp(PP));
+    point PQ = point (xcomp(PP)*8, ycomp(PP)*16, zcomp(PP));
     my_t += noise (PQ) / 16;
   
     PQ = point (xcomp(PP), my_t, ycomp(PP)+12.93);

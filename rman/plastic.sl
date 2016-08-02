@@ -15,7 +15,10 @@ plastic (float Ka = 1, Kd = 0.5, Ks = 0.5, roughness = 0.1;
     color samp;
 
     float theta, phi, r, thetaMax = PI/4, phiMax = PI/4;
-    float x = xcomp(N), y = zcomp(N), z = ycomp(N);
+    normal Nw = ntransform("world", N);
+    float x = xcomp(Nw),
+        y = ycomp(Nw),
+        z = zcomp(Nw);
     r = sqrt(x*x + y*y + z*z);
     theta = atan(y, x);
     phi = acos(z / r);

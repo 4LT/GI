@@ -1,6 +1,6 @@
 surface reflect(
     float minr = 0.55, maxr = 1,
-    Ka = 1, Kd = 0.5, roughness = 0.05)
+    Ka = 1, Kd = 0.5, roughness = 0.07)
 {
     vector In = normalize(I);
     vector Nn = normalize(N);

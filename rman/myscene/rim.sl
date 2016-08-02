@@ -1,21 +1,19 @@
 surface
-rim (float Ka = 1, Kd = 0.5, rimexp = 10, rimscale = 1; )
+rim (float Ka = 1, Kd = 0.5, Krim = 1, rimexp = 10, peek = 0.1; )
 {
     normal Nn = normalize(N);
     vector In = normalize(I);
-    color Cpl = 0;
-    illuminance(P, Nn, PI) {
+    point Ppeek = P + Nn * peek;
+    color Crim = 0;
+    illuminance(Ppeek, Nn, PI) {
         vector Ln = normalize(L);
-        float LNdot = Ln.Nn;
         float LIdot = Ln.In;
-        if (LNdot > 0) {
-            Cpl+= Cl * LNdot;
-        }
         if (LIdot > 0) {
-            Cpl+= Cl * pow(length(Ln^Nn) * LIdot, rimexp) * rimscale;
+            Crim+= Cl * pow(length(Ln^Nn) * LIdot, rimexp);
         }
 
     }
-    Ci = Cs * (Ka*ambient() + Kd*Cpl);
+
+    Ci = Cs * (Ka*ambient() + Kd*diffuse(Nn) + Krim*Crim);
     Oi = Os;  Ci *= Oi;
 }
