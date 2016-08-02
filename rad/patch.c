@@ -34,3 +34,22 @@ void Patch_apply(Patch_t *recv, const Patch_t *send, vfloat_t dff)
     recv->exitance = clr_add(recv->exitance, incoming);
     recv->d_exitance = clr_add(recv->d_exitance, incoming);
 }
+
+PatchSet_t *PatchSet_new()
+{
+    PatchSet_t *patchset = malloc(sizeof(PatchSet_t));
+    patchset->capacity = 1;
+    patchset->count = 0;
+    patchset->patches = NULL;
+    return patchset;
+}
+
+void PatchSet_add_patch(PatchSet_t *pset, Patch_t *patch)
+{
+    if (pset->count == pset->capacity) {
+        pset->capacity*= 2;
+        pset->patches = realloc(pset->patches, pset->size * sizeof(patch));
+    }
+    pset->patches[pset->count] = patch;
+    pset->count++;
+}

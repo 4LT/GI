@@ -1,5 +1,6 @@
 #include "read_patches.h"
 #include "shapes.h"
+#include "patch.h"
 
 vec3_t patch_read_vec3(FILE* file)
 {
@@ -39,6 +40,17 @@ Quad_t *patch_read_quad(FILE* file, scene_t *scene)
     return quad_new(mtrl, vert3, vert2, vert1, vert0, false);
 }
 
+Patch_t *patch_read_unlit_quad(FILE* file, scene_t *scene)
+{
+    vec3_t vert0 = patch_read_vec3(file);
+    vec3_t vert1 = patch_read_vec3(file);
+    vec3_t vert2 = patch_read_vec3(file);
+    vec3_t vert3 = patch_read_vec3(file);
+
+
+
+}
+
 void patch_read_file(const char *file_name, scene_t *scene, camera_t *cam)
 {
     FILE *f = fopen(file_name, "r");
@@ -67,3 +79,25 @@ void patch_read_file(const char *file_name, scene_t *scene, camera_t *cam)
 }
 
 
+void patch_read_to_set(const char* file_name, PatchSet_t *pset)
+{
+    FILE *f = fopen(file_name, "r");
+    vec3_t cam_pos = patch_read_vec3(f);
+    vec3_t cam_look = patch_read_vec3(f);
+    vec3_t cam_up = patch_read_vec3(f);
+    int width, height, hcube_w, hcube_h, max_iter;
+    fscanf(f, "%d", &width);
+    fscanf(f, "%d", &height);
+    fscanf(f, "%d", &hcube_w);
+    fscanf(f, "%d", &hcube_h);
+    fscanf(f, "%d", &max_iter);
+
+    int last_ch;
+    while ((last_ch = getc(f)) != EOF) {
+        ungetc(last_ch, f);
+        Quad_t *quad = patch_read_quad(f, scene);
+        scene_add_shape(scene, (Shape_t *)quad);
+    }
+
+    fclose(f);
+}

@@ -13,6 +13,13 @@ typedef struct
     color_t d_unsent;
 } Patch_t;
 
+typedef struct
+{
+    Patch_t* patches[];
+    size_t count;
+    size_t capacity;
+} PatchSet_t;
+
 enum
 {
     PATCHPTR_COLOR_ASSERT = 
@@ -50,5 +57,7 @@ void Patch_apply(
 vec3_t Patch_get_normal(const Patch_t *patch);
 
 vec3_t Patch_get_position(const Patch_t *patch);
+
+PatchSet_t *PatchSet_new();
 
 #endif
