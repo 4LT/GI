@@ -32,6 +32,7 @@ rayt
 rad
 ply2tri
 patches
+box2p
 
 # Debug files
 *.dSYM/
