@@ -50,8 +50,6 @@ scene_t scene_empty_scene(color_t sky_color);
  * shape - shape to be added
  *
  * MUTATES scene
- * TODO: use pointer to scene instead for consistency, and to make it clear that
- * the scene is mutable
  */
 void scene_add_shape(scene_t *scene, const Shape_t *shape);
 
@@ -61,8 +59,6 @@ void scene_add_shape(scene_t *scene, const Shape_t *shape);
  * shape - shape to be added
  *
  * MUTATES scene
- * TODO: use pointer to scene instead for consistency, and to make it clear that
- * the scene is mutable
  */
 void scene_add_light(scene_t *scene, const light_t *light);
 
