@@ -9,6 +9,8 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
+#include "collections.h"
+
 /* Nodes contain a pointer to data, and a pointer to the next node. */
 typedef struct Llist_node
 {
@@ -24,9 +26,6 @@ typedef struct
     Llist_node_t *last;
     unsigned int length;
 } Llist_t;
-
-/* means of freeing data in all nodes */
-typedef void (*free_datum_fp)(void *datum);
 
 /* create a new, malloc'd empty list */
 Llist_t *Llist_new();

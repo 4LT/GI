@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include "linked_list.h"
 
-void free_nothing(void *datum) {}
-
 Llist_t *Llist_new()
 {
     Llist_t *list = (Llist_t *)malloc(sizeof (Llist_t));
