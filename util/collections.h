@@ -6,7 +6,7 @@
 /* means of freeing data in a collection */
 typedef void (*free_datum_fp)(void *datum);
 
-void free_nothing(void *datum) {}
+void free_nothing(void *datum);
 
 #endif
 
