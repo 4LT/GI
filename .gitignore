@@ -29,11 +29,13 @@
 *.x86_64
 *.hex
 rayt
-rad
+rad/rad
+rad/pmap.wunit
 ply2tri
 patches
 box2p
 draw_patches
+
 
 # Directories
 tst
