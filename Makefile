@@ -15,10 +15,12 @@ else
 endif
 
 COMMON_OBJECTS= scene.o shapes.o canvas.o material.o materials.o\
-				color.o tone_mapping.o util/linked_list.o kd.o aabb.o
+				color.o tone_mapping.o util/linked_list.o util/collections.o\
+				kd.o aabb.o
 RAD_OBJECTS= rad/hemicube.o rad/patch.o
 
-PROGRAMS= rad/rad ply2tri rad/draw_patches rayt rad/box2p
+#PROGRAMS= rad/rad ply2tri rad/draw_patches rayt rad/box2p
+PROGRAMS= ply2tri rayt rad/draw_patches
 
 .PHONY: all clean
 
@@ -33,6 +35,10 @@ kd.o: kd.c kd.h
 rad/rad.o: rad/rad.c types.h scene.h shapes.h material.h materials.h light.h\
 	color.h
 	$(CC) $(CFLAGS) $(RADFLAGS) -c rad/rad.c
+
+rad/draw_patches.o: rad/draw_patches.c rad/read_patches.h tone_mapping.h\
+	canvas.h
+	$(CC) $(CFLAGS) $(RADFLAGS) -o rad/draw_patches.o -c rad/draw_patches.c
 
 ply2tri.o: ply2tri.c types.h scene.h shapes.h material.h materials.h light.h\
 	color.h rply-1.1.4/rply.h
@@ -66,7 +72,7 @@ tone_mapping.o: tone_mapping.c tone_mapping.h
 	$(CC) $(CFLAGS) -c tone_mapping.c
 
 rad/read_patches.o: rad/read_patches.c rad/read_patches.h
-	$(CC) $(CFLAGS) $(RADFLAGS) -c rad/read_patches.c
+	$(CC) $(CFLAGS) $(RADFLAGS) -o rad/read_patches.o -c rad/read_patches.c
 
 rad/hemicube.o: rad/hemicube.c rad/hemicube.h
 	$(CC) $(CFLAGS) $(RADFLAGS) -c rad/hemicube.c
@@ -76,6 +82,9 @@ rad/patch.o: rad/patch.c rad/patch.h
 
 util/linked_list.o: util/linked_list.c util/linked_list.h
 	$(CC) $(CFLAGS) -o util/linked_list.o -c util/linked_list.c
+
+util/collections.o: util/collections.c util/collections.h
+	$(CC) $(CFLAGS) -o util/collections.o -c util/collections.c
 
 rad/box2p.o: rad/box2p.c
 	$(CC) $(CFLAGS) $(RADFLAGS) -o rad/box2p.o -c rad/box2p.c
@@ -93,7 +102,7 @@ ply2tri: ply2tri.o rply-1.1.4/rply.o $(COMMON_OBJECTS)  Makefile
 
 rad/draw_patches: rad/draw_patches.o rad/read_patches.o $(COMMON_OBJECTS)\
 	Makefile
-	$(CC) $(CFLAGS) $(RADFLAGS) -o rad/draw_patches rad/draw_patches.o\
+	$(CC) $(CFLAGS) $(RADFLAGS) -o rad/draw_patches rad/draw_patches.o \
 	rad/read_patches.o $(COMMON_OBJECTS) $(LDFLAGS)
 
 rad/box2p: rad/box2p.o $(COMMON_OBJECS) Makefile

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <tgmath.h>
 #include <stdlib.h>
+#include "constants.h"
 #include "shapes.h"
 #include "aabb.h"
 #include "util/ops.h"

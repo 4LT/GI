@@ -1,12 +1,12 @@
+#include <tone_mapping.h>
+#include <canvas.h>
 #include "read_patches.h"
-#include "tone_mapping.h"
-#include "canvas.h"
 
 int main(int argc, char *argv[])
 {
     scene_t scene;
     camera_t cam;
-    patch_read_file("mymesh.txt", &scene, &cam);
+    patch_read_file("coarse.txt", &scene, &cam);
     int screen_w = cam.img_width;
     int screen_h = cam.img_height;
     size_t pix_count = screen_w * screen_h;
