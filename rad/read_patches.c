@@ -4,6 +4,21 @@
 #include <scene.h>
 #include "patch.h"
 
+typedef struct
+{
+    vec3_t vert0;
+    vec3_t vert1;
+    vec3_t vert2;
+    vec3_t vert3;
+} partial_quad_t;
+
+static inline Quad_t *finish_new_quad(Material_t *mtrl,
+        partial_quad_t part_quad, bool draw_backface)
+{
+    return quad_new(mtrl, part_quad.vert0, part_quad.vert1, part_quad.vert2,
+            part_quad.vert3, draw_backface);
+}
+
 vec3_t patch_read_vec3(FILE* file)
 {
     vec3_t vec;
@@ -18,13 +33,18 @@ color_t patch_read_color(FILE* file)
     return color;
 }
 
-Quad_t *patch_read_quad(FILE* file, scene_t *scene)
+partial_quad_t patch_read_quad(FILE* file)
 {
     vec3_t vert0 = patch_read_vec3(file);
     vec3_t vert1 = patch_read_vec3(file);
     vec3_t vert2 = patch_read_vec3(file);
     vec3_t vert3 = patch_read_vec3(file);
-    return quad_new(NULL, vert3, vert2, vert1, vert0, false);
+    vec3_t normal = patch_read_vec3(file);
+    /* subtract y to Fix left-hand rule nonsense */
+    if (normal.v[0] - normal.v[1] + normal.v[2] > 0)
+        return (partial_quad_t) { vert0, vert1, vert2, vert3 };
+    else
+        return (partial_quad_t) { vert3, vert2, vert1, vert0 };
 }
 
 void patch_read_file(const char *file_name, scene_t *scene, camera_t *cam)
@@ -47,15 +67,11 @@ void patch_read_file(const char *file_name, scene_t *scene, camera_t *cam)
     int last_ch;
     while ((last_ch = getc(f)) != EOF) {
         ungetc(last_ch, f);
-        Quad_t *quad = patch_read_quad(f, scene);
-        patch_read_vec3(f); /* ignore normal */
+        partial_quad_t part_quad = patch_read_quad(f);
         patch_read_color(f); /* ignore exitance */
         color_t color = patch_read_color(f);
-        /* TODO: clean up */
         Material_t *mtrl = fullbright_new(scene, color);
-        ((Shape_t *)quad)->material = mtrl;
-        ((Shape_t *)(quad->t1))->material = mtrl;
-        ((Shape_t *)(quad->t2))->material = mtrl;
+        Quad_t *quad = finish_new_quad(mtrl, part_quad, false);
         scene_add_shape(scene, (Shape_t *)quad);
     }
 
