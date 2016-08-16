@@ -119,7 +119,7 @@ static KDnode_t *kdnode_new(Shape_t **shapes, size_t shapes_length, aabb_t bbox,
         shapes = NULL;
         best_front = realloc(best_front, best_front_sz * sizeof(Shape_t *));
         best_back  = realloc(best_back, best_back_sz * sizeof(Shape_t *));
-#if 1
+#ifdef KD_PRINT_DEBUG
         printf("%3zu:%3zu %3zu %5.2f\n",
                 shapes_length, best_front_sz, best_back_sz, redundancy_frac);
 #endif
@@ -149,9 +149,11 @@ KDnode_t *kdnode_new_root(const Llist_t *shapes, double redundancy_limit)
         node = node->next;
         grow_aabb_by_aabb(&bbox, &shape_arr[i]->bbox);
     }
+#ifdef KD_PRINT_DEBUG
     printf("min y: %f\nmax y: %f\n", bbox.lower.v[1], bbox.upper.v[1]);
+#endif
     KDnode_t *kdn = kdnode_new(shape_arr, shapes->length, bbox, redundancy_limit);
-#if 1
+#ifdef KD_PRINT_DEBUG
     printf("\nshapes: %d\n", shapes->length);
 #endif
     return kdn;
