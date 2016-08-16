@@ -4,11 +4,21 @@
  * author: Seth Rader
  */
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include "scene.h"
 #include "canvas.h"
 #include "rply-1.1.4/rply.h"
 #include "shapes.h"
 #include "tone_mapping.h"
+
+
+#define MS_TIMER(stmt) {\
+    clock_t time__ = clock();\
+    { stmt }\
+    time__ = clock() - time__;\
+    printf("%f seconds elapsed\n", ((float)time__) / CLOCKS_PER_SEC);\
+}
 
 /* screen dimensions in pixels */
 static const int SCREEN_W = 640;
@@ -105,16 +115,17 @@ Llist_t *ply2tri(const char *filename)
 int main(int argc, char *argv[])
 {
     Llist_t *tris;
+    bool use_kdtree;
     double redundancy_limit;
     camera_t cam = cam_centered(CAM_POS, CAM_UP, CAM_LOOK, SCREEN_W, SCREEN_H);
     cam_set_projection(&cam, 1.2, 1.0);
     scene_t scene = scene_empty_scene(CLR_BLACK);
 
     tris = argc > 1 ? ply2tri(argv[1]) : ply2tri(DEFAULT_BUNNY);
-    redundancy_limit = argc > 2 ? atof(argv[2]) : DEFAULT_REDUNDANCY_LIMIT;
+    use_kdtree = argc > 2 && strcmp(argv[2], "usetree") == 0;
+    redundancy_limit = argc > 3 ? atof(argv[3]) : DEFAULT_REDUNDANCY_LIMIT;
 
     Material_t *white = lambert_new(&scene, (color_t) {{ .8, .7, .7 }});
-    //int ct = 0;
     for (Llist_node_t *node = tris->first; node != NULL;) {
         vec3_t tri[3];
         for (int i = 0; i < 3; i++, node = node->next) {
@@ -125,13 +136,13 @@ int main(int argc, char *argv[])
                 tri[0], tri[1], tri[2], false));
     }
 
-#ifdef KDTREE
-    puts("Building tree...");
-    scene_gen_kdtree(&scene, redundancy_limit);
-    puts("Tree done");
-#else
-    puts("No tree");
-#endif
+    if (use_kdtree) {
+        puts("Building tree...");
+        MS_TIMER(scene_gen_kdtree(&scene, redundancy_limit);)
+    }
+    else {
+        puts("No tree");
+    }
 
     light_t light1 = (light_t) {
         .type = SPHERE,
@@ -148,19 +159,15 @@ int main(int argc, char *argv[])
 
     size_t pix_count = SCREEN_W * SCREEN_H;
     color_t *img = malloc(pix_count * sizeof(color_t));
-    scene_render(&scene, &cam, img);
+    puts("Rendering...");
+    MS_TIMER(scene_render(&scene, &cam, img);)
 
     pixel_t *pixmap = malloc(pix_count * sizeof(pixel_t));
     tonemap_nop(img, pix_count, pixmap);
     free(img);
 
     int exit_status = 0;
-#ifndef NODRAW
-    puts("Drawing...");
     exit_status = draw(SCREEN_W, SCREEN_H, pixmap);
-#else
-    puts("No drawing");
-#endif
     free(pixmap);
 
     return exit_status;
