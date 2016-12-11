@@ -7,6 +7,13 @@
 #ifndef VECMATOPS_H_
 #define VECMATOPS_H_
 
+/* perf testing */
+#ifdef NO_INLINE
+    #define INLINE
+#else
+    #define INLINE inline
+#endif
+
 #include <tgmath.h>
 #include "types.h"
 #include "util/ops.h"
@@ -17,13 +24,13 @@
                            { 0, 0, 0, 1 }} };
 
 /* Dot product of vecA and vecB */
-static inline vfloat_t v3_dot(const vec3_t vecA, const vec3_t vecB)
+static INLINE vfloat_t v3_dot(const vec3_t vecA, const vec3_t vecB)
 {
     return vecA.v[0]*vecB.v[0] + vecA.v[1]*vecB.v[1] + vecA.v[2]*vecB.v[2];
 }
 
 /* Cross porduct of VecA nad vecB */
-static inline vec3_t v3_cross(vec3_t vecA, vec3_t vecB)
+static INLINE vec3_t v3_cross(vec3_t vecA, vec3_t vecB)
 {
     vec3_t out;
     out.v[0] = vecA.v[1]*vecB.v[2] - vecA.v[2]*vecB.v[1];
@@ -33,7 +40,7 @@ static inline vec3_t v3_cross(vec3_t vecA, vec3_t vecB)
 }
 
 /* Multiplies each element of "in" by "scale". */
-static inline vec3_t v3_scale(vec3_t in, vfloat_t scale)
+static INLINE vec3_t v3_scale(vec3_t in, vfloat_t scale)
 {
     vec3_t out;
     out.v[0] = scale * in.v[0];
@@ -42,19 +49,19 @@ static inline vec3_t v3_scale(vec3_t in, vfloat_t scale)
     return out;
 }
 
-static inline vec3_t v3_neg(vec3_t in)
+static INLINE vec3_t v3_neg(vec3_t in)
 {
     return v3_scale(in, -1);
 }
 
 /* Projects vector vecA onto vecB. */
-static inline vec3_t v3_project(vec3_t vecA, vec3_t vecB)
+static INLINE vec3_t v3_project(vec3_t vecA, vec3_t vecB)
 {
     return v3_scale(vecB, v3_dot(vecA, vecB) / v3_dot(vecB, vecB));
 }
 
 /* Divides each element of "in" by "divisor". */
-static inline vec3_t v3_divide(vec3_t in, vfloat_t divisor)
+static INLINE vec3_t v3_divide(vec3_t in, vfloat_t divisor)
 {
     vec3_t out;
     out.v[0] = in.v[0] / divisor;
@@ -63,7 +70,7 @@ static inline vec3_t v3_divide(vec3_t in, vfloat_t divisor)
     return out;
 }
 
-static inline vec3_t v3_add(vec3_t vecA, vec3_t vecB)
+static INLINE vec3_t v3_add(vec3_t vecA, vec3_t vecB)
 {
     vec3_t out;
     out.v[0] = vecA.v[0] + vecB.v[0];
@@ -72,7 +79,7 @@ static inline vec3_t v3_add(vec3_t vecA, vec3_t vecB)
     return out;
 }
 
-static inline vec3_t v3_sub(vec3_t vecA, vec3_t vecB)
+static INLINE vec3_t v3_sub(vec3_t vecA, vec3_t vecB)
 {
     vec3_t out;
     out.v[0] = vecA.v[0] - vecB.v[0];
@@ -81,7 +88,7 @@ static inline vec3_t v3_sub(vec3_t vecA, vec3_t vecB)
     return out;
 }
 
-static inline vec3_t v3_min(vec3_t vecA, vec3_t vecB)
+static INLINE vec3_t v3_min(vec3_t vecA, vec3_t vecB)
 {
     vec3_t out;
     for (int i = 0; i < 3; i++)
@@ -89,7 +96,7 @@ static inline vec3_t v3_min(vec3_t vecA, vec3_t vecB)
     return out;
 }
 
-static inline vec3_t v3_max(vec3_t vecA, vec3_t vecB)
+static INLINE vec3_t v3_max(vec3_t vecA, vec3_t vecB)
 {
     vec3_t out;
     for (int i = 0; i < 3; i++)
@@ -97,12 +104,12 @@ static inline vec3_t v3_max(vec3_t vecA, vec3_t vecB)
     return out;
 }
 
-static inline vfloat_t v3_magnitude(vec3_t in)
+static INLINE vfloat_t v3_magnitude(vec3_t in)
 {
     return sqrt(v3_dot(in, in));
 }
 
-static inline vec3_t v3_normalize(vec3_t in)
+static INLINE vec3_t v3_normalize(vec3_t in)
 {
     vfloat_t magnitude = v3_magnitude(in);
     if (magnitude == 0) {
@@ -114,12 +121,12 @@ static inline vec3_t v3_normalize(vec3_t in)
     }
 }
 
-static inline vfloat_t v3_distance(vec3_t ptA, vec3_t ptB)
+static INLINE vfloat_t v3_distance(vec3_t ptA, vec3_t ptB)
 {
     return v3_magnitude(v3_sub(ptB, ptA));
 }
 
-static inline vec3_t v3_blend(vec3_t vecA, vec3_t vecB, vfloat_t blend)
+static INLINE vec3_t v3_blend(vec3_t vecA, vec3_t vecB, vfloat_t blend)
 {
     vec3_t out;
     for (int i = 0; i < 3; i++) {
@@ -131,25 +138,25 @@ static inline vec3_t v3_blend(vec3_t vecA, vec3_t vecB, vfloat_t blend)
 /* Arbitrary vector normal to input vector.  Chooses a vector perpendicular to
  * vecIn and either the Y axis or Z axis, whichever has a better
  * approximation. */
-static inline vec3_t v3_arbinormal(vec3_t in)
+static INLINE vec3_t v3_arbinormal(vec3_t in)
 {
     return in.v[1] > in.v[2] ?
             v3_cross(in, (vec3_t){{ 0, 0, 1 }}) :
             v3_cross((vec3_t) {{ 0, 1, 0 }}, in);
 }
 
-static inline vec3_t m4v3_column(mat4_t mat, unsigned int index)
+static INLINE vec3_t m4v3_column(mat4_t mat, unsigned int index)
 {
     return (vec3_t){{ mat.m[0][index], mat.m[1][index], mat.m[2][index] }};
 }
 
-static inline vec3_t m4v3_row(mat4_t mat, unsigned int index)
+static INLINE vec3_t m4v3_row(mat4_t mat, unsigned int index)
 {
     return (vec3_t){{ mat.m[index][0], mat.m[index][1], mat.m[index][2] }};
 }
 
 /* Use xformMat to transform the vector "in". */
-static inline vec3_t m4v3_transform(mat4_t xformMat, vec3_t in)
+static INLINE vec3_t m4v3_transform(mat4_t xformMat, vec3_t in)
 {
    vec3_t out;
    for (int r = 0; r < 3; r++) {
@@ -173,7 +180,7 @@ mat4_t m4v3_buildMatrixRows(
 }
 #endif
 
-static inline mat4_t m4_transpose(mat4_t in)
+static INLINE mat4_t m4_transpose(mat4_t in)
 {
     mat4_t out;
     for (int r = 0; r < 4; r++)
@@ -184,7 +191,7 @@ static inline mat4_t m4_transpose(mat4_t in)
 }
 
 /* Performs matrix multiplication on matA and matB. */
-static inline mat4_t m4_mul(mat4_t matA, mat4_t matB)
+static INLINE mat4_t m4_mul(mat4_t matA, mat4_t matB)
 {
     mat4_t out;
     for (int r = 0; r < 4; r++)

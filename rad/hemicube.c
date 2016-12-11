@@ -1,7 +1,9 @@
-#include <string.h>
 #include "hemicube.h"
+
+#include <string.h>
 #include "constants.h"
-#include "patch.h"
+#include "patchmap.h"
+
 /* debugging */
 #include "canvas.h"
 #include "tone_mapping.h"
@@ -9,8 +11,9 @@
 #define RESOLUTION 256
 #define HALF_RES (RESOLUTION / 2)
 
-static const vfloat_t CELL_W = 2 / (vfloat_t)RESOLUTION;
+const vfloat_t CELL_W = 2 / (vfloat_t)RESOLUTION;
 #define CELL_AREA (CELL_W * CELL_W)
+
 
 static vfloat_t dff_top[RESOLUTION][RESOLUTION];
 static vfloat_t dff_side[RESOLUTION][HALF_RES];
@@ -40,7 +43,8 @@ static inline camera_t camera_by_dir(vec3_t pos, vec3_t up, vec3_t dir,
         int w, int h)
 { return cam_centered(pos, up, v3_add(pos, dir), w, h); }
 
-void Hcube_apply_exitance(const scene_t *scene, Patch_t *this_patch)
+patchff_t *Hcube_get_ffs(const scene_t *scene, Patch_t *this_patch,
+        size_t *out_count)
 {
     static bool initialized = false;
     if (!initialized) {
@@ -52,6 +56,7 @@ void Hcube_apply_exitance(const scene_t *scene, Patch_t *this_patch)
     vec3_t local_z = Patch_get_normal(this_patch);
     vec3_t local_x = v3_arbinormal(local_z);
     vec3_t local_y = v3_cross(local_z, local_x);
+    PatchMap_t *pmap = PatchMap_new(256);
 
     camera_t cam_xyp = camera_by_dir(pos, local_y, local_z,
             RESOLUTION, RESOLUTION);
@@ -95,14 +100,12 @@ void Hcube_apply_exitance(const scene_t *scene, Patch_t *this_patch)
     for (int x = 0; x < RESOLUTION; x++)
     for (int y = 0; y < RESOLUTION; y++) {
         int index = y*RESOLUTION + x;
-        Patch_t *target;
-
-        target = Patch_by_color(img_top[index]);
-        Patch_apply(target, this_patch, dff_top[x][y]);
+        Patch_t *target = Patch_by_color(img_top[index]);
+        PatchMap_apply_dff(pmap, target, dff_top[x][y]);
         if (y < HALF_RES) {
             for (int s = 0; s < 4; s++) {
                 target = Patch_by_color(img_sides[s][index]);
-                Patch_apply(target, this_patch, dff_side[x][y]);
+                PatchMap_apply_dff(pmap, target, dff_side[x][y]);
             }
         }
     }
@@ -111,6 +114,8 @@ void Hcube_apply_exitance(const scene_t *scene, Patch_t *this_patch)
     for (int i = 0; i < 4; i++) {
         free(img_sides[i]);
     }
+
+    return PatchMap_extract_and_clear(pmap, out_count);
 }
 
 static void debug_hemicube(color_t *top, color_t *sides[])

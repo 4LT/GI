@@ -27,6 +27,9 @@ typedef struct
 /* add corresponding bins of the colors */
 color_t clr_add(color_t clr1, color_t clr2);
 
+/* sub corresponding bins */
+color_t clr_sub(color_t clr1, color_t clr2);
+
 /* multiply corresponding bins */
 color_t clr_mul(color_t clr1, color_t clr2);
 

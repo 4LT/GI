@@ -16,9 +16,13 @@ SDL 2:
 
 3. Running
  Run "./rayt" for main raytracer
-     "./rad" for incomplete cornell box
+     "./rad/rad" to run radiosity on cornell box (incomplete/not operational)
+     "./rad/draw_patches" to draw the cornell box
      "./ply2tri" to draw stanford bunny at lowest resolution
-     "./ply2tri [filename]" to draw a ply file
+     "./ply2tri <filename> [usetree [<redundancy limit>]]" to draw a ply file.
+        If "usetree" is included, use KD tree optimization.  The redundancy 
+        limit determines the maximum number of shapes that can straddle a 
+        division between KD nodes before being placed in a leaf node.
 
 Bonuses
 

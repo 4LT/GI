@@ -2,8 +2,9 @@
 #define HEMICUBE_H_
 
 #include "scene.h"
-#include "color.h"
+#include "patch.h"
 
-color_t Hcube_gather(const scene_t *scene, vec3_t pos, vec3_t look);
+patchff_t *Hcube_get_ffs(const scene_t *scene, Patch_t *this_patch,
+        size_t *out_count);
 
 #endif

@@ -111,6 +111,10 @@ Llist_t *ply2tri(const char *filename)
 
 /* Reads a ply file and draws it to the screen
  * argv - first element is file name of ply file to draw
+ *      - if the second argument is "usetree", enables KD tree optimization
+ *      - third argument is the redundancy limit, or the maximum percentage of
+ *        shapes that can straddle a dividing plane before being placed in a
+ *        leaf node
  */
 int main(int argc, char *argv[])
 {

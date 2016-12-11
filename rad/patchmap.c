@@ -1,7 +1,8 @@
 #include "patchmap.h"
 
-static inline size_t hash(PatchMap_t *map, size_t key)
-{ return key % map->capacity; }
+static size_t hash(PatchMap_t *map, Patch_t *key)
+/* TODO: THIS IS BAD maybe */
+{ return (size_t)key / sizeof(Patch_t *) % map->capacity; }
 
 PatchMap_t *PatchMap_new(size_t init_capacity)
 {
@@ -31,8 +32,8 @@ void rehash(PatchMap_t *map)
         if (map->buckets[i] != NULL) {
             for (Llist_node_t *node = map->buckets[i]->first; node != NULL;
                     node = node->next) {
-                kffpair_t *pair = (kffpair_t *)(node->datum);
-                PatchMap_apply_dff(new_map, pair->key, pair->ffactor);
+                patchff_t *pair = (patchff_t *)(node->datum);
+                PatchMap_apply_dff(new_map, pair->patch, pair->ffactor);
             }
         }
     }
@@ -46,15 +47,15 @@ void PatchMap_free(PatchMap_t *map)
     free(map);
 }
 
-kffpair_t *PatchMap_extract_and_clear(PatchMap_t *map, size_t *count)
+patchff_t *PatchMap_extract_and_clear(PatchMap_t *map, size_t *count)
 {
-    kffpair_t *pair_arr = malloc(sizeof(kffpair_t) * map->count);
+    patchff_t *pair_arr = malloc(sizeof(patchff_t) * map->count);
     size_t pair_arr_i = 0;
     for (size_t i = 0; i < map->capacity; i++) {
         if (map->buckets[i] != NULL) {
             for (Llist_node_t *node = map->buckets[i]->first; node != NULL;
                     node = node->next) {
-                pair_arr[pair_arr_i++] = *(kffpair_t *)(node->datum);
+                pair_arr[pair_arr_i++] = *(patchff_t *)(node->datum);
             }
             Llist_free_all(map->buckets[i], free);
             map->buckets[i] = NULL;
@@ -65,7 +66,7 @@ kffpair_t *PatchMap_extract_and_clear(PatchMap_t *map, size_t *count)
     return pair_arr;
 }
 
-void PatchMap_apply_dff(PatchMap_t *map, size_t key, double dff)
+void PatchMap_apply_dff(PatchMap_t *map, Patch_t *key, double dff)
 {
     if ((double)map->count+1 > map->loadf * map->capacity)
         rehash(map);
@@ -79,15 +80,15 @@ void PatchMap_apply_dff(PatchMap_t *map, size_t key, double dff)
         for (Llist_node_t *node = buckets[i]->first; node != NULL;
                 node = node->next)
         {
-            kffpair_t *pair = (kffpair_t *)(node->datum);
-            if (key == pair->key) {
+            patchff_t *pair = (patchff_t *)(node->datum);
+            if (key == pair->patch) {
                 pair->ffactor+= dff;
                 return;
             }
         }
     }
-    kffpair_t *pair = malloc(sizeof(kffpair_t));
-    *pair = (kffpair_t) { key, dff };
+    patchff_t *pair = malloc(sizeof(patchff_t));
+    *pair = (patchff_t) { key, dff };
     Llist_append(buckets[i], pair);
     map->count++;
 }
