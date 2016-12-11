@@ -22,7 +22,8 @@ struct Patch
     size_t patchff_count;
 };
 
-/* Information on scene properties and a set of patches */
+/* Information on scene properties and a set of patches. Includes the amount
+ * of total unsent exitance in a scene. */
 struct PatchSet
 {
     ReszArr_t *patches;

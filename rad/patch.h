@@ -3,6 +3,8 @@
 
 #include <shapes.h>
 
+/* Vertex data and normal vector of a quad, data available from patch scene
+ * files */
 typedef struct
 {
     vec3_t vert0;
@@ -29,24 +31,25 @@ Patch_t *Patch_by_color(color_t color);
 /* Obtain the color connected to the given patch */
 color_t Patch_to_color(Patch_t *index);
 
-Patch_t *Patch_new(const Quad_t *quad, vec3_t normal, color_t init_exitance);
-
-void Patch_free(Patch_t *patch);
-
-void Patch_apply(
-        Patch_t *receiving, const Patch_t *sending, vfloat_t dff);
-
 vec3_t Patch_get_normal(const Patch_t *patch);
 
 vec3_t Patch_get_position(const Patch_t *patch);
 
+/* Create an empty seet of patches. */
 PatchSet_t *PatchSet_new();
 
+/* Free memory allocated with PatchSet_new. */
+void PatchSet_free(PatchSet_t *pset);
+
+/* Perform radiosity calculations */
 void PatchSet_compute(PatchSet_t *pset);
 
+/* Add a new patch to a patch set, provided data available in a patch scene
+ * file. */
 void PatchSet_add_patch(PatchSet_t *pset, partial_quad_t part_quad,
         color_t init_exitance, color_t reflectance);
 
+/* Get the number of patches in a set */
 size_t PatchSet_size(PatchSet_t *pset);
 
 Patch_t *PatchSet_patch_at(PatchSet_t *pset, size_t index);

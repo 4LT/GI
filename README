@@ -1,3 +1,7 @@
+NOTE:
+Radiosity files are located in the "rad" directory
+See rad/radiosity.pdf for documentation
+
 -Ray Tracer-
 Seth Rader
 
@@ -31,13 +35,6 @@ Bonuses
 
  Procedural Shading - "clearly different" shader and "noisy" shader
   Extracted source (samplers) in ./bonus/proctex_bonus
-
-Advanced Topic: Spatial Structures
-
- Work started with ply2tri and ./kd/*
-  -splitting by median implemented
-  -not yet ready to compile
-  -considering some refactoring
 
 External Sources
 

@@ -1,5 +1,5 @@
 /* Radiosity implementation.  Takes a set of unlit patches, applies radiosity,
- * and outputs patches with lighting
+ * and outputs patches with lighting.
  */
 #include <stdlib.h>
 #include <scene.h>
