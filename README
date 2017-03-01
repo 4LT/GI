@@ -1,7 +1,3 @@
-NOTE:
-Radiosity files are located in the "rad" directory
-See rad/radiosity.pdf for documentation
-
 -Ray Tracer-
 Seth Rader
 
@@ -20,21 +16,11 @@ SDL 2:
 
 3. Running
  Run "./rayt" for main raytracer
-     "./rad/rad" to run radiosity on cornell box (incomplete/not operational)
-     "./rad/draw_patches" to draw the cornell box
      "./ply2tri" to draw stanford bunny at lowest resolution
      "./ply2tri <filename> [usetree [<redundancy limit>]]" to draw a ply file.
         If "usetree" is included, use KD tree optimization.  The redundancy 
         limit determines the maximum number of shapes that can straddle a 
         division between KD nodes before being placed in a leaf node.
-
-Bonuses
-
- Reflection - BRDF cone
-  Extracted source in ./bonus/spread_bonus
-
- Procedural Shading - "clearly different" shader and "noisy" shader
-  Extracted source (samplers) in ./bonus/proctex_bonus
 
 External Sources
 
